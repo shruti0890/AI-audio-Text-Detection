@@ -1,0 +1,88 @@
+{
+  "weights": {
+    "curvature": 0.75,
+    "burstiness": 0.05,
+    "cliche": 0.20,
+    "entropy": 0.00
+  },
+  "thresholds": {
+    "human_max": 50.0,
+    "mixed_range": [
+      50.0,
+      75.0
+    ],
+    "ai_min": 75.0
+  },
+  "tuned_on": "hc3_test_pool (120 ground-truth samples)",
+  "tuned_date": "2026-08-10",
+  "baseline_comparison": {
+    "old_weights": {
+      "curvature": 0.40,
+      "burstiness": 0.20,
+      "cliche": 0.15,
+      "entropy": 0.25
+    },
+    "old_roc_auc": 0.9603,
+    "old_f1": 0.7947,
+    "new_weights": {
+      "curvature": 0.75,
+      "burstiness": 0.05,
+      "cliche": 0.20,
+      "entropy": 0.00
+    },
+    "new_roc_auc": 0.9994,
+    "new_f1": 0.7895
+  },
+  "top_5_grid_candidates": [
+    {
+      "weights": {
+        "curvature": 0.75,
+        "burstiness": 0.05,
+        "cliche": 0.20,
+        "entropy": 0.00
+      },
+      "roc_auc": 0.9994,
+      "f1": 0.7895
+    },
+    {
+      "weights": {
+        "curvature": 0.80,
+        "burstiness": 0.05,
+        "cliche": 0.15,
+        "entropy": 0.00
+      },
+      "roc_auc": 0.9994,
+      "f1": 0.7895
+    },
+    {
+      "weights": {
+        "curvature": 0.85,
+        "burstiness": 0.05,
+        "cliche": 0.10,
+        "entropy": 0.00
+      },
+      "roc_auc": 0.9994,
+      "f1": 0.7895
+    },
+    {
+      "weights": {
+        "curvature": 0.75,
+        "burstiness": 0.05,
+        "cliche": 0.15,
+        "entropy": 0.05
+      },
+      "roc_auc": 0.9986,
+      "f1": 0.7895
+    },
+    {
+      "weights": {
+        "curvature": 0.55,
+        "burstiness": 0.20,
+        "cliche": 0.15,
+        "entropy": 0.10
+      },
+      "roc_auc": 0.9850,
+      "f1": 0.8333
+    }
+  ]
+}

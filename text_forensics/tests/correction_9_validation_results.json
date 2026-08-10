@@ -1,0 +1,34 @@
+{
+  "1_Transformer_AI_Article": {
+    "score": 67.45,
+    "verdict": "Uncertain / Mixed Signals",
+    "signal_agreement": "disagreement",
+    "curvature_score": 79.05,
+    "entropy_score": 5.58,
+    "cliche_score": 100.0
+  },
+  "2_Human_Personal_Narrative": {
+    "score": 80.31,
+    "verdict": "Likely AI-Generated",
+    "signal_agreement": "agreement",
+    "curvature_score": 88.48,
+    "entropy_score": 84.67,
+    "cliche_score": 47.47
+  },
+  "3_Corporate_AI_Text": {
+    "score": 81.6,
+    "verdict": "Likely AI-Generated",
+    "signal_agreement": "agreement",
+    "curvature_score": 80.42,
+    "entropy_score": 60.47,
+    "cliche_score": 100.0
+  },
+  "4_HC3_Human_QA": {
+    "score": 82.28,
+    "verdict": "Likely AI-Generated",
+    "signal_agreement": "agreement",
+    "curvature_score": 93.44,
+    "entropy_score": 73.11,
+    "cliche_score": 47.47
+  }
+}

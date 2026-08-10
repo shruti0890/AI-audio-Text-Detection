@@ -1,0 +1,456 @@
+"""
+text_forensics/app.py
+
+Streamlit POC for Text Forensics Pipeline with Sentence-Level QuillBot-Style Highlighting
+and Signal Disagreement Alerts (Corrections 6, 7, & 8).
+
+Calls the real analyze_text() from text_forensics.pipeline and displays:
+  - Fused AI-Likelihood Score
+  - Signal Disagreement Alert Banner (Correction 7)
+  - Sentence-Level QuillBot-Style Highlighting (Correction 8)
+  - Cliché & Buzzword Word-Level Highlighting
+  - Signal Sub-Scores & Bar Chart
+  - Adversarial Robustness Check (T5 Paraphrase)
+  - Raw Signal Evidence Log
+
+Usage:
+    streamlit run text_forensics/app.py
+"""
+
+from __future__ import annotations
+
+import re
+import sys
+import time
+from pathlib import Path
+
+import nltk
+import pandas as pd
+import streamlit as st
+
+_APP_DIR = Path(__file__).resolve().parent
+_PROJ_ROOT = _APP_DIR.parent
+if str(_PROJ_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJ_ROOT))
+
+from text_forensics.pipeline import analyze_text, _load_baseline_stats
+from text_forensics.signals.cliche_scanner import CLICHE_TERMS
+from text_forensics.signals.sentence_scorer import score_sentences
+
+# Ensure nltk sent_tokenize data is ready
+try:
+    nltk.data.find("tokenizers/punkt_tab")
+except LookupError:
+    try:
+        nltk.download("punkt_tab", quiet=True)
+    except Exception:
+        pass
+
+
+# ---------------------------------------------------------------------------
+# Page Configuration & Styling
+# ---------------------------------------------------------------------------
+st.set_page_config(
+    page_title="Text Forensics Deepfake Detector",
+    page_icon="🔍",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+st.markdown(
+    """
+    <style>
+    .main-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #1E293B;
+        margin-bottom: 0.2rem;
+    }
+    .sub-header {
+        font-size: 1.0rem;
+        color: #64748B;
+        margin-bottom: 1.5rem;
+    }
+    .cliche-highlight {
+        background-color: #FECACA;
+        color: #991B1B;
+        font-weight: 600;
+        padding: 0.15rem 0.35rem;
+        border-radius: 0.25rem;
+        border: 1px solid #FCA5A5;
+    }
+    .text-box {
+        background-color: #F8FAFC;
+        border: 1px solid #CBD5E1;
+        border-radius: 0.5rem;
+        padding: 1.2rem;
+        font-family: sans-serif;
+        line-height: 1.8;
+        font-size: 1.05rem;
+        color: #1E293B;
+    }
+    .sent-high-ai {
+        background-color: #FEE2E2;
+        color: #991B1B;
+        font-weight: 500;
+        padding: 0.15rem 0.35rem;
+        margin: 0 0.1rem;
+        border-radius: 0.25rem;
+        border-bottom: 2px solid #EF4444;
+    }
+    .sent-mid-ai {
+        background-color: #FEF3C7;
+        color: #92400E;
+        padding: 0.15rem 0.35rem;
+        margin: 0 0.1rem;
+        border-radius: 0.25rem;
+        border-bottom: 2px solid #F59E0B;
+    }
+    .sent-low-ai {
+        background-color: #DCFCE7;
+        color: #166534;
+        padding: 0.15rem 0.35rem;
+        margin: 0 0.1rem;
+        border-radius: 0.25rem;
+        border-bottom: 2px solid #22C55E;
+    }
+    .sent-short {
+        background-color: #F1F5F9;
+        color: #64748B;
+        padding: 0.15rem 0.35rem;
+        margin: 0 0.1rem;
+        border-radius: 0.25rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# ---------------------------------------------------------------------------
+# Sidebar & Explanations
+# ---------------------------------------------------------------------------
+with st.sidebar:
+    st.title("🔍 Text Forensics Engine")
+    st.markdown(
+        """
+        **How Detection Works**
+        
+        The engine combines 4 independent statistical signals:
+        
+        1. 📈 **Probability Curvature**: Measures if text sits at a local log-probability peak under `distilgpt2` (AI models choose predictable tokens).
+        2. ⚡ **Sentence Burstiness**: Human writing varies sentence length naturally (high $\\sigma/\\mu$). AI produces uniform sentence lengths.
+        3. 🚩 **Cliché Scan**: Detects 50 overused AI buzzwords (*"in today's rapidly evolving landscape"*, *"delve into"*, *"pivotal"*).
+        4. 🔤 **Lexical Entropy**: Measures vocabulary richness (TTR) and word frequency distribution entropy (calibrated v2_genre_mixed).
+        
+        ---
+        **Robustness Check**
+        Uses a neural T5 paraphrase model to test if score shifts when rephrased.
+        """
+    )
+    st.divider()
+    st.caption("CPU-only | PyTorch | Transformers | NLTK | spaCy")
+
+
+# ---------------------------------------------------------------------------
+# Header
+# ---------------------------------------------------------------------------
+st.markdown('<div class="main-header">Text Forensics Deepfake Detector</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-header">Determine whether text was written by a human or generated by an AI model</div>', unsafe_allow_html=True)
+
+
+# ---------------------------------------------------------------------------
+# Step 1: Input Section
+# ---------------------------------------------------------------------------
+st.subheader("1. Input Text")
+
+input_mode = st.radio(
+    "Choose Input Method:",
+    options=["Paste Text", "Upload .txt File"],
+    horizontal=True,
+)
+
+raw_text = ""
+
+if input_mode == "Paste Text":
+    raw_text = st.text_area(
+        "Paste text to analyze:",
+        height=220,
+        placeholder="Paste plain text here...",
+    )
+else:
+    uploaded_file = st.file_uploader("Upload a plain .txt file:", type=["txt"])
+    if uploaded_file is not None:
+        try:
+            raw_text = uploaded_file.read().decode("utf-8")
+        except UnicodeDecodeError:
+            uploaded_file.seek(0)
+            raw_text = uploaded_file.read().decode("latin-1")
+
+
+word_count = len(raw_text.split()) if raw_text else 0
+
+if raw_text:
+    st.caption(f"Input statistics: {word_count} words | {len(raw_text)} characters")
+    if word_count < 30:
+        st.warning(
+            "⚠️ **Short Input Notice**: Text has under ~30 words. "
+            "Sentence-length burstiness requires at least 5 sentences and will return 'N/A' for very short text."
+        )
+
+analyze_btn = st.button(
+    "Analyze Text",
+    type="primary",
+    disabled=not bool(raw_text and raw_text.strip()),
+    use_container_width=True,
+)
+
+
+# ---------------------------------------------------------------------------
+# Step 2: Pipeline Execution & Display
+# ---------------------------------------------------------------------------
+if analyze_btn:
+    if not raw_text or not raw_text.strip():
+        st.error("Please provide valid, non-empty text input before analyzing.")
+    else:
+        st.divider()
+        st.subheader("2. Analysis Results & Explainability")
+
+        t_start = time.time()
+
+        try:
+            with st.spinner("Evaluating 4 statistical signals, scoring sentences, and running T5 robustness check..."):
+                result = analyze_text(raw_text)
+                baseline = _load_baseline_stats()
+                sentence_analysis = score_sentences(raw_text, baseline)
+            elapsed = time.time() - t_start
+        except Exception as e:
+            st.error(f"❌ **Pipeline Error**: `{type(e).__name__}: {e}`")
+            st.stop()
+
+        # --- Always-Visible Known-Limitation Banner ---
+        st.warning(
+            "⚠️ **Known Limitation Notice**: Validation on real HC3 benchmark data shows this pipeline "
+            "flags ~40% of genuine human text as AI (false positive rate), especially for technical or structured writing. "
+            "Treat scores as **directional, not definitive**, until cross-modal consistency checking is integrated."
+        )
+
+        # --- CORRECTION 7: Signal Disagreement Banner ---
+        if result.get("signal_agreement") == "disagreement":
+            st.error(
+                "⚠️ **Signals Disagree Significantly**: Individual detectors are giving conflicting evidence "
+                "(sub-score spread > 40 points). Treat the combined score with extra caution and review the raw signal breakdown below."
+            )
+
+        # --- Score & Classification ---
+        score = result["text_score"]
+        
+        if score >= 70:
+            score_color = "#DC2626"
+            verdict = "Likely AI-Generated (>70)"
+        elif score >= 50:
+            score_color = "#D97706"
+            verdict = "Uncertain / Mixed Signals (50-69)"
+        else:
+            score_color = "#16A34A"
+            verdict = "Likely Human-Written (<50)"
+
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            st.metric(
+                label="Text AI-Likelihood Score",
+                value=f"{score:.1f} / 100",
+                delta=verdict,
+                delta_color="inverse" if score >= 50 else "normal",
+            )
+        with col2:
+            st.markdown(
+                f"""
+                <div style="background-color: #F1F5F9; border-left: 5px solid {score_color}; padding: 1rem; border-radius: 0.3rem;">
+                    <h4 style="margin:0; color: #1E293B;">Classification: {verdict}</h4>
+                    <p style="margin:0.5rem 0 0 0; color: #475569; font-size: 0.92rem;">
+                        Scores >70 indicate strong AI characteristics across multiple signals. Scores 50-69 indicate mixed signals (e.g., technical human prose or lightly edited AI text). Scores <50 indicate human writing style.
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        st.divider()
+
+        # --- CORRECTION 8: QuillBot-Style Sentence-Level Highlighting ---
+        st.subheader("3. Sentence-Level Breakdown (QuillBot-Style)")
+        st.markdown("Below is your text with each sentence color-highlighted based on its individual probability curvature score:")
+
+        # --- Color Legend Key ---
+        st.markdown(
+            """
+            <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; padding: 0.6rem 1rem; border-radius: 0.4rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap;">
+                <span style="font-weight: 700; color: #334155; font-size: 0.95rem;">🎨 Color Legend:</span>
+                <span class="sent-high-ai" style="font-size: 0.9rem;">🔴 Red: High AI Likelihood (>70/100)</span>
+                <span class="sent-mid-ai" style="font-size: 0.9rem;">🟡 Yellow: Moderate AI / Uncertain (40-70/100)</span>
+                <span class="sent-low-ai" style="font-size: 0.9rem;">🟢 Green: Low AI / Human (&lt;40/100)</span>
+                <span class="sent-short" style="font-size: 0.9rem;">⚪ Gray: Too Short (&lt;6 words)</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        html_spans = []
+        for s_item in sentence_analysis:
+            s_text = s_item["sentence"]
+            c_score = s_item.get("curvature_score")
+
+            if c_score is None:
+                span_html = f'<span class="sent-short" title="Under min length for sentence curvature">{s_text}</span>'
+            elif c_score >= 70:
+                span_html = f'<span class="sent-high-ai" title="Curvature AI Score: {c_score:.1f}/100">{s_text}</span>'
+            elif c_score >= 40:
+                span_html = f'<span class="sent-mid-ai" title="Curvature AI Score: {c_score:.1f}/100">{s_text}</span>'
+            else:
+                span_html = f'<span class="sent-low-ai" title="Curvature AI Score: {c_score:.1f}/100">{s_text}</span>'
+
+            html_spans.append(span_html)
+
+        full_highlighted_doc = " ".join(html_spans)
+        st.markdown(f'<div class="text-box">{full_highlighted_doc}</div>', unsafe_allow_html=True)
+        
+        st.caption(
+            "ℹ️ **Note**: Sentence-level highlighting uses Fast-DetectGPT probability curvature only "
+            "(paragraph-level signals like burstiness and entropy require long-form text to be statistically valid)."
+        )
+
+        st.divider()
+
+        # --- Word-Level Cliché Highlighting & Rhythm ---
+        st.subheader("4. Additional Explainability Evidence")
+
+        exp_tab1, exp_tab2 = st.tabs(["🚩 Detected AI Clichés & Buzzwords", "📏 Sentence Length & Rhythm Analysis"])
+
+        with exp_tab1:
+            st.markdown("**Word-Level Evidence**: Highlighted below are known AI clichés and corporate buzzwords detected in your text:")
+            
+            detected_matches = []
+            highlighted_text = raw_text
+
+            for term in CLICHE_TERMS:
+                pattern = re.compile(rf"\b{re.escape(term)}\b", re.IGNORECASE)
+                matches = pattern.findall(raw_text)
+                if matches:
+                    detected_matches.extend(matches)
+                    highlighted_text = pattern.sub(
+                        lambda m: f'<mark class="cliche-highlight">{m.group(0)}</mark>',
+                        highlighted_text,
+                    )
+
+            st.markdown(f'<div class="text-box">{highlighted_text}</div>', unsafe_allow_html=True)
+            
+            if detected_matches:
+                st.error(f"Found **{len(detected_matches)} AI cliché match(es)**: `{', '.join(set(detected_matches))}`")
+            else:
+                st.success("✅ No overused AI clichés detected in this text.")
+
+        with exp_tab2:
+            st.markdown("**Sentence-Level Rhythm (Burstiness)**:")
+            try:
+                sentences = nltk.sent_tokenize(raw_text)
+                sent_lengths = [len(s.split()) for s in sentences]
+                
+                if len(sentences) >= 5:
+                    import numpy as np
+                    mean_l = np.mean(sent_lengths)
+                    std_l = np.std(sent_lengths)
+                    burst = std_l / mean_l if mean_l > 0 else 0
+                    
+                    st.write(f"• **Sentences detected**: {len(sentences)}")
+                    st.write(f"• **Average sentence length**: {mean_l:.1f} words")
+                    st.write(f"• **Sentence length variability (Burstiness $\\sigma/\\mu$)**: **{burst:.3f}**")
+                    if burst < 0.35:
+                        st.warning("⚠️ **Low Burstiness (<0.35)**: Sentence lengths are unnaturally uniform (typical of AI generation).")
+                    else:
+                        st.success("✅ **Normal/High Burstiness (≥0.35)**: Sentence lengths vary naturally (typical of human writing).")
+
+                    df_sents = pd.DataFrame({
+                        "Sentence #": [i + 1 for i in range(len(sentences))],
+                        "Word Count": sent_lengths,
+                        "Sentence Text": [s[:80] + ("..." if len(s) > 80 else "") for s in sentences],
+                    })
+                    st.dataframe(df_sents, use_container_width=True)
+                else:
+                    st.info(f"Only {len(sentences)} sentence(s) detected. Minimum 5 required for sentence burstiness calculation.")
+            except Exception as e:
+                st.write(f"Sentence analysis error: {e}")
+
+        st.divider()
+
+        # --- Sub-scores Chart ---
+        st.subheader("5. Signal Sub-Scores")
+
+        sigs = result.get("signals", {})
+        sub_scores = {
+            "Curvature (Fast-DetectGPT)": sigs.get("curvature_score"),
+            "Burstiness (Rhythm)": sigs.get("burstiness_score"),
+            "Cliché Density": sigs.get("cliche_score"),
+            "Lexical Entropy (v2_genre_mixed)": sigs.get("entropy_score"),
+        }
+
+        chart_data = []
+        for name, val in sub_scores.items():
+            chart_data.append({
+                "Signal": name,
+                "Sub-Score (0-100)": val if val is not None else 0.0,
+                "Status": f"{val:.1f}" if val is not None else "N/A",
+            })
+        df_scores = pd.DataFrame(chart_data)
+
+        col_chart, col_table = st.columns([2, 1])
+        with col_chart:
+            st.bar_chart(
+                df_scores,
+                x="Signal",
+                y="Sub-Score (0-100)",
+                color="#3B82F6",
+                use_container_width=True,
+            )
+        with col_table:
+            st.markdown("**Sub-Score Summary**")
+            for item in chart_data:
+                val_str = f"**{item['Status']}** / 100" if item["Status"] != "N/A" else "*N/A (insufficient data)*"
+                st.write(f"• **{item['Signal']}**: {val_str}")
+
+        st.divider()
+
+        # --- Stability Info ---
+        st.subheader("6. Adversarial Robustness Check")
+        
+        stab_flag = result.get("stability_flag", "unknown")
+        delta = result.get("paraphrase_delta", 0.0)
+        is_trunc = result.get("compared_on_truncated", False)
+
+        if stab_flag == "stable":
+            st.success(
+                f"✅ **Stability: STABLE** — Re-scoring a T5-paraphrased version of this text produced a "
+                f"similar result (**paraphrase delta: {delta:.2f} points**, threshold: 15.0). "
+                f"This indicates the score is reliable and not dependent on superficial phrasing."
+            )
+        elif stab_flag == "unstable":
+            st.warning(
+                f"⚠️ **Stability: UNSTABLE** — Paraphrasing caused a score shift of "
+                f"**{delta:.2f} points** (> 15.0 threshold). The classification may be sensitive to specific word choices."
+            )
+        else:
+            st.info(f"ℹ️ **Stability: UNKNOWN** — Robustness check status: `{stab_flag}`.")
+
+        if is_trunc:
+            st.caption(
+                "Note: Input text exceeded 300 words. Per spec (Correction 4), the paraphrase stability check "
+                "was evaluated fairly on the first 300 words."
+            )
+
+        st.divider()
+
+        # --- Raw Evidence Log ---
+        with st.expander("Show Raw Signal Values (JSON)"):
+            st.json(result)
+
+        st.caption(f"⏱️ Total analysis time: **{elapsed:.2f} seconds**.")

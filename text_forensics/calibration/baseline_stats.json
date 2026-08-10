@@ -1,0 +1,27 @@
+{
+  "curvature": {
+    "mu0": -1.346745,
+    "sigma0": 0.32602,
+    "n_valid": 250
+  },
+  "burstiness": {
+    "mu0": 0.475585,
+    "sigma0": 0.160127,
+    "n_valid": 168
+  },
+  "cliche_density": {
+    "mu0": 0.001806,
+    "sigma0": 0.028496,
+    "n_valid": 250
+  },
+  "entropy": {
+    "mu0": 6.138006,
+    "sigma0": 0.510734,
+    "n_valid": 450
+  },
+  "sample_size": 250,
+  "source": "Hello-SimpleAI/HC3 all.jsonl (human_answers field)",
+  "date": "2026-08-10",
+  "entropy_calibration_version": "v2_genre_mixed",
+  "entropy_source": "HC3 (250) + Wikitext-2 (200) genre-mixed technical human text"
+}
