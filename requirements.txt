@@ -1,9 +1,29 @@
+# AI Forensics — Unified Requirements
+# Merges: audio_forensics/requirements.txt + text_forensics/requirements.txt
+
+# ── Core ML / DL ──────────────────────────────────────────────────────────────
 torch>=2.1.0
 torchaudio>=2.1.0
+torchvision
 transformers>=4.40.0
+
+# ── Audio ──────────────────────────────────────────────────────────────────────
 soundfile>=0.12.1
 librosa>=0.10.1
+silero-vad>=5.1
+
+# ── Text ───────────────────────────────────────────────────────────────────────
+nltk>=3.8.0
+spacy>=3.6.0
+sentencepiece>=0.1.99
+
+# ── Scientific / Math ──────────────────────────────────────────────────────────
 numpy>=1.24.0
 scipy>=1.11.0
-silero-vad>=5.1
+
+# ── Streamlit / UI ─────────────────────────────────────────────────────────────
+streamlit>=1.30.0
+pandas>=2.0.0
+
+# ── Testing ────────────────────────────────────────────────────────────────────
 pytest>=8.0.0
