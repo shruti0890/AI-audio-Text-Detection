@@ -1,0 +1,11 @@
+{
+  "model_name": "garystafford/wav2vec2-deepfake-voice-detector",
+  "id2label": {
+    "0": "real",
+    "1": "fake"
+  },
+  "fake_index": 1,
+  "real_index": 0,
+  "status": "verified",
+  "note": "Label indices confirmed programmatically from model.config.id2label at model load time. Do NOT hardcode these values \u2014 always resolve from model config so a future checkpoint update does not silently break scoring."
+}
