@@ -7,7 +7,7 @@
   "fake_index": 1,
   "real_index": 0,
   "status": "verified",
-  "note": "Label indices confirmed programmatically from model.config.id2label at model load time. Do NOT hardcode these values — always resolve from model config so a future checkpoint update does not silently break scoring.",
+  "note": "Label indices confirmed programmatically from model.config.id2label at model load time. Do NOT hardcode these values \u2014 always resolve from model config so a future checkpoint update does not silently break scoring.",
   "calibration_parameters": {
     "calibration_status": "placeholder",
     "calibration_note": "decision_threshold_pct is derived from ASVspoof 2021 LA published EER for wav2vec2-class models (~0.038 EER), NOT from an empirical run on this specific deployment. Replace after running AUDIO_CALIBRATION_PROTOCOL.md against 30-50 modern TTS clips (ElevenLabs, Bark, XTTS v2) vs. real human voices.",
