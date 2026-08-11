@@ -399,6 +399,12 @@ def _render_audio_panel(result: dict) -> None:
     logit_real   = result["logit_real"]
     transcript   = result["transcript"]
     logit_diff   = logit_fake - logit_real
+    threshold    = result.get("audio_decision_threshold_pct", 62.5)
+    temperature  = result.get("audio_temperature", 1.15)
+    n_windows    = result.get("audio_n_windows", 1)
+    window_scores = result.get("audio_window_scores", [])
+    conf_tiers   = result.get("audio_confidence_tiers", {"extreme_logit_margin": 3.0, "high_logit_margin": 1.5, "moderate_logit_margin": 0.5})
+    diff_scaled  = logit_diff / temperature if temperature else logit_diff
 
     st.markdown('<div class="section-header section-header-audio">🎙️ Audio Analysis Results</div>', unsafe_allow_html=True)
     st.markdown(_verdict_card(audio_verdict, audio_score), unsafe_allow_html=True)
@@ -425,10 +431,13 @@ def _render_audio_panel(result: dict) -> None:
     st.progress(min(max(audio_score / 100.0, 0.0), 1.0))
 
     st.markdown(
-        f"> **Scoring Formula:** "
-        f"$$S_{{Audio}} = \\text{{Sigmoid}}({logit_fake:.4f} - {logit_real:.4f}) "
+        f"> **Scoring Formula (T={temperature}):** "
+        f"$$S_{{Audio}} = \\text{{Sigmoid}}\\!\\left(\\frac{{{logit_fake:.4f}-({logit_real:.4f})}}{{{temperature}}}\\right)"
         f"\\times 100 = {audio_score:.2f}\\%$$"
+        f"\n> Threshold: **{threshold:.1f}%** | Windows: **{n_windows}**"
     )
+    if n_windows > 1:
+        st.caption(f"🔍 Per-window scores: {[f'{s:.1f}%' for s in window_scores]}")
 
     st.divider()
 
@@ -442,11 +451,14 @@ def _render_audio_panel(result: dict) -> None:
 
     # Confidence explanation
     abs_diff = abs(logit_diff)
-    if abs_diff > 3.0:
+    extreme_tier  = conf_tiers.get("extreme_logit_margin", 3.0)
+    high_tier     = conf_tiers.get("high_logit_margin", 1.5)
+    moderate_tier = conf_tiers.get("moderate_logit_margin", 0.5)
+    if abs_diff > extreme_tier:
         confidence = "Extreme Confidence"
-    elif abs_diff > 1.5:
+    elif abs_diff > high_tier:
         confidence = "High Confidence"
-    elif abs_diff > 0.5:
+    elif abs_diff > moderate_tier:
         confidence = "Moderate Confidence"
     else:
         confidence = "Borderline / Low Confidence"

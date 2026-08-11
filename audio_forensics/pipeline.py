@@ -10,11 +10,16 @@ Cross-Modal Consistency Check.
 
 Output schema (keys are contractually fixed — do not rename):
     {
-        "audio_score":         float,  # deepfake confidence 0.0 (real) … 100.0 (fake)
-        "logit_fake":          float,  # raw pre-softmax logit for the 'fake' class
-        "logit_real":          float,  # raw pre-softmax logit for the 'real' class
-        "transcript":          str,    # spoken text from Whisper-Tiny (used by text_forensics & cross-modal check)
-        "wer_confidence_note": str,    # fixed human-readable caveat for fusion consumers
+        "audio_score":          float,  # deepfake confidence 0.0 (real) … 100.0 (fake)
+        "logit_fake":           float,  # raw pre-softmax logit for the 'fake' class
+        "logit_real":           float,  # raw pre-softmax logit for the 'real' class
+        "transcript":           str,    # spoken text from Whisper-Tiny (used by cross-modal check)
+        "wer_confidence_note":  str,    # fixed human-readable caveat for fusion consumers
+        "decision_threshold_pct": float, # threshold loaded from model_config.json (e.g. 62.5)
+        "temperature":          float,  # temperature scaling factor applied to logits
+        "n_windows":            int,    # number of sliding windows processed
+        "window_scores":        list,   # per-window scores for debugging / audit
+        "confidence_tiers":     dict,   # logit margin tier breakpoints from config
     }
 """
 
@@ -33,6 +38,11 @@ def analyze_audio(audio_path: str) -> Dict[str, Any]:
     Chains:
         strip_silence(audio_path) → transcribe(waveform) → score_audio(waveform)
 
+    Decision threshold and temperature scaling are loaded dynamically from
+    audio_forensics/calibration/model_config.json (calibration_parameters block).
+    These are currently placeholder values derived from ASVspoof 2021 benchmarks;
+    they will be replaced after empirical calibration per AUDIO_CALIBRATION_PROTOCOL.md.
+
     Args:
         audio_path (str): Path to input audio clip (.wav, .mp3, etc.).
                           Must be an existing file; FileNotFoundError is raised otherwise.
@@ -43,11 +53,16 @@ def analyze_audio(audio_path: str) -> Dict[str, Any]:
 
             Example output:
                 {
-                    "audio_score":         81.2,
-                    "logit_fake":          2.14,
-                    "logit_real":          -0.87,
-                    "transcript":          "text transcribed from audio...",
-                    "wer_confidence_note": "internal sanity-check only, not per-clip WER"
+                    "audio_score":           81.2,
+                    "logit_fake":            2.14,
+                    "logit_real":           -0.87,
+                    "transcript":            "text transcribed from audio...",
+                    "wer_confidence_note":   "internal sanity-check only, not per-clip WER",
+                    "decision_threshold_pct": 62.5,
+                    "temperature":           1.15,
+                    "n_windows":             6,
+                    "window_scores":         [79.1, 82.4, 81.2, 84.0, 80.5, 79.8],
+                    "confidence_tiers":      {"extreme_logit_margin": 3.0, ...},
                 }
 
     Raises:
@@ -78,6 +93,9 @@ def analyze_audio(audio_path: str) -> Dict[str, Any]:
     t0 = time.perf_counter()
     scores = score_audio(processed_audio)
     print(f"[pipeline] Deepfake done | s_audio={scores['s_audio']:.4f} "
+          f"threshold={scores['decision_threshold']}% "
+          f"T={scores['temperature']} "
+          f"n_windows={scores['n_windows']} "
           f"logit_fake={scores['logit_fake']:.6f} logit_real={scores['logit_real']:.6f} "
           f"| elapsed={time.perf_counter()-t0:.2f}s")
 
@@ -86,9 +104,14 @@ def analyze_audio(audio_path: str) -> Dict[str, Any]:
 
     # ── 4. Assemble standard schema matching fusion contract ──────────────────
     return {
-        "audio_score": float(scores["s_audio"]),
-        "logit_fake":  float(scores["logit_fake"]),
-        "logit_real":  float(scores["logit_real"]),
-        "transcript":  transcript,
-        "wer_confidence_note": "internal sanity-check only, not per-clip WER",
+        "audio_score":           float(scores["s_audio"]),
+        "logit_fake":            float(scores["logit_fake"]),
+        "logit_real":            float(scores["logit_real"]),
+        "transcript":            transcript,
+        "wer_confidence_note":   "internal sanity-check only, not per-clip WER",
+        "decision_threshold_pct": float(scores["decision_threshold"]),
+        "temperature":           float(scores["temperature"]),
+        "n_windows":             int(scores["n_windows"]),
+        "window_scores":         list(scores["window_scores"]),
+        "confidence_tiers":      dict(scores["confidence_tiers"]),
     }

@@ -66,16 +66,31 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 
-# ── Audio badge thresholds ───────────────────────────────────────────────────
-# [UNCALIBRATED PLACEHOLDER]
-# Source: architecture doc illustrative values.
-# These numbers have NOT been validated against ground-truth audio data.
-# Treat them the same way text's thresholds were treated BEFORE Correction 9:
-#   as a starting assumption, clearly labelled, subject to a future calibration
-#   pass analogous to the text weight grid-search.
-_AUDIO_AI_MIN: float = 75.0        # score >= this → "Likely AI / Deepfake"
-_AUDIO_HUMAN_MAX: float = 25.0     # score <  this → "Likely Human / Real"
-# 25 ≤ score < 75 → "Inconclusive"
+# ── Audio badge thresholds — loaded from model_config.json ───────────────────
+# These are loaded once at import time so all callers share the same config.
+# To recalibrate: update calibration_parameters.decision_threshold_pct in
+# audio_forensics/calibration/model_config.json and restart.
+def _load_audio_badge_thresholds() -> tuple[float, float]:
+    """Read decision threshold from model_config.json.
+    Returns (ai_min, human_max) badge boundaries.
+    Falls back to architecture-doc illustrative values if config is absent.
+    """
+    import json, os
+    config_path = Path(__file__).resolve().parent / "audio_forensics" / "calibration" / "model_config.json"
+    try:
+        with open(config_path, "r") as f:
+            cfg = json.load(f)
+        threshold = float(cfg.get("calibration_parameters", {}).get("decision_threshold_pct", 62.5))
+        # Badge boundaries: AI = score >= threshold, Human = score < (100 - threshold)
+        # e.g. threshold=62.5 → AI if >=62.5, Human if <37.5, Inconclusive otherwise
+        human_max = round(100.0 - threshold, 1)
+        return threshold, human_max
+    except Exception:
+        return 75.0, 25.0  # fallback to architecture-doc illustrative values
+
+
+_AUDIO_AI_MIN, _AUDIO_HUMAN_MAX = _load_audio_badge_thresholds()
+# 25 ≤ score < 75 → "Inconclusive" (or equivalent derived range)
 
 _AUDIO_VERDICT_CAVEAT = (
     "[UNCALIBRATED PLACEHOLDER] Audio badge thresholds (≥75 AI, <25 Human, 25-75 Inconclusive) "
@@ -209,8 +224,17 @@ def run_full_pipeline(
             result["logit_fake"]    = audio_out["logit_fake"]
             result["logit_real"]    = audio_out["logit_real"]
             result["transcript"]    = audio_out.get("transcript", "")
+            # Pass calibration metadata through so UI can display them
+            result["audio_decision_threshold_pct"] = audio_out.get("decision_threshold_pct", _AUDIO_AI_MIN)
+            result["audio_temperature"]            = audio_out.get("temperature", 1.15)
+            result["audio_n_windows"]              = audio_out.get("n_windows", 1)
+            result["audio_window_scores"]          = audio_out.get("window_scores", [])
+            result["audio_confidence_tiers"]       = audio_out.get("confidence_tiers", {})
             logger.info(
-                "[fusion] Audio score: %.2f → %s", audio_out["audio_score"], result["audio_verdict"]
+                "[fusion] Audio score: %.2f → %s (threshold=%.1f%%, T=%.2f, windows=%d)",
+                audio_out["audio_score"], result["audio_verdict"],
+                result["audio_decision_threshold_pct"], result["audio_temperature"],
+                result["audio_n_windows"],
             )
         except Exception as exc:
             logger.error("[fusion] Audio pipeline failed: %s", exc, exc_info=True)
