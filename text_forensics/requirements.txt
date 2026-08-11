@@ -1,5 +1,6 @@
 transformers>=4.35.0
 torch>=2.0.0
+torchvision
 nltk>=3.8.0
 spacy>=3.6.0
 scipy>=1.11.0
@@ -7,3 +8,4 @@ numpy>=1.24.0
 sentencepiece>=0.1.99
 streamlit>=1.30.0
 pandas>=2.0.0
+

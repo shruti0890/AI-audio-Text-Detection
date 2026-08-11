@@ -198,6 +198,8 @@ if raw_text:
             "Sentence-length burstiness requires at least 5 sentences and will return 'N/A' for very short text."
         )
 
+run_robustness = st.checkbox("Run robustness check (adds ~30s)", value=False)
+
 analyze_btn = st.button(
     "Analyze Text",
     type="primary",
@@ -219,21 +221,15 @@ if analyze_btn:
         t_start = time.time()
 
         try:
-            with st.spinner("Evaluating 4 statistical signals, scoring sentences, and running T5 robustness check..."):
-                result = analyze_text(raw_text)
+            spinner_msg = "Evaluating statistical signals, scoring sentences" + (" and running T5 robustness check..." if run_robustness else "...")
+            with st.spinner(spinner_msg):
+                result = analyze_text(raw_text, run_robustness=run_robustness)
                 baseline = _load_baseline_stats()
                 sentence_analysis = score_sentences(raw_text, baseline)
             elapsed = time.time() - t_start
         except Exception as e:
             st.error(f"❌ **Pipeline Error**: `{type(e).__name__}: {e}`")
             st.stop()
-
-        # --- Always-Visible Known-Limitation Banner ---
-        st.warning(
-            "⚠️ **Known Limitation Notice**: Validation on real HC3 benchmark data shows this pipeline "
-            "flags ~40% of genuine human text as AI (false positive rate), especially for technical or structured writing. "
-            "Treat scores as **directional, not definitive**, until cross-modal consistency checking is integrated."
-        )
 
         # --- CORRECTION 7: Signal Disagreement Banner ---
         if result.get("signal_agreement") == "disagreement":
@@ -246,55 +242,23 @@ if analyze_btn:
         score = result["text_score"]
         
         if score >= 70:
-            score_color = "#DC2626"
             verdict = "Likely AI-Generated (>70)"
         elif score >= 50:
-            score_color = "#D97706"
             verdict = "Uncertain / Mixed Signals (50-69)"
         else:
-            score_color = "#16A34A"
             verdict = "Likely Human-Written (<50)"
 
-        col1, col2 = st.columns([1, 2])
-        with col1:
-            st.metric(
-                label="Text AI-Likelihood Score",
-                value=f"{score:.1f} / 100",
-                delta=verdict,
-                delta_color="inverse" if score >= 50 else "normal",
-            )
-        with col2:
-            st.markdown(
-                f"""
-                <div style="background-color: #F1F5F9; border-left: 5px solid {score_color}; padding: 1rem; border-radius: 0.3rem;">
-                    <h4 style="margin:0; color: #1E293B;">Classification: {verdict}</h4>
-                    <p style="margin:0.5rem 0 0 0; color: #475569; font-size: 0.92rem;">
-                        Scores >70 indicate strong AI characteristics across multiple signals. Scores 50-69 indicate mixed signals (e.g., technical human prose or lightly edited AI text). Scores <50 indicate human writing style.
-                    </p>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+        st.metric(
+            label="Text AI-Likelihood Score",
+            value=f"{score:.1f} / 100",
+            delta=verdict,
+            delta_color="inverse" if score >= 50 else "normal",
+        )
 
         st.divider()
 
-        # --- CORRECTION 8: QuillBot-Style Sentence-Level Highlighting ---
-        st.subheader("3. Sentence-Level Breakdown (QuillBot-Style)")
-        st.markdown("Below is your text with each sentence color-highlighted based on its individual probability curvature score:")
-
-        # --- Color Legend Key ---
-        st.markdown(
-            """
-            <div style="background-color: #F8FAFC; border: 1px solid #E2E8F0; padding: 0.6rem 1rem; border-radius: 0.4rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap;">
-                <span style="font-weight: 700; color: #334155; font-size: 0.95rem;">🎨 Color Legend:</span>
-                <span class="sent-high-ai" style="font-size: 0.9rem;">🔴 Red: High AI Likelihood (>70/100)</span>
-                <span class="sent-mid-ai" style="font-size: 0.9rem;">🟡 Yellow: Moderate AI / Uncertain (40-70/100)</span>
-                <span class="sent-low-ai" style="font-size: 0.9rem;">🟢 Green: Low AI / Human (&lt;40/100)</span>
-                <span class="sent-short" style="font-size: 0.9rem;">⚪ Gray: Too Short (&lt;6 words)</span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        # --- QuillBot-Style Sentence-Level Highlighting ---
+        st.subheader("3. Sentence-Level Breakdown")
 
         html_spans = []
         for s_item in sentence_analysis:
@@ -302,23 +266,16 @@ if analyze_btn:
             c_score = s_item.get("curvature_score")
 
             if c_score is None:
-                span_html = f'<span class="sent-short" title="Under min length for sentence curvature">{s_text}</span>'
-            elif c_score >= 70:
-                span_html = f'<span class="sent-high-ai" title="Curvature AI Score: {c_score:.1f}/100">{s_text}</span>'
-            elif c_score >= 40:
-                span_html = f'<span class="sent-mid-ai" title="Curvature AI Score: {c_score:.1f}/100">{s_text}</span>'
+                span_html = f'<span class="sent-short" title="Insufficient context (<6 words)">{s_text}</span>'
+            elif c_score >= 50:
+                span_html = f'<span class="sent-high-ai" title="Windowed Curvature AI Score: {c_score:.1f}/100">{s_text}</span>'
             else:
-                span_html = f'<span class="sent-low-ai" title="Curvature AI Score: {c_score:.1f}/100">{s_text}</span>'
+                span_html = f'<span class="sent-low-ai" title="Windowed Curvature AI Score: {c_score:.1f}/100">{s_text}</span>'
 
             html_spans.append(span_html)
 
         full_highlighted_doc = " ".join(html_spans)
         st.markdown(f'<div class="text-box">{full_highlighted_doc}</div>', unsafe_allow_html=True)
-        
-        st.caption(
-            "ℹ️ **Note**: Sentence-level highlighting uses Fast-DetectGPT probability curvature only "
-            "(paragraph-level signals like burstiness and entropy require long-form text to be statistically valid)."
-        )
 
         st.divider()
 
@@ -420,34 +377,33 @@ if analyze_btn:
 
         st.divider()
 
-        # --- Stability Info ---
-        st.subheader("6. Adversarial Robustness Check")
-        
-        stab_flag = result.get("stability_flag", "unknown")
-        delta = result.get("paraphrase_delta", 0.0)
-        is_trunc = result.get("compared_on_truncated", False)
+        # --- Advanced Expanders ---
+        with st.expander("Advanced: Robustness Check"):
+            stab_flag = result.get("stability_flag", "unknown")
+            delta = result.get("paraphrase_delta", 0.0)
+            is_trunc = result.get("compared_on_truncated", False)
 
-        if stab_flag == "stable":
-            st.success(
-                f"✅ **Stability: STABLE** — Re-scoring a T5-paraphrased version of this text produced a "
-                f"similar result (**paraphrase delta: {delta:.2f} points**, threshold: 15.0). "
-                f"This indicates the score is reliable and not dependent on superficial phrasing."
-            )
-        elif stab_flag == "unstable":
-            st.warning(
-                f"⚠️ **Stability: UNSTABLE** — Paraphrasing caused a score shift of "
-                f"**{delta:.2f} points** (> 15.0 threshold). The classification may be sensitive to specific word choices."
-            )
-        else:
-            st.info(f"ℹ️ **Stability: UNKNOWN** — Robustness check status: `{stab_flag}`.")
+            if stab_flag == "stable":
+                st.success(
+                    f"✅ **Stability: STABLE** — Re-scoring a T5-paraphrased version of this text produced a "
+                    f"similar result (**paraphrase delta: {delta:.2f} points**, threshold: 15.0). "
+                    f"This indicates the score is reliable and not dependent on superficial phrasing."
+                )
+            elif stab_flag == "unstable":
+                st.warning(
+                    f"⚠️ **Stability: UNSTABLE** — Paraphrasing caused a score shift of "
+                    f"**{delta:.2f} points** (> 15.0 threshold). The classification may be sensitive to specific word choices."
+                )
+            elif stab_flag == "skipped":
+                st.info("ℹ️ **Stability Check Skipped**: Robustness check was not enabled for this run.")
+            else:
+                st.info(f"ℹ️ **Stability: UNKNOWN** — Robustness check status: `{stab_flag}`.")
 
-        if is_trunc:
-            st.caption(
-                "Note: Input text exceeded 300 words. Per spec (Correction 4), the paraphrase stability check "
-                "was evaluated fairly on the first 300 words."
-            )
-
-        st.divider()
+            if is_trunc:
+                st.caption(
+                    "Note: Input text exceeded 300 words. Per spec (Correction 4), the paraphrase stability check "
+                    "was evaluated fairly on the first 300 words."
+                )
 
         # --- Raw Evidence Log ---
         with st.expander("Show Raw Signal Values (JSON)"):

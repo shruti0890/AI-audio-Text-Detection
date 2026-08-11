@@ -88,17 +88,18 @@ def _load_baseline_stats() -> Optional[dict]:
 _load_baseline_stats()
 
 
-def analyze_text(text: str) -> dict:
+def analyze_text(text: str, run_robustness: bool = True) -> dict:
     """
     Full text forensics pipeline.
 
     Validates input, loads calibration stats, runs all 4 signals (curvature,
     burstiness, cliche_density, lexical_entropy), fuses them into a calibrated
-    0-100 AI-likelihood score, runs the adversarial robustness self-test,
+    0-100 AI-likelihood score, optionally runs the adversarial robustness self-test,
     and returns the complete result matching the locked schema.
 
     Args:
         text: Non-empty string to analyze. Must be a str type.
+        run_robustness: Whether to run the T5 paraphrase robustness check (default True).
 
     Returns:
         dict: Matching the locked schema defined in this module's docstring.
@@ -157,8 +158,16 @@ def analyze_text(text: str) -> dict:
     sub_scores = fusion_result["sub_scores"]
 
     # ---- Robustness self-test ----
-    logger.info("Running robustness self-test...")
-    robustness = check_stability(text, text_score, baseline)
+    if run_robustness:
+        logger.info("Running robustness self-test...")
+        robustness = check_stability(text, text_score, baseline)
+    else:
+        logger.info("Skipping robustness self-test per request.")
+        robustness = {
+            "stability_flag": "skipped",
+            "paraphrase_delta": 0.0,
+            "compared_on_truncated": False,
+        }
 
     # ---- Assemble locked output schema ----
     result = {

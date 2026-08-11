@@ -39,7 +39,8 @@ _DEFAULT_CURVATURE_SIGMA0 = 0.326020
 
 def score_sentences(text: str, baseline_stats: dict | None = None) -> list[dict]:
     """
-    Split text into sentences and score each sentence using probability curvature.
+    Split text into sentences and score each sentence using a sliding context window
+    (target sentence + 1 before + 1 after) with probability curvature.
 
     Args:
         text: Input text string.
@@ -52,7 +53,8 @@ def score_sentences(text: str, baseline_stats: dict | None = None) -> list[dict]
                     "sentence": str,
                     "word_count": int,
                     "curvature_raw": float | None,
-                    "curvature_score": float | None
+                    "curvature_score": float | None,
+                    "low_context": bool
                 },
                 ...
             ]
@@ -73,23 +75,44 @@ def score_sentences(text: str, baseline_stats: dict | None = None) -> list[dict]
     except Exception:
         sentences = [s.strip() for s in text.split(".") if s.strip()]
 
+    n_sents = len(sentences)
+    if n_sents == 0:
+        return []
+
+    is_low_context = (n_sents <= 2)
+
     scored = []
-    for sent in sentences:
+    for i, sent in enumerate(sentences):
         words = sent.split()
         w_count = len(words)
 
-        if w_count < 6:
+        # Build sliding context window
+        if is_low_context:
+            context_text = sent
+        else:
+            if i == 0:
+                window = sentences[0:2]
+            elif i == n_sents - 1:
+                window = sentences[n_sents - 2:n_sents]
+            else:
+                window = sentences[i - 1:i + 2]
+            context_text = " ".join(window)
+
+        context_word_count = len(context_text.split())
+
+        if context_word_count < 6:
             # Curvature is unreliable on tiny spans under 6 words
             scored.append({
                 "sentence": sent,
                 "word_count": w_count,
                 "curvature_raw": None,
                 "curvature_score": None,
+                "low_context": True,
             })
             continue
 
         try:
-            raw_curv = get_curvature(sent, min_tokens=8)
+            raw_curv = get_curvature(context_text, min_tokens=8)
             if raw_curv is None or sigma0 <= 0:
                 c_score = None
             else:
@@ -97,7 +120,7 @@ def score_sentences(text: str, baseline_stats: dict | None = None) -> list[dict]
                 c_score = float(norm.cdf(z) * 100.0)
                 c_score = round(max(0.0, min(100.0, c_score)), 2)
         except Exception as e:
-            logger.warning("Error scoring sentence %r: %e", sent[:30], e)
+            logger.warning("Error scoring sentence window %r: %s", context_text[:30], e)
             raw_curv = None
             c_score = None
 
@@ -106,6 +129,7 @@ def score_sentences(text: str, baseline_stats: dict | None = None) -> list[dict]
             "word_count": w_count,
             "curvature_raw": round(raw_curv, 4) if raw_curv is not None else None,
             "curvature_score": c_score,
+            "low_context": is_low_context,
         })
 
     return scored
