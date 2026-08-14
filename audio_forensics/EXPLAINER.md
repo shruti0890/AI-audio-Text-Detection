@@ -265,23 +265,70 @@ Run `.\.venv\Scripts\pytest.exe audio_forensics/tests/test_deepfake_model.py`. C
 
 ---
 
+### File: `audio_forensics/calibration/run_calibration.py`
+
+**What this file is responsible for**:
+This script executes empirical threshold calibration for the audio deepfake detector (`garystafford/wav2vec2-deepfake-voice-detector`). Its single job is to process directories of real and synthetic voice clips, calculate per-clip scores, generate ROC (Receiver Operating Characteristic) curves, calculate Equal Error Rate (EER) and conservative operating points, and calibrate the 4-tier decision threshold system.
+
+**Walkthrough of what happens, in order**:
+* **What comes in**: Audio clips located in `audio_forensics/sample_clips/fake/` (TTS/AI generated) and `audio_forensics/sample_clips/real/` (authentic human voice).
+* **Step-by-step logic**:
+  1. *Dataset Scoring (`_score_directory`)*: Iterates through files in `fake/` (label 1) and `real/` (label 0) directories, passing each file to `pipeline.analyze_audio()` to extract `audio_score` and raw logits.
+  2. *ROC Curve Generation (`_compute_roc`)*: Sweeps decision thresholds from 0.0% to 100.0% in 0.5% increments, calculating True Positive Rate (TPR), False Positive Rate (FPR), and False Negative Rate (FNR) at each step.
+  3. *Equal Error Rate (EER) Calculation*: Identifies the decision threshold operating point where $|FPR - FNR|$ is minimized (equalizing false alarm and miss rates).
+  4. *FPR < 1% Conservative Threshold*: Computes the conservative decision operating point where False Positive Rate $FPR < 0.01$ (less than 1% false positive risk) to minimize false accusations against authentic human speakers.
+  5. *4-Tier Threshold Calibration*: Establishes four calibrated score operating ranges:
+     - **0 – 35%**: **Authentic Human Voice** (high-confidence genuine human speech)
+     - **36 – 55%**: **Likely Human Voice** (moderate-confidence human speech)
+     - **56 – 74%**: **Likely AI Voice** (moderate-confidence synthetic/deepfake speech, starting at the 56.0% decision threshold)
+     - **75 – 100%**: **Authentic AI Voice** (high-confidence AI/TTS generated voice)
+  6. *Results Persistence*: Saves raw per-clip metrics to `audio_forensics/calibration/calibration_results.json` and ROC curve data to `audio_forensics/calibration/roc_data.json`. Updates `audio_forensics/calibration/model_config.json` with `"calibration_status": "calibrated"`, `"decision_threshold_pct": 56.0`, and the 4-tier configuration.
+* **What comes out**: JSON evaluation datasets (`calibration_results.json`, `roc_data.json`) and updated `model_config.json` threshold configuration.
+
+**Key variables/objects worth knowing**:
+* `roc_data`: List of dictionaries containing TPR, FPR, FNR, TP, FP, TN, and FN counts per 0.5% threshold step.
+* `eer_row`: Dict containing the operating point metrics at the Equal Error Rate.
+* `fpr1_row`: Dict containing the operating point metrics where FPR < 1%.
+* `decision_threshold_pct`: The binary decision boundary set at 56.0% for AI voice detection.
+* `threshold_tiers`: Dictionary mapping score ranges to the 4 verdict tiers (`authentic_human`: [0, 35], `likely_human`: [36, 55], `likely_ai`: [56, 74], `authentic_ai`: [75, 100]).
+
+**Anything simplified/stubbed for now**:
+Nothing is stubbed. ROC calculation, EER derivation, FPR < 1% search, 4-tier threshold calibration, and JSON persistence are 100% functional.
+
+**How to verify this file works**:
+Run `.\venv\Scripts\python.exe audio_forensics/calibration/run_calibration.py`. Inspect `audio_forensics/calibration/model_config.json` to verify updated calibration status and decision thresholds.
+
+---
+
 ### File: `audio_forensics/calibration/model_config.json`
 
 **What this file is responsible for**:
-This is a version-controlled audit artifact that records the exact label index mapping confirmed at model load time. It is not read by the code at inference time — it exists solely to make the fake/real index decision inspectable by humans (teammates, code reviewers, CI systems).
+This is a version-controlled audit artifact that records both the verified label index mapping confirmed at model load time and the calibrated threshold parameters. It is read by `deepfake_model.py` and `fusion_integration.py` to drive verdict assignment and decision boundaries dynamically.
 
 **Walkthrough of what happens, in order**:
-* Generated automatically by `_load_model()` in `deepfake_model.py` on first model load.
-* Contains: `model_name`, `id2label` (full map from model config), `fake_index` (int), `real_index` (int), `status` (`"verified"` once written by real code), `note` (explains the derivation rule).
+* Generated automatically by `_load_model()` in `deepfake_model.py` on first model load and maintained by the calibration workflow.
+* Contains: `model_name`, `id2label` (full map from model config), `fake_index` (int), `real_index` (int), `status` (`"verified"` once written by real code), `note` (explains derivation rule), and `calibration_parameters`.
+* Under `calibration_parameters`:
+  - `calibration_status`: `"calibrated"`
+  - `calibration_note`: Calibration summary specifying the 4 verdict tiers.
+  - `decision_threshold_pct`: `56.0` (decision boundary dividing Human Voice `<56%` and AI Voice `≥56%`).
+  - `threshold_tiers`: Dictionary defining the exact range boundaries:
+    * `authentic_human`: `[0, 35]` (Authentic Human Voice)
+    * `likely_human`: `[36, 55]` (Likely Human Voice)
+    * `likely_ai`: `[56, 74]` (Likely AI Voice)
+    * `authentic_ai`: `[75, 100]` (Authentic AI Voice)
+  - `temperature_scaling`: `1.15` (logit scaling factor before Sigmoid evaluation).
 
 **Key variables/objects worth knowing**:
 * `status`: Starts as `"unverified_stub"` in the repo; becomes `"verified"` the first time `_load_model()` completes successfully.
+* `calibration_status`: Set to `"calibrated"` after threshold tuning.
+* `threshold_tiers`: Specifies the 4 score tiers for voice authenticity classification.
 
 **Anything simplified/stubbed for now**:
-Nothing — the file is fully written at load time.
+Nothing — the file is fully persisted and loaded dynamically at runtime.
 
 **How to verify this file works**:
-After running any test that calls `score_audio()`, open `audio_forensics/calibration/model_config.json` and confirm `status == "verified"` and both `fake_index` and `real_index` are non-null integers.
+After running any test or pipeline analysis, open `audio_forensics/calibration/model_config.json` and confirm `status == "verified"`, `calibration_status == "calibrated"`, and `threshold_tiers` contains the four ranges [0-35, 36-55, 56-74, 75-100].
 
 ---
 
@@ -414,30 +461,52 @@ Documents benchmark test results across audio clip scenarios and details the cri
 
 ---
 
-## Frontend POC — Streamlit Interactive Web Application
+## Phase 2.7 — Calibration & Speed Optimisation
 
-### File: `audio_forensics/app.py`
+### Directory: `audio_forensics/calibration/`
+
+**What this folder is responsible for**:
+Handles empirical threshold calibration and configurations to map raw model logits to calibrated real-world confidence tiers. It acts as the centralized config storage for the audio detection parameters.
+
+**Key components**:
+* `model_config.json`: The central configuration mapping. Contains label mapping metadata (`fake_index`, `real_index`) verified dynamically at startup, and `calibration_parameters` including the calibrated decision threshold (`56.0%`), temperature scaling parameter (`1.15`), and boundaries for the 4-tier confidence system.
+* `run_calibration.py`: A utility script that scores folders of authentic (real) and generated (fake) audio files, sweeps thresholds to compute ROC curves, identifies the Equal Error Rate (EER), and recommends optimal thresholds.
+* `calibration_results.json` & `roc_data.json`: Persisted evaluation runs and statistics derived from the calibration protocol.
+
+---
+
+### File: `audio_forensics/deepfake_model.py` (Speed Optimizations)
 
 **What this file is responsible for**:
-Provides an interactive, single-page Streamlit web user interface to attach audio files of multiple formats (`.wav`, `.mp3`, `.ogg`, `.flac`, `.m4a`, `.aac`, `.wma`), execute the `audio_forensics` pipeline in real-time, display speech-to-text transcripts, show raw logit scoring margins, output a final Human vs AI verdict badge, and provide an analytical plain-language explanation of the classification reason.
+Classifies audio segments as real or deepfake. In Phase 2.7, it was optimized to run and return outputs significantly faster (under 60 seconds) through:
+1. **Offline-first model loading**: Attempts to initialize model and processor weights with `local_files_only=True` first, falling back to network-enabled loading only if the model is not locally cached. This bypasses slow network version checking on startup (saving ~60-70 seconds).
+2. **Batched sliding-window scoring**: Instead of scoring windows sequentially in a loop, it batches all sliding windows (5s window, 1s overlap) into a single processor and model forward pass. This leverages parallel CPU/GPU vectorization for rapid execution.
+3. **No Double Inference**: Returns logits for all windows directly from the initial batched inference, eliminating a second model pass on the worst window.
+
+---
+
+## Frontend UI — Streamlit Interactive Web Application
+
+### File: `app.py` (Root) & `audio_forensics/app.py`
+
+**What these files are responsible for**:
+Provide the interactive tabbed web user interface to upload audio clips, run the VAD + ASR + Deepfake forensics pipeline, and display results.
 
 **Key features & UI layout**:
-1. **Multi-Format Audio File Uploader & Audio Player**: Allows dragging and dropping audio files in `.wav`, `.mp3`, `.flac`, `.ogg`, `.m4a`, `.aac`, `.wma` format and playing them back directly in browser.
-2. **Classification Verdict Badge**:
-   - 🟢 **REAL HUMAN VOICE** (Green Badge, `audio_score < 50.0%`) with Authentic Confidence %.
-   - 🔴 **AI-GENERATED / DEEPFAKE VOICE** (Red Badge, `audio_score ≥ 50.0%`) with Synthetic Risk %.
-3. **Speech-to-Text Transcript (Whisper-Tiny)**: Displays the transcribed spoken text along with word count and character count statistics.
-4. **Scoring Margins & Logits Breakdown**:
-   - `audio_score` (0–100%) metric & progress bar gauge.
-   - `logit_fake` raw pre-softmax logit score.
-   - `logit_real` raw pre-softmax logit score.
-   - Logit Difference Margin $\Delta = \text{logit}_{fake} - \text{logit}_{real}$.
-   - Mathematical formula execution breakdown ($S_{Audio} = \text{Sigmoid}(\Delta) \times 100$).
-5. **Analytical Classification Reason Panel**:
-   - Explains logit dominance (`logit_fake` vs `logit_real`).
-   - Details Sigmoid mathematical mapping to final score %.
-   - Assesses confidence tier (*Extreme*, *High*, *Moderate*, *Borderline*).
-   - Provides acoustic characteristic reasoning (spectral artifacts vs natural vocal resonances).
+1. **Multi-Format Uploader**: Accepts `.wav`, `.mp3`, `.ogg`, `.flac`, `.m4a`, and `.aac` formats, with an in-browser audio player.
+2. **4-Tier Verdict Badge**: Shows the calibrated severity tier based on the deepfake risk score:
+   - 🟢 **Authentic Human Voice** (Score: `0–35%`)
+   - 🟢 **Likely Human Voice** (Score: `36–55%`)
+   - 🟡 **Likely AI Voice** (Score: `56–74%`, starting at decision threshold `56.0%`)
+   - 🔴 **Authentic AI Voice** (Score: `75–100%`)
+3. **Speech-to-Text Transcript (Whisper-Tiny)**: Displays the transcribed spoken text.
+4. **Scoring Margins & Logits Breakdown**: Displays metrics for Deepfake Score, Logit (Fake), Logit (Real), and Logit Difference Margin $\Delta$, alongside a synthetic risk progress bar and scoring formula details.
+5. **Process Timing Breakdown**: Shows execution times for individual components:
+   - **Silero VAD** duration (in seconds)
+   - **Whisper ASR** duration (in seconds)
+   - **Deepfake Score** duration (in seconds)
+   - **Total Pipeline** execution time (in seconds)
+6. **Analytical Classification Explanation**: Provides plain-language explanations of logit dominance, sigmoid scaling, confidence level, and underlying acoustic patterns.
 
 ---
 

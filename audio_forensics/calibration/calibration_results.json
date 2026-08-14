@@ -90,6 +90,36 @@
     "threshold_used": 62.5
   },
   {
+    "file": "cat2_16.wav",
+    "label": 1,
+    "score": 97.5359,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat2_17.wav",
+    "label": 1,
+    "score": 59.7974,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat2_18.wav",
+    "label": 1,
+    "score": 95.2108,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat2_19.wav",
+    "label": 1,
+    "score": 89.7062,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat2_20.wav",
+    "label": 1,
+    "score": 91.6008,
+    "threshold_used": 62.5
+  },
+  {
     "file": "cat4_01.wav",
     "label": 1,
     "score": 93.1123,
@@ -180,177 +210,273 @@
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_01.wav",
-    "label": 0,
-    "score": 99.2196,
+    "file": "cat4_16.wav",
+    "label": 1,
+    "score": 78.7605,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_02.wav",
+    "file": "cat4_17.wav",
+    "label": 1,
+    "score": 90.4725,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat4_18.wav",
+    "label": 1,
+    "score": 91.6743,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat4_19.wav",
+    "label": 1,
+    "score": 97.3603,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat4_20.wav",
+    "label": 1,
+    "score": 95.9555,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat1 hc3_14.wav",
+    "label": 0,
+    "score": 0.5693,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat1 hc3_16.wav",
+    "label": 0,
+    "score": 0.9332,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat1 hc3_18.wav",
+    "label": 0,
+    "score": 0.5223,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat1 LS_01.wav",
     "label": 0,
     "score": 0.4182,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_03.wav",
+    "file": "cat1 LS_02.wav",
     "label": 0,
     "score": 0.4789,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_04.wav",
-    "label": 0,
-    "score": 89.5004,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_05.wav",
+    "file": "cat1 LS_03.wav",
     "label": 0,
     "score": 1.7896,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_06.wav",
-    "label": 0,
-    "score": 98.758,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_07.wav",
+    "file": "cat1 LS_04.wav",
     "label": 0,
     "score": 0.3342,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_08.wav",
-    "label": 0,
-    "score": 99.0147,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_09.wav",
+    "file": "cat1 LS_05.wav",
     "label": 0,
     "score": 7.4841,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_10.wav",
+    "file": "cat1 LS_06.wav",
     "label": 0,
     "score": 16.8739,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_11.wav",
-    "label": 0,
-    "score": 76.3802,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_12.wav",
+    "file": "cat1 LS_07.wav",
     "label": 0,
     "score": 0.368,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_13.wav",
-    "label": 0,
-    "score": 96.4373,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_14.wav",
-    "label": 0,
-    "score": 97.772,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_15.wav",
-    "label": 0,
-    "score": 96.8851,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_16.wav",
-    "label": 0,
-    "score": 81.0706,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_17.wav",
-    "label": 0,
-    "score": 76.3888,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_18.wav",
-    "label": 0,
-    "score": 98.0511,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_19.wav",
+    "file": "cat1 LS_08.wav",
     "label": 0,
     "score": 2.5049,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_20.wav",
+    "file": "cat1 LS_09.wav",
     "label": 0,
     "score": 8.7418,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_21.wav",
+    "file": "cat1 LS_10.wav",
     "label": 0,
     "score": 15.0981,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_22.wav",
-    "label": 0,
-    "score": 95.9486,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_23.wav",
-    "label": 0,
-    "score": 90.8155,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_24.wav",
-    "label": 0,
-    "score": 97.1763,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_25.wav",
-    "label": 0,
-    "score": 49.0855,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_26.wav",
+    "file": "cat1 LS_11.wav",
     "label": 0,
     "score": 0.4801,
     "threshold_used": 62.5
   },
   {
-    "file": "cat1_28.wav",
-    "label": 0,
-    "score": 98.1727,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_29.wav",
-    "label": 0,
-    "score": 95.4843,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1_30.wav",
+    "file": "cat1 LS_12.wav",
     "label": 0,
     "score": 0.3416,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat1 yt_13.mp3",
+    "label": 0,
+    "score": 0.3847,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat1 yt_15.mp3",
+    "label": 0,
+    "score": 0.3558,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat1 yt_17.mp3",
+    "label": 0,
+    "score": 0.3825,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat1 yt_19.mp3",
+    "label": 0,
+    "score": 0.4238,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "cat1 yt_20.wav",
+    "label": 0,
+    "score": 0.4592,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_01.mp3",
+    "label": 0,
+    "score": 1.4134,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_02.mp3",
+    "label": 0,
+    "score": 1.7044,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_03.mp3",
+    "label": 0,
+    "score": 1.1656,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_04.mp3",
+    "label": 0,
+    "score": 1.2675,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_05.mp3",
+    "label": 0,
+    "score": 0.5051,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_06.mp3",
+    "label": 0,
+    "score": 90.722,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_07.mp3",
+    "label": 0,
+    "score": 93.5492,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_08.mp3",
+    "label": 0,
+    "score": 3.1655,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_09.mp3",
+    "label": 0,
+    "score": 97.7942,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_10.mp3",
+    "label": 0,
+    "score": 33.8065,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_11.mp3",
+    "label": 0,
+    "score": 70.4855,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_12.mp3",
+    "label": 0,
+    "score": 4.9209,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_13.mp3",
+    "label": 0,
+    "score": 0.3817,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_14.mp3",
+    "label": 0,
+    "score": 2.346,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_15.mp3",
+    "label": 0,
+    "score": 98.4809,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_16.mp3",
+    "label": 0,
+    "score": 79.5276,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_17.mp3",
+    "label": 0,
+    "score": 33.749,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_18.mp3",
+    "label": 0,
+    "score": 0.5851,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_19.mp3",
+    "label": 0,
+    "score": 0.5426,
+    "threshold_used": 62.5
+  },
+  {
+    "file": "Cat3_20.mp3",
+    "label": 0,
+    "score": 0.4368,
     "threshold_used": 62.5
   }
 ]

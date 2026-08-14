@@ -48,12 +48,13 @@ def test_s_audio_range():
 # ── Formula verification ──────────────────────────────────────────────────────
 
 def test_sigmoid_formula_consistency():
-    """Verify s_audio == Sigmoid(logit_fake - logit_real) * 100."""
+    """Verify s_audio == Sigmoid((logit_fake - logit_real) / T) * 100."""
     import torch
     dummy = np.zeros(16000, dtype=np.float32)
     res = score_audio(dummy)
     diff = res["logit_fake"] - res["logit_real"]
-    expected = float(torch.sigmoid(torch.tensor(diff)).item()) * 100.0
+    temp = res.get("temperature", 1.15)
+    expected = float(torch.sigmoid(torch.tensor(diff / temp)).item()) * 100.0
     assert abs(res["s_audio"] - expected) < 0.001, (
         f"Formula mismatch: got {res['s_audio']}, expected {expected:.4f}"
     )

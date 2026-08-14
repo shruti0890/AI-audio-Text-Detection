@@ -147,8 +147,12 @@ def _load_model():
     # Load calibration params FIRST (so threshold is ready before scoring)
     _load_calibration_params()
 
-    _PROCESSOR = AutoFeatureExtractor.from_pretrained(_MODEL_ID)
-    _MODEL = AutoModelForAudioClassification.from_pretrained(_MODEL_ID)
+    try:
+        _PROCESSOR = AutoFeatureExtractor.from_pretrained(_MODEL_ID, local_files_only=True)
+        _MODEL = AutoModelForAudioClassification.from_pretrained(_MODEL_ID, local_files_only=True)
+    except Exception:
+        _PROCESSOR = AutoFeatureExtractor.from_pretrained(_MODEL_ID)
+        _MODEL = AutoModelForAudioClassification.from_pretrained(_MODEL_ID)
     _MODEL.eval()
 
     if _MODEL.config.num_labels != 2:
@@ -189,17 +193,17 @@ def _load_model():
 
 # ── Sliding-window scorer ─────────────────────────────────────────────────────
 
-def _score_windows(waveform: np.ndarray) -> List[float]:
+def _score_windows(waveform: np.ndarray) -> List[Dict[str, float]]:
     """Score the full waveform using overlapping sliding windows.
 
-    Each window is independently fed through the wav2vec2 classifier.
+    All windows are batched and fed through the wav2vec2 classifier.
     Window length and overlap are loaded from model_config.json.
 
     Args:
         waveform: 1D float32 numpy array at 16kHz.
 
     Returns:
-        List of per-window scores (0–100). Empty list if waveform too short.
+        List of dicts: [{'score': float, 'logit_fake': float, 'logit_real': float}]
     """
     window_samples  = _WINDOW_SECONDS * _SAMPLE_RATE
     overlap_samples = _WINDOW_OVERLAP_SECONDS * _SAMPLE_RATE
@@ -222,28 +226,37 @@ def _score_windows(waveform: np.ndarray) -> List[float]:
             if len(tail) >= _SAMPLE_RATE:  # at least 1s of audio, otherwise skip
                 windows.append(tail)
 
-    scores = []
-    for win in windows:
-        win = np.nan_to_num(win, nan=0.0, posinf=0.0, neginf=0.0)
-        inputs = _PROCESSOR(
-            win,
-            sampling_rate=_SAMPLE_RATE,
-            return_tensors="pt",
-            padding=True,
-        )
-        with torch.no_grad():
-            outputs = _MODEL(**inputs)
-        logits = outputs.logits  # (1, 2)
+    if not windows:
+        return []
 
-        lf = float(logits[0, _FAKE_IDX].item())
-        lr = float(logits[0, _REAL_IDX].item())
+    # Clean and pad inputs in batch
+    batched_windows = [np.nan_to_num(win, nan=0.0, posinf=0.0, neginf=0.0) for win in windows]
+
+    inputs = _PROCESSOR(
+        batched_windows,
+        sampling_rate=_SAMPLE_RATE,
+        return_tensors="pt",
+        padding=True,
+    )
+    with torch.no_grad():
+        outputs = _MODEL(**inputs)
+    logits = outputs.logits  # Shape: (batch_size, 2)
+
+    results = []
+    for i in range(len(windows)):
+        lf = float(logits[i, _FAKE_IDX].item())
+        lr = float(logits[i, _REAL_IDX].item())
 
         # Temperature-scaled sigmoid
         diff_scaled = (lf - lr) / _TEMPERATURE
         s = float(torch.sigmoid(torch.tensor(diff_scaled)).item()) * 100.0
-        scores.append(round(s, 4))
+        results.append({
+            "score": round(s, 4),
+            "logit_fake": round(lf, 6),
+            "logit_real": round(lr, 6)
+        })
 
-    return scores
+    return results
 
 
 def _aggregate_scores(scores: List[float]) -> float:
@@ -317,41 +330,19 @@ def score_audio(processed_audio: Union[str, np.ndarray]) -> Dict:
         raise ValueError(f"Unsupported audio input type: {type(processed_audio)}")
 
     # ── 2. Sliding-window scoring (replaces hard truncation) ─────────────
-    window_scores = _score_windows(waveform)
+    window_results = _score_windows(waveform)
+    window_scores = [w["score"] for w in window_results]
     n_windows = len(window_scores)
 
     # ── 3. Aggregate window scores ────────────────────────────────────────
     s_audio = _aggregate_scores(window_scores)
 
     # ── 4. Retrieve representative logits from the highest-risk window ────
-    # Re-score the worst window to get its raw logits for display purposes.
     # (Logits from the max-risk window are the most meaningful to show.)
-    if window_scores:
+    if window_results:
         worst_window_idx = int(np.argmax(window_scores))
-        window_samples  = _WINDOW_SECONDS * _SAMPLE_RATE
-        overlap_samples = _WINDOW_OVERLAP_SECONDS * _SAMPLE_RATE
-        step_samples    = window_samples - overlap_samples
-
-        total_samples = len(waveform)
-        if total_samples <= window_samples:
-            worst_win = waveform
-        else:
-            start = worst_window_idx * step_samples
-            end   = start + window_samples
-            worst_win = waveform[start: min(end, total_samples)]
-
-        worst_win = np.nan_to_num(worst_win, nan=0.0, posinf=0.0, neginf=0.0)
-        inputs = _PROCESSOR(
-            worst_win,
-            sampling_rate=_SAMPLE_RATE,
-            return_tensors="pt",
-            padding=True,
-        )
-        with torch.no_grad():
-            outputs = _MODEL(**inputs)
-        logits = outputs.logits
-        logit_fake = round(float(logits[0, _FAKE_IDX].item()), 6)
-        logit_real = round(float(logits[0, _REAL_IDX].item()), 6)
+        logit_fake = window_results[worst_window_idx]["logit_fake"]
+        logit_real = window_results[worst_window_idx]["logit_real"]
     else:
         logit_fake = 0.0
         logit_real = 0.0

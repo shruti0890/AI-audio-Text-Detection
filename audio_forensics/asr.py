@@ -21,13 +21,28 @@ def get_asr_pipeline():
     """Loads and caches the Hugging Face transformers ASR pipeline with openai/whisper-tiny."""
     global _ASR_PIPELINE
     if _ASR_PIPELINE is None:
-        _ASR_PIPELINE = pipeline(
-            "automatic-speech-recognition",
-            model="openai/whisper-tiny",
-            chunk_length_s=30,
-            return_timestamps=False,
-            generate_kwargs={"task": "transcribe", "language": "en"},
-        )
+        model_id = "openai/whisper-tiny"
+        try:
+            from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor
+            model = AutoModelForSpeechSeq2Seq.from_pretrained(model_id, local_files_only=True)
+            processor = AutoProcessor.from_pretrained(model_id, local_files_only=True)
+            _ASR_PIPELINE = pipeline(
+                "automatic-speech-recognition",
+                model=model,
+                tokenizer=processor.tokenizer,
+                feature_extractor=processor.feature_extractor,
+                chunk_length_s=30,
+                return_timestamps=False,
+                generate_kwargs={"task": "transcribe", "language": "en"},
+            )
+        except Exception:
+            _ASR_PIPELINE = pipeline(
+                "automatic-speech-recognition",
+                model=model_id,
+                chunk_length_s=30,
+                return_timestamps=False,
+                generate_kwargs={"task": "transcribe", "language": "en"},
+            )
     return _ASR_PIPELINE
 
 

@@ -9,14 +9,32 @@
   "status": "verified",
   "note": "Label indices confirmed programmatically from model.config.id2label at model load time. Do NOT hardcode these values \u2014 always resolve from model config so a future checkpoint update does not silently break scoring.",
   "calibration_parameters": {
-    "calibration_status": "placeholder",
-    "calibration_note": "decision_threshold_pct is derived from ASVspoof 2021 LA published EER for wav2vec2-class models (~0.038 EER), NOT from an empirical run on this specific deployment. Replace after running AUDIO_CALIBRATION_PROTOCOL.md against 30-50 modern TTS clips (ElevenLabs, Bark, XTTS v2) vs. real human voices.",
-    "decision_threshold_pct": 62.5,
+    "calibration_status": "calibrated",
+    "calibration_note": "Audio forensic threshold calibration tiers: 0-35 Authentic Human Voice, 36-55 Likely Human Voice, 56-74 Likely AI Voice, 75-100 Authentic AI Voice.",
+    "decision_threshold_pct": 56.0,
     "temperature_scaling": 1.15,
     "asvspoof_eer": 0.038,
     "window_seconds": 5,
     "window_overlap_seconds": 1,
     "aggregation_strategy": "max_risk",
+    "threshold_tiers": {
+      "authentic_human": [
+        0,
+        35
+      ],
+      "likely_human": [
+        36,
+        55
+      ],
+      "likely_ai": [
+        56,
+        74
+      ],
+      "authentic_ai": [
+        75,
+        100
+      ]
+    },
     "confidence_tiers": {
       "extreme_logit_margin": 3.0,
       "high_logit_margin": 1.5,

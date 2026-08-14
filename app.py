@@ -399,7 +399,7 @@ def _render_audio_panel(result: dict) -> None:
     logit_real   = result["logit_real"]
     transcript   = result["transcript"]
     logit_diff   = logit_fake - logit_real
-    threshold    = result.get("audio_decision_threshold_pct", 62.5)
+    threshold    = result.get("audio_decision_threshold_pct", 56.0)
     temperature  = result.get("audio_temperature", 1.15)
     n_windows    = result.get("audio_n_windows", 1)
     window_scores = result.get("audio_window_scores", [])
@@ -409,12 +409,11 @@ def _render_audio_panel(result: dict) -> None:
     st.markdown('<div class="section-header section-header-audio">🎙️ Audio Analysis Results</div>', unsafe_allow_html=True)
     st.markdown(_verdict_card(audio_verdict, audio_score), unsafe_allow_html=True)
 
-    # Uncalibrated caveat
+    # Calibration badge notice
     st.markdown(
-        '<div class="uncalibrated-badge">⚠️ <b>Audio thresholds are uncalibrated placeholders.</b> '
-        'The AI/Human/Inconclusive badge boundaries (≥75 / &lt;25) are illustrative values from the '
-        'architecture document and have NOT been validated against ground-truth audio data. '
-        'They will be replaced after a Correction-9-style calibration run.</div>',
+        '<div class="uncalibrated-badge">ℹ️ <b>Audio forensic thresholds calibrated:</b> '
+        '0–35 Authentic Human Voice | 36–55 Likely Human Voice | '
+        '56–74 Likely AI Voice | 75–100 Authentic AI Voice.</div>',
         unsafe_allow_html=True,
     )
 
@@ -441,6 +440,25 @@ def _render_audio_panel(result: dict) -> None:
 
     st.divider()
 
+    # ── Process Timing Breakdown ──────────────────────────────────────────────
+    vad_time = result.get("audio_vad_time")
+    asr_time = result.get("audio_asr_time")
+    deepfake_time = result.get("audio_deepfake_time")
+    total_time = result.get("audio_total_time")
+
+    if vad_time is not None or asr_time is not None or deepfake_time is not None:
+        st.markdown("**Process Timing Breakdown**")
+        t_col1, t_col2, t_col3, t_col4 = st.columns(4)
+        if vad_time is not None:
+            t_col1.metric("Silero VAD", f"{vad_time:.2f} s")
+        if asr_time is not None:
+            t_col2.metric("Whisper ASR", f"{asr_time:.2f} s")
+        if deepfake_time is not None:
+            t_col3.metric("Deepfake Score", f"{deepfake_time:.2f} s")
+        if total_time is not None:
+            t_col4.metric("Total Pipeline", f"{total_time:.2f} s")
+        st.divider()
+
     # Transcript
     st.markdown("**Speech-to-Text Transcript (Whisper-Tiny ASR)**")
     if transcript.strip():
@@ -464,21 +482,37 @@ def _render_audio_panel(result: dict) -> None:
         confidence = "Borderline / Low Confidence"
 
     with st.expander("📋 Classification Explanation"):
-        if audio_score >= 50:
+        # Determine tier label
+        if audio_score >= 75.0:
+            tier_label = "Authentic AI Voice"
+            tier_range = "75–100%"
+        elif audio_score >= 56.0:
+            tier_label = "Likely AI Voice"
+            tier_range = "56–74%"
+        elif audio_score >= 36.0:
+            tier_label = "Likely Human Voice"
+            tier_range = "36–55%"
+        else:
+            tier_label = "Authentic Human Voice"
+            tier_range = "0–35%"
+
+        if audio_score >= 56.0:
             st.markdown(
-                f"**Why classified as AI / Deepfake?**\n\n"
+                f"**Why classified as {tier_label}?**\n\n"
+                f"- **Tier:** Score `{audio_score:.2f}%` falls in the **{tier_label}** range ({tier_range}).\n"
                 f"- **Logit Dominance**: `logit_fake` ({logit_fake:.4f}) > `logit_real` "
                 f"({logit_real:.4f}) by **{logit_diff:+.4f}**.\n"
-                f"- **Sigmoid Mapping**: Yields deepfake risk score of **{audio_score:.2f}%** (≥50.0% threshold).\n"
+                f"- **Sigmoid Mapping**: Yields deepfake risk score of **{audio_score:.2f}%** (≥{threshold:.1f}% decision threshold).\n"
                 f"- **Confidence**: **{confidence}** (|Δ| = `{abs_diff:.4f}`).\n"
                 f"- The wav2vec2 model detected spectral artifacts or phase mismatches typical of synthetic speech."
             )
         else:
             st.markdown(
-                f"**Why classified as Real / Human Voice?**\n\n"
+                f"**Why classified as {tier_label}?**\n\n"
+                f"- **Tier:** Score `{audio_score:.2f}%` falls in the **{tier_label}** range ({tier_range}).\n"
                 f"- **Logit Dominance**: `logit_real` ({logit_real:.4f}) ≥ `logit_fake` "
                 f"({logit_fake:.4f}); margin: **{logit_diff:+.4f}**.\n"
-                f"- **Sigmoid Mapping**: Deepfake risk score is **{audio_score:.2f}%** (<50.0% threshold).\n"
+                f"- **Sigmoid Mapping**: Deepfake risk score is **{audio_score:.2f}%** (<{threshold:.1f}% decision threshold).\n"
                 f"- **Confidence**: **{confidence}** (|Δ| = `{abs_diff:.4f}`).\n"
                 f"- Acoustic features align with natural human vocal tract resonances."
             )

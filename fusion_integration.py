@@ -68,35 +68,52 @@ if str(_REPO_ROOT) not in sys.path:
 
 # ── Audio badge thresholds — loaded from model_config.json ───────────────────
 # These are loaded once at import time so all callers share the same config.
-# To recalibrate: update calibration_parameters.decision_threshold_pct in
+# To recalibrate: update calibration_parameters.threshold_tiers in
 # audio_forensics/calibration/model_config.json and restart.
-def _load_audio_badge_thresholds() -> tuple[float, float]:
-    """Read decision threshold from model_config.json.
-    Returns (ai_min, human_max) badge boundaries.
-    Falls back to architecture-doc illustrative values if config is absent.
+# Calibrated 4-tier system:
+#   0–35  Authentic Human Voice
+#   36–55 Likely Human Voice
+#   56–74 Likely AI Voice
+#   75–100 Authentic AI Voice
+def _load_audio_badge_thresholds() -> dict:
+    """Read calibrated tier boundaries from model_config.json.
+    Returns a dict with keys: authentic_human_max, likely_human_max,
+    likely_ai_max, authentic_ai_max, and decision_threshold_pct.
+    Falls back to calibrated defaults if config is absent.
     """
-    import json, os
+    import json
     config_path = Path(__file__).resolve().parent / "audio_forensics" / "calibration" / "model_config.json"
+    defaults = {
+        "authentic_human_max": 35.0,
+        "likely_human_max": 55.0,
+        "likely_ai_max": 74.0,
+        "decision_threshold_pct": 56.0,
+    }
     try:
         with open(config_path, "r") as f:
             cfg = json.load(f)
-        threshold = float(cfg.get("calibration_parameters", {}).get("decision_threshold_pct", 62.5))
-        # Badge boundaries: AI = score >= threshold, Human = score < (100 - threshold)
-        # e.g. threshold=62.5 → AI if >=62.5, Human if <37.5, Inconclusive otherwise
-        human_max = round(100.0 - threshold, 1)
-        return threshold, human_max
+        params = cfg.get("calibration_parameters", {})
+        tiers = params.get("threshold_tiers", {})
+        return {
+            "authentic_human_max": float(tiers.get("authentic_human", [0, 35])[1]),
+            "likely_human_max":    float(tiers.get("likely_human",    [36, 55])[1]),
+            "likely_ai_max":       float(tiers.get("likely_ai",       [56, 74])[1]),
+            "decision_threshold_pct": float(params.get("decision_threshold_pct", 56.0)),
+        }
     except Exception:
-        return 75.0, 25.0  # fallback to architecture-doc illustrative values
+        return defaults
 
 
-_AUDIO_AI_MIN, _AUDIO_HUMAN_MAX = _load_audio_badge_thresholds()
-# 25 ≤ score < 75 → "Inconclusive" (or equivalent derived range)
+_AUDIO_TIERS = _load_audio_badge_thresholds()
+# Tier boundaries:
+#   score <= authentic_human_max (35)  → Authentic Human Voice
+#   score <= likely_human_max (55)     → Likely Human Voice
+#   score <= likely_ai_max (74)        → Likely AI Voice
+#   score >  likely_ai_max (74)        → Authentic AI Voice
 
 _AUDIO_VERDICT_CAVEAT = (
-    "[UNCALIBRATED PLACEHOLDER] Audio badge thresholds (≥75 AI, <25 Human, 25-75 Inconclusive) "
-    "are illustrative values from the architecture document and have NOT been validated "
-    "against ground-truth audio data. They will be replaced after a Correction-9-style "
-    "calibration run on matched real/fake audio clips."
+    "Audio forensic thresholds calibrated: 0–35 Authentic Human Voice, "
+    "36–55 Likely Human Voice, 56–74 Likely AI Voice, 75–100 Authentic AI Voice."
 )
 
 # ── Text badge thresholds ─────────────────────────────────────────────────────
@@ -125,12 +142,20 @@ def _text_verdict(score: float) -> str:
 
 
 def _audio_verdict(score: float) -> str:
-    """Assign an audio verdict badge using UNCALIBRATED PLACEHOLDER thresholds."""
-    if score >= _AUDIO_AI_MIN:
-        return "Likely AI / Deepfake [UNCALIBRATED]"
-    if score >= _AUDIO_HUMAN_MAX:
-        return "Inconclusive [UNCALIBRATED]"
-    return "Likely Human / Real Voice [UNCALIBRATED]"
+    """Assign an audio verdict badge using calibrated threshold tiers:
+    0-35: Authentic Human Voice
+    36-55: Likely Human Voice
+    56-74: Likely AI Voice
+    75-100: Authentic AI Voice
+    """
+    if score >= 75.0:
+        return "Authentic AI Voice"
+    elif score >= 56.0:
+        return "Likely AI Voice"
+    elif score >= 36.0:
+        return "Likely Human Voice"
+    else:
+        return "Authentic Human Voice"
 
 
 def _unified_verdict(score: float) -> str:
@@ -188,6 +213,10 @@ def run_full_pipeline(
         "logit_fake":            None,
         "logit_real":            None,
         "transcript":            "",
+        "audio_vad_time":        None,
+        "audio_asr_time":        None,
+        "audio_deepfake_time":   None,
+        "audio_total_time":      None,
         # cross-modal
         "cross_modal_deferred":  True,
         "transcript_text_delta": None,
@@ -225,11 +254,15 @@ def run_full_pipeline(
             result["logit_real"]    = audio_out["logit_real"]
             result["transcript"]    = audio_out.get("transcript", "")
             # Pass calibration metadata through so UI can display them
-            result["audio_decision_threshold_pct"] = audio_out.get("decision_threshold_pct", _AUDIO_AI_MIN)
+            result["audio_decision_threshold_pct"] = audio_out.get("decision_threshold_pct", _AUDIO_TIERS["decision_threshold_pct"])
             result["audio_temperature"]            = audio_out.get("temperature", 1.15)
             result["audio_n_windows"]              = audio_out.get("n_windows", 1)
             result["audio_window_scores"]          = audio_out.get("window_scores", [])
             result["audio_confidence_tiers"]       = audio_out.get("confidence_tiers", {})
+            result["audio_vad_time"]               = audio_out.get("vad_time")
+            result["audio_asr_time"]               = audio_out.get("asr_time")
+            result["audio_deepfake_time"]          = audio_out.get("deepfake_time")
+            result["audio_total_time"]             = audio_out.get("total_time")
             logger.info(
                 "[fusion] Audio score: %.2f → %s (threshold=%.1f%%, T=%.2f, windows=%d)",
                 audio_out["audio_score"], result["audio_verdict"],

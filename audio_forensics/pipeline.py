@@ -78,26 +78,29 @@ def analyze_audio(audio_path: str) -> Dict[str, Any]:
     # ── 1. Voice Activity Detection (Silence Stripping) ───────────────────────
     t0 = time.perf_counter()
     processed_audio = strip_silence(audio_path)
+    vad_time = time.perf_counter() - t0
     print(f"[pipeline] VAD complete  | samples={len(processed_audio):,} "
           f"| duration={len(processed_audio)/16000:.2f}s "
-          f"| elapsed={time.perf_counter()-t0:.2f}s")
+          f"| elapsed={vad_time:.2f}s")
 
     # ── 2. Speech-to-Text Transcription (Whisper-Tiny) ────────────────────────
     t0 = time.perf_counter()
     transcript = transcribe(processed_audio)
+    asr_time = time.perf_counter() - t0
     print(f"[pipeline] ASR complete  | chars={len(transcript)} "
-          f"| elapsed={time.perf_counter()-t0:.2f}s")
+          f"| elapsed={asr_time:.2f}s")
     print(f"[pipeline] Transcript    | \"{transcript[:120]}{'...' if len(transcript) > 120 else ''}\"")
 
     # ── 3. Deepfake Classification (wav2vec2-deepfake-voice-detector) ─────────
     t0 = time.perf_counter()
     scores = score_audio(processed_audio)
+    deepfake_time = time.perf_counter() - t0
     print(f"[pipeline] Deepfake done | s_audio={scores['s_audio']:.4f} "
           f"threshold={scores['decision_threshold']}% "
           f"T={scores['temperature']} "
           f"n_windows={scores['n_windows']} "
           f"logit_fake={scores['logit_fake']:.6f} logit_real={scores['logit_real']:.6f} "
-          f"| elapsed={time.perf_counter()-t0:.2f}s")
+          f"| elapsed={deepfake_time:.2f}s")
 
     total = time.perf_counter() - t_start
     print(f"[pipeline] Pipeline done | total_elapsed={total:.2f}s")
@@ -114,4 +117,8 @@ def analyze_audio(audio_path: str) -> Dict[str, Any]:
         "n_windows":             int(scores["n_windows"]),
         "window_scores":         list(scores["window_scores"]),
         "confidence_tiers":      dict(scores["confidence_tiers"]),
+        "vad_time":              float(vad_time),
+        "asr_time":              float(asr_time),
+        "deepfake_time":         float(deepfake_time),
+        "total_time":            float(total),
     }

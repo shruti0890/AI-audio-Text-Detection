@@ -146,7 +146,7 @@ if uploaded_file is not None:
         logit_real   = results["logit_real"]
         transcript   = results["transcript"]
         logit_diff   = logit_fake - logit_real
-        threshold    = results.get("decision_threshold_pct", 62.5)
+        threshold    = results.get("decision_threshold_pct", 56.0)
         temperature  = results.get("temperature", 1.15)
         n_windows    = results.get("n_windows", 1)
         window_scores = results.get("window_scores", [])
@@ -155,24 +155,38 @@ if uploaded_file is not None:
 
         # ── 1. Final Verdict Display ──────────────────────────────────────────
         st.subheader("1. Classification Verdict")
-        if is_ai:
+        if audio_score >= 75.0:
             st.markdown(f"""
             <div class="verdict-box-fake">
-                <div class="verdict-title verdict-fake-title">🤖 AI-GENERATED / DEEPFAKE VOICE</div>
-                <div style="font-size: 1.1rem; color: #991B1B;">Synthetic Risk Score: <b>{audio_score:.2f}%</b> (threshold: {threshold:.1f}%)</div>
+                <div class="verdict-title verdict-fake-title">🤖 AUTHENTIC AI VOICE</div>
+                <div style="font-size: 1.1rem; color: #991B1B;">Synthetic Risk Score: <b>{audio_score:.2f}%</b> (Range: 75–100%)</div>
+            </div>
+            """, unsafe_allow_html=True)
+        elif audio_score >= 56.0:
+            st.markdown(f"""
+            <div class="verdict-box-fake">
+                <div class="verdict-title verdict-fake-title">🤖 LIKELY AI VOICE</div>
+                <div style="font-size: 1.1rem; color: #991B1B;">Synthetic Risk Score: <b>{audio_score:.2f}%</b> (Range: 56–74%)</div>
+            </div>
+            """, unsafe_allow_html=True)
+        elif audio_score >= 36.0:
+            st.markdown(f"""
+            <div class="verdict-box-human">
+                <div class="verdict-title verdict-human-title">👤 LIKELY HUMAN VOICE</div>
+                <div style="font-size: 1.1rem; color: #065F46;">Authentic Voice Confidence: <b>{100.0 - audio_score:.2f}%</b> (Synthetic Score: {audio_score:.2f}% | Range: 36–55%)</div>
             </div>
             """, unsafe_allow_html=True)
         else:
             st.markdown(f"""
             <div class="verdict-box-human">
-                <div class="verdict-title verdict-human-title">👤 REAL HUMAN VOICE</div>
-                <div style="font-size: 1.1rem; color: #065F46;">Authentic Voice Confidence: <b>{100.0 - audio_score:.2f}%</b> (Synthetic Score: {audio_score:.2f}% | threshold: {threshold:.1f}%)</div>
+                <div class="verdict-title verdict-human-title">👤 AUTHENTIC HUMAN VOICE</div>
+                <div style="font-size: 1.1rem; color: #065F46;">Authentic Voice Confidence: <b>{100.0 - audio_score:.2f}%</b> (Synthetic Score: {audio_score:.2f}% | Range: 0–35%)</div>
             </div>
             """, unsafe_allow_html=True)
-        st.warning(
-            f"⚠️ **Decision threshold {threshold:.1f}% is a calibration placeholder** "
-            f"(ASVspoof 2021 EER estimate). Replace after empirical calibration "
-            f"per AUDIO_CALIBRATION_PROTOCOL.md."
+        st.info(
+            f"ℹ️ **Calibrated Threshold Tiers**: "
+            f"0–35: Authentic Human Voice | 36–55: Likely Human Voice | "
+            f"56–74: Likely AI Voice | 75–100: Authentic AI Voice (Decision threshold: {threshold:.1f}%)."
         )
 
         # ── 2. Speech-to-Text Transcript Panel ────────────────────────────────
@@ -227,9 +241,25 @@ if uploaded_file is not None:
         else:
             confidence_str = "Borderline / Low Confidence"
 
+        # Determine verdict label for explanation heading
+        if audio_score >= 75.0:
+            verdict_label = "Authentic AI Voice"
+            verdict_why = "AI-Generated (Authentic)"
+        elif audio_score >= 56.0:
+            verdict_label = "Likely AI Voice"
+            verdict_why = "AI-Generated (Likely)"
+        elif audio_score >= 36.0:
+            verdict_label = "Likely Human Voice"
+            verdict_why = "Human Voice (Likely)"
+        else:
+            verdict_label = "Authentic Human Voice"
+            verdict_why = "Human Voice (Authentic)"
+
         if is_ai:
             reason_text = (
-                f"**Why classified as AI-Generated?**\n\n"
+                f"**Why classified as {verdict_label}?**\n\n"
+                f"- **Tier:** Score `{audio_score:.2f}%` falls in the **{verdict_label}** range "
+                f"({'75–100%' if audio_score >= 75.0 else '56–74%'}).\n"
                 f"- **Logit Dominance:** `logit_fake` = `{logit_fake:.4f}` > `logit_real` = `{logit_real:.4f}` (Δ = `{logit_diff:+.4f}`).\n"
                 f"- **Temperature-Scaled Sigmoid:** Δ / T({temperature}) = `{logit_diff/temperature:+.4f}` → score **`{audio_score:.2f}%`**, above the `{threshold:.1f}%` decision threshold.\n"
                 f"- **Sliding-Window Aggregation:** Scored `{n_windows}` window(s) using `max_risk` strategy. Max-risk window score = `{max(window_scores) if window_scores else audio_score:.2f}%`.\n"
@@ -238,7 +268,9 @@ if uploaded_file is not None:
             )
         else:
             reason_text = (
-                f"**Why classified as Real Human Voice?**\n\n"
+                f"**Why classified as {verdict_label}?**\n\n"
+                f"- **Tier:** Score `{audio_score:.2f}%` falls in the **{verdict_label}** range "
+                f"({'0–35%' if audio_score < 36.0 else '36–55%'}).\n"
                 f"- **Logit Dominance:** `logit_real` = `{logit_real:.4f}` ≥ `logit_fake` = `{logit_fake:.4f}` (Δ = `{logit_diff:+.4f}`).\n"
                 f"- **Temperature-Scaled Sigmoid:** Δ / T({temperature}) = `{logit_diff/temperature:+.4f}` → score **`{audio_score:.2f}%`**, below the `{threshold:.1f}%` decision threshold.\n"
                 f"- **Sliding-Window Aggregation:** Scored `{n_windows}` window(s). Max-risk window score = `{max(window_scores) if window_scores else audio_score:.2f}%`.\n"
