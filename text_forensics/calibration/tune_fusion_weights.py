@@ -221,19 +221,75 @@ def run_grid_search(subscores_list: list[dict], y_true: np.ndarray):
     logger.info("AI Scores Stats:    min=%.2f, 10th=%.2f, 25th=%.2f, median=%.2f, max=%.2f",
                 ai_min, ai_10, ai_25, np.median(ai_scores), np.max(ai_scores))
 
-    # Crossover optimization for human_max and ai_min
-    # We set human_max near the 85th percentile of human scores, and ai_min near 15th percentile of AI scores
-    # or buffer around crossover.
-    t_human = 45.0
-    t_ai = 65.0
-    
-    # Evaluate 3-band classification: Human (<t_human), Mixed (t_human..t_ai), AI (>t_ai)
-    human_verdicts = np.where(human_scores < t_human, "human", np.where(human_scores <= t_ai, "mixed", "ai"))
-    ai_verdicts = np.where(ai_scores >= t_ai, "ai", np.where(ai_scores >= t_human, "mixed", "human"))
-    
-    logger.info("Ground-truth Human (60 samples): %d Human, %d Mixed, %d AI",
+    # Correction 12: Data-driven threshold derivation.
+    # t_human = 90th percentile of human scores — ~10% of human samples score above this.
+    # t_ai    = 10th percentile of AI scores    — ~10% of AI samples score below this.
+    t_human = h_90
+    t_ai    = ai_10
+
+    if t_human >= t_ai:
+        # Distributions overlap — no clean gap exists between them.
+        crossover = float((t_human + t_ai) / 2.0)
+        buffer    = 5.0
+        t_human   = round(crossover - buffer, 2)
+        t_ai      = round(crossover + buffer, 2)
+        logger.warning(
+            "OVERLAP DETECTED: h_90 (%.2f) >= ai_10 (%.2f). "
+            "Distributions do not separate cleanly; a percentile-gap threshold is meaningless. "
+            "Falling back to crossover-centred band: t_human=%.2f, t_ai=%.2f. "
+            "This indicates fundamental score-distribution ambiguity that a threshold alone cannot resolve.",
+            h_90, ai_10, t_human, t_ai,
+        )
+    else:
+        band_width = round(t_ai - t_human, 2)
+        logger.info(
+            "Threshold derivation (Correction 12): t_human=h_90=%.2f, t_ai=ai_10=%.2f | "
+            "Band width (uncertain zone): %.2f points%s",
+            t_human, t_ai, band_width,
+            " [NARROW — good separation]" if band_width <= 15 else
+            " [WIDE (>15 pts) — score distributions overlap significantly]",
+        )
+
+    # ------------------------------------------------------------------
+    # OLD-vs-NEW comparison: classify all 120 samples under both regimes
+    # ------------------------------------------------------------------
+    OLD_T_HUMAN, OLD_T_AI = 50.0, 75.0  # values that were in fusion_config.json before this fix
+
+    def classify_band(scores: np.ndarray, th: float, ta: float) -> np.ndarray:
+        return np.where(scores < th, "human", np.where(scores <= ta, "mixed", "ai"))
+
+    all_scores  = best_scores          # 120 samples in order: 60 human then 60 AI
+
+    old_verdicts = classify_band(all_scores, OLD_T_HUMAN, OLD_T_AI)
+    new_verdicts = classify_band(all_scores, t_human,    t_ai)
+
+    logger.info(
+        "\n--- OLD thresholds (%.1f / %.1f) on 120 samples ---\n"
+        "  Human band  (<%.1f): %d samples\n"
+        "  Mixed band  (%.1f–%.1f): %d samples\n"
+        "  AI band     (>%.1f): %d samples",
+        OLD_T_HUMAN, OLD_T_AI,
+        OLD_T_HUMAN, np.sum(old_verdicts == "human"),
+        OLD_T_HUMAN, OLD_T_AI, np.sum(old_verdicts == "mixed"),
+        OLD_T_AI, np.sum(old_verdicts == "ai"),
+    )
+    logger.info(
+        "\n--- NEW thresholds (%.2f / %.2f) on 120 samples ---\n"
+        "  Human band  (<%.2f): %d samples\n"
+        "  Mixed band  (%.2f–%.2f): %d samples\n"
+        "  AI band     (>%.2f): %d samples",
+        t_human, t_ai,
+        t_human, np.sum(new_verdicts == "human"),
+        t_human, t_ai, np.sum(new_verdicts == "mixed"),
+        t_ai, np.sum(new_verdicts == "ai"),
+    )
+
+    # Per-class breakdown for the new thresholds
+    human_verdicts = new_verdicts[:60]
+    ai_verdicts    = new_verdicts[60:]
+    logger.info("Ground-truth Human (60 samples) under NEW thresholds: %d Human, %d Mixed, %d AI",
                 np.sum(human_verdicts == "human"), np.sum(human_verdicts == "mixed"), np.sum(human_verdicts == "ai"))
-    logger.info("Ground-truth AI (60 samples):    %d AI, %d Mixed, %d Human",
+    logger.info("Ground-truth AI    (60 samples) under NEW thresholds: %d AI,    %d Mixed, %d Human",
                 np.sum(ai_verdicts == "ai"), np.sum(ai_verdicts == "mixed"), np.sum(ai_verdicts == "human"))
 
     # Save to fusion_config.json
@@ -245,7 +301,8 @@ def run_grid_search(subscores_list: list[dict], y_true: np.ndarray):
             "ai_min": t_ai
         },
         "tuned_on": "hc3_test_pool (120 ground-truth samples)",
-        "tuned_date": "2026-08-10",
+        "tuned_date": "2026-08-14",
+        "threshold_method": "Correction 12 — percentile-derived: t_human=h_90, t_ai=ai_10",
         "baseline_comparison": {
             "old_weights": current_w,
             "old_roc_auc": round(curr_auc, 4),
