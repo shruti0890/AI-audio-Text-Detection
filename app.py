@@ -85,6 +85,22 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     text-align: center;
     margin-bottom: 1rem;
 }
+.verdict-likely-ai {
+    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+    border: 2px solid #F97316;
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+.verdict-likely-human {
+    background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%);
+    border: 2px solid #14B8A6;
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
 .verdict-human {
     background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
     border: 2px solid #22C55E;
@@ -101,9 +117,11 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     text-align: center;
     margin-bottom: 1rem;
 }
-.verdict-title-ai      { font-size: 1.7rem; font-weight: 800; color: #B91C1C; }
-.verdict-title-human   { font-size: 1.7rem; font-weight: 800; color: #15803D; }
-.verdict-title-uncertain { font-size: 1.7rem; font-weight: 800; color: #92400E; }
+.verdict-title-ai            { font-size: 1.7rem; font-weight: 800; color: #B91C1C; }
+.verdict-title-likely-ai     { font-size: 1.7rem; font-weight: 800; color: #C2410C; }
+.verdict-title-likely-human  { font-size: 1.7rem; font-weight: 800; color: #0F766E; }
+.verdict-title-human         { font-size: 1.7rem; font-weight: 800; color: #15803D; }
+.verdict-title-uncertain     { font-size: 1.7rem; font-weight: 800; color: #92400E; }
 .verdict-subtitle { font-size: 1.05rem; margin-top: 0.3rem; }
 
 /* ── Unified score banner ── */
@@ -254,9 +272,15 @@ st.markdown('<p style="color:#64748B;font-size:1.05rem;margin-bottom:1.5rem;">De
 # ─────────────────────────────────────────────────────────────────────────────
 def _verdict_card(verdict: str, score: float, subtitle: str = "") -> str:
     v = verdict.lower()
-    if "ai" in v or "deepfake" in v or "generated" in v:
+    if v == "ai" or (("likely ai" not in v) and ("ai" in v or "deepfake" in v or "generated" in v)):
         css, title_css = "verdict-ai", "verdict-title-ai"
         icon = "🤖"
+    elif "likely ai" in v:
+        css, title_css = "verdict-likely-ai", "verdict-title-likely-ai"
+        icon = "🤖"
+    elif "likely human" in v:
+        css, title_css = "verdict-likely-human", "verdict-title-likely-human"
+        icon = "👤"
     elif "human" in v or "real" in v:
         css, title_css = "verdict-human", "verdict-title-human"
         icon = "👤"

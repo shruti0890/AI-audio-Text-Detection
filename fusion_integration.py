@@ -117,9 +117,30 @@ _AUDIO_VERDICT_CAVEAT = (
 )
 
 # ── Text badge thresholds ─────────────────────────────────────────────────────
-# Calibrated via Correction 9 grid-search (ROC-AUC 0.9994 on 120 HC3 samples).
-_TEXT_AI_MIN: float = 75.0
-_TEXT_MIXED_MIN: float = 50.0
+def _load_text_badge_thresholds() -> tuple[float, float, float]:
+    """Read 4-way decision thresholds from text_forensics/calibration/fusion_config.json.
+    Returns (human_max, likely_human_max, ai_min) boundaries.
+      score < human_max             -> "Human"
+      human_max <= score < mid_max  -> "Likely Human"
+      mid_max <= score < ai_min     -> "Likely AI"
+      score >= ai_min               -> "AI"
+    """
+    import json
+    config_path = Path(__file__).resolve().parent / "text_forensics" / "calibration" / "fusion_config.json"
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = json.load(f)
+        th = cfg.get("thresholds_4way", {})
+        t_human = float(th.get("human_max", 50.0))
+        t_mid = float(th.get("likely_human_max", 70.0))
+        t_ai = float(th.get("ai_min", 85.0))
+        return t_human, t_mid, t_ai
+    except Exception:
+        return 50.0, 70.0, 85.0
+
+
+_TEXT_HUMAN_MAX, _TEXT_MID_MAX, _TEXT_AI_MIN = _load_text_badge_thresholds()
+
 
 # ── Unified score note ────────────────────────────────────────────────────────
 _UNIFIED_SCORE_NOTE = (
@@ -133,12 +154,15 @@ _UNIFIED_SCORE_NOTE = (
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _text_verdict(score: float) -> str:
-    """Assign a text verdict badge using calibrated Correction 9 thresholds."""
-    if score >= _TEXT_AI_MIN:
-        return "Likely AI-Generated"
-    if score >= _TEXT_MIXED_MIN:
-        return "Uncertain / Mixed Signals"
-    return "Likely Human-Written"
+    """Assign a 4-way text verdict badge: Human, Likely Human, Likely AI, AI."""
+    human_max, mid_max, ai_min = _load_text_badge_thresholds()
+    if score >= ai_min:
+        return "AI"
+    if score >= mid_max:
+        return "Likely AI"
+    if score >= human_max:
+        return "Likely Human"
+    return "Human"
 
 
 def _audio_verdict(score: float) -> str:
@@ -159,12 +183,15 @@ def _audio_verdict(score: float) -> str:
 
 
 def _unified_verdict(score: float) -> str:
-    """Assign a unified verdict. Uses text thresholds as a reasonable proxy."""
-    if score >= _TEXT_AI_MIN:
-        return "Likely AI-Generated (Combined)"
-    if score >= _TEXT_MIXED_MIN:
-        return "Uncertain / Mixed (Combined)"
-    return "Likely Human (Combined)"
+    """Assign a 4-way unified verdict."""
+    human_max, mid_max, ai_min = _load_text_badge_thresholds()
+    if score >= ai_min:
+        return "AI (Combined)"
+    if score >= mid_max:
+        return "Likely AI (Combined)"
+    if score >= human_max:
+        return "Likely Human (Combined)"
+    return "Human (Combined)"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

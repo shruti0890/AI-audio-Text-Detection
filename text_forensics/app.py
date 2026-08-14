@@ -240,13 +240,16 @@ if analyze_btn:
 
         # --- Score & Classification ---
         score = result["text_score"]
-        
-        if score >= 70:
-            verdict = "Likely AI-Generated (>70)"
-        elif score >= 50:
-            verdict = "Uncertain / Mixed Signals (50-69)"
+
+        # 4-way decision thresholds
+        if score >= 85.0:
+            verdict = "AI (≥85)"
+        elif score >= 70.0:
+            verdict = "Likely AI (70–85)"
+        elif score >= 50.0:
+            verdict = "Likely Human (50–70)"
         else:
-            verdict = "Likely Human-Written (<50)"
+            verdict = "Human (<50)"
 
         st.metric(
             label="Text AI-Likelihood Score",
@@ -353,12 +356,22 @@ if analyze_btn:
 
         chart_data = []
         for name, val in sub_scores.items():
+            # Correction 14: do NOT silently convert None → 0.0.
+            # A None burstiness (< 5 sentences) is "no data", not a confident
+            # 0.0 AI-like signal. Omit it from the bar chart entirely and
+            # show a clear label in the summary table.
             chart_data.append({
                 "Signal": name,
-                "Sub-Score (0-100)": val if val is not None else 0.0,
-                "Status": f"{val:.1f}" if val is not None else "N/A",
+                "Sub-Score (0-100)": val if val is not None else None,
+                "Status": f"{val:.1f}" if val is not None else "N/A — text too short",
             })
-        df_scores = pd.DataFrame(chart_data)
+        # Drop rows with None scores from the chart dataframe so the bar
+        # chart does not render a misleading zero bar.
+        df_scores = pd.DataFrame([
+            {"Signal": d["Signal"], "Sub-Score (0-100)": d["Sub-Score (0-100)"]}
+            for d in chart_data
+            if d["Sub-Score (0-100)"] is not None
+        ])
 
         col_chart, col_table = st.columns([2, 1])
         with col_chart:
@@ -372,7 +385,10 @@ if analyze_btn:
         with col_table:
             st.markdown("**Sub-Score Summary**")
             for item in chart_data:
-                val_str = f"**{item['Status']}** / 100" if item["Status"] != "N/A" else "*N/A (insufficient data)*"
+                if item["Status"].startswith("N/A"):
+                    val_str = f"*{item['Status']} (< 5 sentences)*"
+                else:
+                    val_str = f"**{item['Status']}** / 100"
                 st.write(f"• **{item['Signal']}**: {val_str}")
 
         st.divider()

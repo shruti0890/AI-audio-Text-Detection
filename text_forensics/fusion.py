@@ -169,10 +169,20 @@ def compute_text_score(signals: dict, baseline_stats: dict) -> dict:
     valid_scores = [v for v in sub_scores.values() if v is not None]
     if len(valid_scores) >= 2:
         spread = max(valid_scores) - min(valid_scores)
-        agreement_status = "disagreement" if spread > 50.0 else "agreement"
+        agreement_status = "disagreement" if spread > 40.0 else "agreement"
     else:
         spread = 0.0
         agreement_status = "agreement"
+
+    # ---- Vocabulary Richness / High-Entropy Guard ----
+    # If unigram lexical entropy indicates exceptionally rich vocabulary (entropy_score <= 35.0)
+    # and zero AI buzzwords are detected (cliche_density_score <= 50.0), and signals disagree (spread > 35.0),
+    # apply a human vocabulary credit so formal/journalistic prose is not penalized.
+    entropy_s = sub_scores.get("entropy_score")
+    cliche_s = sub_scores.get("cliche_density_score")
+    if entropy_s is not None and cliche_s is not None and entropy_s <= 35.0 and cliche_s <= 50.0 and spread > 35.0:
+        human_bonus = (35.0 - entropy_s) * 0.4
+        fused = max(0.0, fused - human_bonus)
 
     return {
         "text_score": round(fused, 2),
