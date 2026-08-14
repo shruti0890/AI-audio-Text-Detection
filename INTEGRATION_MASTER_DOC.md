@@ -3,7 +3,7 @@
 **Status**: Integration Phase (Text + Audio)  
 **Branch**: `Integration_branch`  
 **Section 3C (Cross-Modal Check)**: Explicitly deferred — pending calibration data  
-**Last updated**: 2026-08-11
+**Last updated**: 2026-08-14
 
 ---
 
@@ -48,10 +48,10 @@
 │  analyze_text(text, robustness) │    │  analyze_audio(audio_path)       │
 │                                 │    │                                  │
 │  Signals:                       │    │  Pipeline:                       │
-│   • Curvature (75%)             │    │   • strip_silence() — Silero VAD │
-│   • Cliché Scan (20%)          │    │   • transcribe() — Whisper-Tiny  │
-│   • Burstiness (5%)             │    │   • score_audio() — wav2vec2     │
-│   • Lexical Entropy (0%)        │    │                                  │
+│   • Curvature (65%)             │    │   • strip_silence() — Silero VAD │
+│   • Cliché Scan (5%)            │    │   • transcribe() — Whisper-Tiny  │
+│   • Burstiness (20%)            │    │   • score_audio() — wav2vec2     │
+│   • Lexical Entropy (10%)       │    │                                  │
 │                                 │    │  Returns:                        │
 │  Returns: text_score (0-100)    │    │   audio_score, logit_fake,       │
 │   + signals, agreement, etc.    │    │   logit_real, transcript         │
@@ -93,26 +93,80 @@ result = analyze_text(text: str, run_robustness: bool = True) -> dict
 
 ### Signal Details
 
-| Signal | Weight | Method | Raw Value | Calibration |
-|--------|--------|--------|-----------|-------------|
-| **Probability Curvature** | 75% | Fast-DetectGPT: log-likelihood discrepancy under `distilgpt2` | curvature_raw (lower = more AI-like) | Gaussian CDF: μ₀=−1.347, σ₀=0.326 |
-| **Cliché Scan** | 20% | Regex match on 50 AI buzzword terms | cliche_density_pct (% of total words) | Gaussian CDF on density |
-| **Burstiness** | 5% | σ/μ of sentence lengths (NLTK tokenisation) | burstiness_raw | CDF, inverted (low = AI-like) |
-| **Lexical Entropy** | 0% | Shannon entropy H of unigram distribution | entropy in bits | CDF, inverted (high entropy = human-like) |
+| Signal | Weight | Method | Raw Value | Calibration (Correction 15 Genre-Diverse) |
+|--------|--------|--------|-----------|---------------------------------------------|
+| **Probability Curvature** | **65%** | Fast-DetectGPT: log-likelihood discrepancy under `distilgpt2` | curvature_raw (lower = more AI-like) | Gaussian CDF: μ₀=−1.2804, σ₀=0.3973 (n=474) |
+| **Burstiness** | **20%** | σ/μ of sentence lengths (NLTK tokenisation) | burstiness_raw | CDF, inverted (low = AI-like): μ₀=0.6561, σ₀=0.4112 (n=350) |
+| **Lexical Entropy** | **10%** | Shannon entropy H of unigram distribution | entropy in bits | CDF, inverted (high = human): μ₀=6.1442, σ₀=0.7641 (n=475) |
+| **Cliché Scan** | **5%** | Regex match on 50 AI buzzword terms | cliche_density_pct (% of total words) | Gaussian CDF on density: μ₀=0.0091, σ₀=0.0827 (n=475) |
 
 ### Fusion Formula
 ```
 text_score = Σ (normalised_weight_i × CDF_score_i)
 ```
-- Weights: `{curvature: 0.75, cliche: 0.20, burstiness: 0.05, entropy: 0.00}`
-- Calibrated via Correction 9 grid-search: **ROC-AUC 0.9994** on 120 HC3 held-out samples.
+- Weights: `{curvature: 0.65, burstiness: 0.20, entropy: 0.10, cliche: 0.05}`
+- Calibrated via **Correction 15** threshold-aware F1 grid-search: **ROC-AUC 0.9872, F1 0.9455** on 241-sample genre-diverse held-out set.
+- Weights normalise dynamically if a signal returns `None` (e.g. burstiness on < 5 sentences).
 
-### Text Verdict Thresholds (Calibrated — Correction 9)
-| Score Range | Verdict |
-|-------------|---------|
-| ≥ 75 | Likely AI-Generated |
-| 50 – 74.9 | Uncertain / Mixed Signals |
-| < 50 | Likely Human-Written |
+### Text Verdict Thresholds (4-Way Classification System)
+| Score Range | Verdict Badge | Description | Visual Style |
+|-------------|---------------|-------------|--------------|
+| **< 50.0** | 👤 **Human** | Confident human writing (core distribution) | Vibrant Green Card (`#22C55E`) |
+| **50.0 – 69.9** | 👤 **Likely Human** | Leaning human (formal prose, journalistic writing) | Teal / Mint Card (`#14B8A6`) |
+| **70.0 – 84.9** | 🤖 **Likely AI** | Leaning AI (mixed signals, partial AI editing) | Warm Amber Card (`#F97316`) |
+| **≥ 85.0** | 🤖 **AI** | Confident AI generation (high curvature/clichés) | Solid Red Card (`#EF4444`) |
+
+- **Method**: The 0–100 forensic score range is divided into 4 intuitive tiers. Mixed signals are split across `Likely Human` (50–70) and `Likely AI` (70–85) around the calibrated human/AI boundary ($t_{\text{human}}=69.74$).
+- Saved in `text_forensics/calibration/fusion_config.json`.
+
+### Calibration History
+
+#### Correction 9 (initial)
+- Grid search over weight combinations; curvature floor ≥ 0.40.
+- Ranked by ROC-AUC, then flat-50 F1.
+- Winner: `{curvature: 0.75, cliche: 0.20, burstiness: 0.05, entropy: 0.00}` — ROC-AUC 0.9994.
+- Thresholds: hardcoded placeholders `human_max=45.0, ai_min=65.0` (never derived from data).
+
+#### Correction 12 (threshold fix)
+- Extracted real percentile statistics from the 120-sample tuning run.
+- Replaced hardcoded thresholds with `t_human = h_90 = 76.52`, `t_ai = ai_10 = 86.50`, band width = 9.98 pts.
+
+#### Correction 13 (threshold-aware F1 re-tune)
+- Re-evaluated candidates against their own data-derived `t_ai` cutoff rather than a flat-50 ruler.
+- Curvature floor lowered to 0.20. Winner: `{curvature: 0.50, cliche: 0.25, burstiness: 0.15, entropy: 0.10}`, thresholds `66.13 / 73.84`.
+
+#### Correction 14 (manual entropy cap)
+- Entropy capped at 0.03 to mitigate technical text genre-mismatch.
+- Evaluation on formal legal text (Bar Council) revealed curvature (not entropy) was the primary driver of the genre mismatch on short formal prose.
+
+#### Correction 15 (genre-diverse recalibration) — current
+- **Corpus Composition (475 human calibration samples + 241 genre-diverse held-out samples)**:
+  - **Conversational**: 250 HC3 `human_answers` (untouched)
+  - **News**: 75 calibration + 25 holdout from `abisee/cnn_dailymail` (150–400 words)
+  - **Legal/Bureaucratic**: 75 calibration + 25 holdout from `FiscalNote/billsum` (150–400 words)
+  - **Technical**: 75 calibration + 25 holdout from `Salesforce/wikitext` wikitext-103 (150–400 words)
+  - **AI Corpus**: 225 calibration + 66 holdout from `yahma/alpaca-cleaned` (LLaMA instruction outputs across news, legal, and technical registers).
+- **Curvature Context Window & Token Ceiling**:
+  - `signals/curvature.py` updated with a safety token ceiling of `max_tokens=512` (~350–400 words), preventing sequence overflow beyond `distilgpt2`'s 1024 token embedding capacity.
+  - **Speed Benchmark** (CPU-only):
+    - Short passage (~35 words): 0.07s cached
+    - Long passage (~219 words): 0.22s cached (~3.1x longer, scaling sub-quadratically with token length)
+- **Recomputed Baseline Stats (`baseline_stats.json`)**:
+  - Curvature: $\mu_0 = -1.2804, \sigma_0 = 0.3973$ ($n=474$)
+  - Burstiness: $\mu_0 = 0.6561, \sigma_0 = 0.4112$ ($n=350$)
+  - Cliché: $\mu_0 = 0.0091, \sigma_0 = 0.0827$ ($n=475$)
+  - Entropy: $\mu_0 = 6.1442, \sigma_0 = 0.7641$ ($n=475$)
+- **Genre-Diverse Grid Search Results**:
+  - Top 5 candidates all achieved F1 0.9455 and ROC-AUC ≥ 0.9866 on the 241-sample held-out set.
+  - **Winner**: `{curvature: 0.65, burstiness: 0.20, entropy: 0.10, cliche: 0.05}` | $t_{\text{human}}=69.74, t_{\text{ai}}=78.00$ (band width 8.25 pts).
+- **Validation Against Known Failure Cases**:
+  1. **Transformers Technical Wikipedia Article** (Correction 6 failure case):
+     - Score: **57.17** → **Likely Human-Written (< 69.74)** ✅ **PASS** (sub-scores: curvature 54.5, burstiness 67.2, cliche 100.0, entropy 32.9).
+  2. **Bar Council News Article** (Correction 14 failure case):
+     - Score: **81.84** → **Likely AI-Generated (≥ 78.00)** ⚠️ **Analysis**: The text is 110 words across 4 sentences (< 5 sentence guard), causing burstiness to return `None`. Without burstiness, curvature absorbs 81.25% of the fusion weight. While curvature sub-score improved from 95.08 to 88.3 under the new baseline, the absence of sentence rhythm data on short formal prose leaves the score curvature-dominated.
+  3. **Conversational Regression Check** (30 HC3 samples):
+     - **29/30 (96.7%) correct** (14/15 human correct, 15/15 AI correct) ✅ **PASS**.
+- **Scope Note & Limitations**: The pipeline is now calibrated across 4 major genres (conversational, news, legal/bureaucratic, and technical/informational) totaling ~716 samples across calibration and evaluation. While significantly more robust than the HC3-only foundation, writing styles outside these domains (e.g., social media posts, short marketing copy, creative fiction, poetry) remain outside the current calibration distribution.
 
 ### Sentence-Level Highlighting
 Uses a **sliding 3-sentence context window** `[S_{i−1}, S_i, S_{i+1}]` to give Fast-DetectGPT sufficient tokens for reliable curvature scoring. Each sentence is colored:
