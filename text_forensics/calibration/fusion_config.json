@@ -1,9 +1,9 @@
 {
   "weights": {
-    "curvature": 0.65,
-    "burstiness": 0.2,
-    "cliche": 0.05,
-    "entropy": 0.1
+    "curvature": 0.80,
+    "burstiness": 0.15,
+    "cliche": 0.02,
+    "entropy": 0.03
   },
   "thresholds": {
     "human_max": 69.74430000000001,

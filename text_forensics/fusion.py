@@ -37,10 +37,10 @@ _CONFIG_PATH = Path(__file__).parent / "calibration" / "fusion_config.json"
 
 # Fallback default weights (must sum to 1.0)
 _DEFAULT_WEIGHTS = {
-    "curvature": 0.65,
+    "curvature": 0.80,
     "burstiness": 0.15,
-    "cliche_density": 0.15,
-    "entropy": 0.05,
+    "cliche_density": 0.02,
+    "entropy": 0.03,
 }
 
 _DEFAULT_THRESHOLDS = {
@@ -176,11 +176,15 @@ def compute_text_score(signals: dict, baseline_stats: dict) -> dict:
 
     # ---- Vocabulary Richness / High-Entropy Guard ----
     # If unigram lexical entropy indicates exceptionally rich vocabulary (entropy_score <= 35.0)
-    # and zero AI buzzwords are detected (cliche_density_score <= 50.0), and signals disagree (spread > 35.0),
-    # apply a human vocabulary credit so formal/journalistic prose is not penalized.
+    # and zero AI buzzwords are detected (cliche_density_score <= 50.0), signals disagree (spread > 35.0),
+    # and curvature is NOT indicating AI (curvature_score < 60.0), apply a human vocabulary credit
+    # so formal/journalistic prose is not penalized.
     entropy_s = sub_scores.get("entropy_score")
     cliche_s = sub_scores.get("cliche_density_score")
-    if entropy_s is not None and cliche_s is not None and entropy_s <= 35.0 and cliche_s <= 50.0 and spread > 35.0:
+    curvature_s = sub_scores.get("curvature_score")
+    if (entropy_s is not None and cliche_s is not None 
+        and entropy_s <= 35.0 and cliche_s <= 50.0 
+        and spread > 35.0 and (curvature_s is None or curvature_s < 60.0)):
         human_bonus = (35.0 - entropy_s) * 0.4
         fused = max(0.0, fused - human_bonus)
 
