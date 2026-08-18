@@ -415,27 +415,21 @@ def _render_text_panel(result: dict, raw_text: str) -> None:
 # Helper: render audio results panel (Section 3B)
 # ─────────────────────────────────────────────────────────────────────────────
 def _render_audio_panel(result: dict) -> None:
-    audio_score  = result["audio_score"]
+    audio_score = result["audio_score"]
     audio_verdict = result["audio_verdict"]
-    logit_fake   = result["logit_fake"]
-    logit_real   = result["logit_real"]
-    transcript   = result["transcript"]
-    logit_diff   = logit_fake - logit_real
-    threshold    = result.get("audio_decision_threshold_pct", 56.0)
-    temperature  = result.get("audio_temperature", 1.15)
-    n_windows    = result.get("audio_n_windows", 1)
+    logit_fake = result["logit_fake"]
+    logit_real = result["logit_real"]
+    logit_diff = logit_fake - logit_real
+    transcript = result["transcript"]
+    threshold = result.get("audio_decision_threshold_pct", 50.0)
+    temperature = result.get("audio_temperature", 1.15)
+    n_windows = result.get("audio_n_windows", 1)
     window_scores = result.get("audio_window_scores", [])
-    conf_tiers   = result.get("audio_confidence_tiers", {"extreme_logit_margin": 3.0, "high_logit_margin": 1.5, "moderate_logit_margin": 0.5})
-    diff_scaled  = logit_diff / temperature if temperature else logit_diff
+    conf_tiers = result.get("audio_confidence_tiers", {})
 
-    st.markdown('<div class="section-header section-header-audio">🎙️ Audio Analysis Results</div>', unsafe_allow_html=True)
-    st.markdown(_verdict_card(audio_verdict, audio_score), unsafe_allow_html=True)
-
-    # Calibration badge notice
+    st.markdown('<div class="section-header section-header-audio">🎙️ Audio Forensics Results</div>', unsafe_allow_html=True)
     st.markdown(
-        '<div class="uncalibrated-badge">ℹ️ <b>Audio forensic thresholds calibrated:</b> '
-        '0–35 Authentic Human Voice | 36–55 Likely Human Voice | '
-        '56–74 Likely AI Voice | 75–100 Authentic AI Voice.</div>',
+        _verdict_card(audio_verdict, audio_score, model_name="wav2vec2-deepfake-voice-detector"),
         unsafe_allow_html=True,
     )
 
@@ -504,7 +498,6 @@ def _render_audio_panel(result: dict) -> None:
         confidence = "Borderline / Low Confidence"
 
     with st.expander("📋 Classification Explanation"):
-        # Determine tier label
         if audio_score >= 75.0:
             tier_label = "Authentic AI Voice"
             tier_range = "75–100%"
@@ -538,49 +531,6 @@ def _render_audio_panel(result: dict) -> None:
                 f"- **Confidence**: **{confidence}** (|Δ| = `{abs_diff:.4f}`).\n"
                 f"- Acoustic features align with natural human vocal tract resonances."
             )
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Helper: render unified score banner (Section 4)
-# ─────────────────────────────────────────────────────────────────────────────
-def _render_unified_banner(result: dict) -> None:
-    u_score = result["unified_score"]
-    u_verdict = result["unified_verdict"]
-    if u_score is None:
-        return
-
-    if "ai" in u_verdict.lower() or "generated" in u_verdict.lower():
-        score_color = "#F87171"
-        icon = "🤖"
-    elif "human" in u_verdict.lower():
-        score_color = "#4ADE80"
-        icon = "👤"
-    else:
-        score_color = "#FBBF24"
-        icon = "🔶"
-
-    st.markdown(
-        f'<div class="unified-banner">'
-        f'<div class="unified-score-label">UNIFIED AI-LIKELIHOOD SCORE</div>'
-        f'<div class="unified-score-value" style="color:{score_color};">{u_score:.1f} / 100</div>'
-        f'<div class="unified-verdict-text">{icon} {u_verdict}</div>'
-        f'<div style="font-size:0.8rem;color:#94A3B8;margin-top:0.5rem;">'
-        f'⚠️ {result["unified_score_note"]}</div>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-    # Cross-modal deferred notice (Section 3C)
-    st.info(
-        "🔬 **Section 3C (Cross-Modal Consistency Check) — Deferred**\n\n"
-        "Comparing the deepfake text score of the audio transcript against the original text "
-        "score to detect genuine mismatch requires calibrated delta thresholds — analogous to "
-        "the Correction 9 grid-search for text. This will be implemented once matched real/fake "
-        "audio test clips are available for threshold tuning. "
-        + (f"Raw cross-modal Δ (for future calibration): `{result['transcript_text_delta']:.2f}`"
-           if result.get("transcript_text_delta") is not None else
-           "Raw delta: N/A (insufficient transcript length or text-only mode).")
-    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

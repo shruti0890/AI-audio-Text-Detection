@@ -3,391 +3,456 @@
     "file": "cat2_01.wav",
     "label": 1,
     "score": 75.7022,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Sure, an Internet Protocol IP addresses a unique numerical label assigned to each device, e.g., computer, printer, connected to a computer network that uses the Internet Protocol for communication. An IP address serves two main functions, host or network interface identification and location addressing, a subnet, or subnetwork, is a smaller network that is created within a larger network. It is a way of dividing a larger network into smaller, more manageable chunks. For example, if a company has a large network with many computers, it might create several smaller subnets to better organize and manage the network."
   },
   {
     "file": "cat2_02.wav",
     "label": 1,
     "score": 87.5885,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Sleep paralysis is a condition that can occur when you are falling asleep or waking up. During sleep, your body is paralyzed, which helps to keep you from acting out your dreams. Sleep paralysis happens when this paralysis persists after you wake up, making it difficult or impossible for you to move your body or speak. Sometimes people who experience sleep paralysis may also have vivid, dreamlike experiences. These experiences can be vivid and lifelike, and people may feel like they are dreaming while they are awake. Some people may even feel like they are experiencing elucid dream, which is a type of dream where you are aware that you are dreaming and can sometimes control what happens in the dream."
   },
   {
     "file": "cat2_03.wav",
     "label": 1,
     "score": 97.37,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Paste Passage Text here."
   },
   {
     "file": "cat2_04.wav",
     "label": 1,
     "score": 96.5801,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "It's not entirely clear why sleep paralysis happens, but it is thought to be related to problems with the way the body's sleep wake cycle is regulated. Some people may be more prone to sleep paralysis due to certain factors such as sleep deprivation, irregular sleep schedules, or certain medications. It can also be triggered by other conditions such as narcolepsy, a disorder that affects the way the body regulates sleep. In general, sleep paralysis is not a serious condition and does not cause any long-term harm. However, it can be unsettling and may cause anxiety for some people."
   },
   {
     "file": "cat2_05.wav",
     "label": 1,
     "score": 83.4782,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Scientists use telescopes to study the galaxy and other objects in space. A telescope is a special instrument that uses lenses or mirrors to gather light from distant objects and make them appear closer and larger. By looking through a telescope, scientists can see what the galaxy looks like from the outside. There are different types of telescopes, including optical telescopes that use lenses to focus light and radio telescopes that use antennas to detect radio waves emitted by objects in space."
   },
   {
     "file": "cat2_06.wav",
     "label": 1,
     "score": 97.0402,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Immodacons are symbols or combinations of symbols that are used to express emotions in text messages or online communication. They are often made up of punctuation marks and letters and are used to represent facial expressions or gestures. For example, the emoticon, smiley face, is often used to represent a smile. Immodges are similar to emoticons, but they are more varied and can represent a wider range of emotions, objects, and ideas. Immojis are often depicted as small, colorful images or icons, and they are used in a similar way to emoticons to express emotions or convey a message."
   },
   {
     "file": "cat2_07.wav",
     "label": 1,
     "score": 88.8859,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "There are several ways to efficiently transfer money internationally, including online money transfer services. These services, such as PayPal and transfer wise, allow you to transfer money online using a computer or smartphone. These services can be faster and cheaper than traditional banks, especially for smaller amounts. Bank wire transfer. Many banks offer international wire transfer services, which allow you to send money from your bank account to a bank account in another country. This can be a convenient option if you already have a relationship with a bank, but fees can be higher compared to online money transfer services."
   },
   {
     "file": "cat2_08.wav",
     "label": 1,
     "score": 97.4042,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Nursery rhymes are a type of children's song that have been passed down for generations. They are usually simple and catchy and are often used to teach children language skills and to entertain them. Many nursery rhymes have been around for hundreds of years and the origins of many of them are not well known. Some of them may have originated as folk songs or as part of oral tradition and they may have changed over time as they were passed down through the generations."
   },
   {
     "file": "cat2_09.wav",
     "label": 1,
     "score": 95.2496,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "It is true that some nursery rhymes contain themes of death or sin, but it is important to remember that these rhymes were not necessarily intended for children. In the past, many nursery rhymes were sung or recited by adults to entertain children, and these rhymes may have been based on adult themes or experiences that children would not necessarily understand. In some cases, the themes in nursery rhymes may be dark or unsettling, but it is important to remember that these rhymes are simply part of our cultural heritage and are not necessarily intended to be taken literally or to be understood by young children."
   },
   {
     "file": "cat2_10.wav",
     "label": 1,
     "score": 83.2183,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "To buy an OTC over the counter, stock listed on NASDAQ from India, you will need to follow these steps. Find a broker. You will need to find a broker that allows you to trade OTC stocks listed on NASDAQ. Some popular brokers that offer this service include E-Trade, TD Ameritrade, and interactive brokers. Open a brokerage account. To trade OTC stocks, you will need to open a brokerage account with the broker you have chosen."
   },
   {
     "file": "cat2_11.wav",
     "label": 1,
     "score": 95.2593,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Bernie Medoff was a financier who operated a massive Ponzi scheme, defrauding thousands of investors of billions of dollars. In a Ponzi scheme, early investors are paid returns with the money of later investors, rather than with any actual profits earned. Medoff claimed to be running a successful investment firm, but in reality he was using the funds of new investors to pay the returns promised to earlier investors, rather than investing the money as promised."
   },
   {
     "file": "cat2_12.wav",
     "label": 1,
     "score": 96.6061,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "There are a few reasons why the United States has been able to sustain larger amounts of debt compared to Greece. First, the United States has a much larger and more diversified economy than Greece. This means that the United States is able to generate more income and wealth, which can be used to pay off its debts. Second, the United States is able to borrow money at low interest rates because it is considered a safe and stable place to invest. This means that the United States can borrow money at a lower cost, making it easier to pay off its debts."
   },
   {
     "file": "cat2_13.wav",
     "label": 1,
     "score": 47.1557,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Shampoo and conditioner are two different hair care products that serve different purposes. Shampoo is a product that you use to clean your hair. It helps to remove dirt, oil, and other impurities from your hair and scalp. When you use shampoo, you usually massage it into your hair and then rinse it out. Conditioner, on the other hand, is a product that you use to make your hair softer and more manageable. It helps to add moisture and nutrients to your hair, which can help to improve its texture and appearance. After you use shampoo, you typically apply conditioner to your hair and then rinse it out. So, in short, shampoo is used to clean your hair and conditioner is used to make your hair softer and more manageable. Hope this helps."
   },
   {
     "file": "cat2_14.wav",
     "label": 1,
     "score": 97.0514,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "There are a few reasons why gasoline prices might be high, even though the US is producing a lot of it. One reason is that the price of oil, which is used to make gasoline, is affected by a lot of different things like the cost of producing it and the demand for it from different countries. Sometimes, the price of oil goes up because there is less of it available, or because it costs more to get it out of the ground. Another reason is that it costs money to transport gasoline from where it is made to where it is sold, and these transportation costs can affect the price."
   },
   {
     "file": "cat2_15.wav",
     "label": 1,
     "score": 90.5285,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "schizophrenia is a complex and severe mental disorder that is characterized by symptoms such as delusions, hallucinations, disorganized thinking, and behavior, and abnormal emotional responses. The diagnosis of schizophrenia is based on a thorough evaluation by a mental health professional, such as a psychiatrist or psychologist. The process of diagnosing schizophrenia typically involves a thorough evaluation of the individual's medical and psychiatric history, as well as a physical examination and laboratory tests to rule out other potential causes of the symptoms."
   },
   {
     "file": "cat2_16.wav",
     "label": 1,
     "score": 97.5359,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "It is important to be cautious of any unsolicited offers or notices you receive, especially those that involve financial matters. If you receive a notice from a third-party company about a reduction in your federal housing administration, FHA, mortgage insurance premiums, it is a good idea to verify the authenticity of the offer before taking any action. Here are a few steps you can take to determine if the offer is legitimate. Contact the FHA Directly. You can call the FHA Directly at 1-800-Call FHA-1-800-225-5342 to ask about the reduction offer."
   },
   {
     "file": "cat2_17.wav",
     "label": 1,
     "score": 59.7974,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Some people may be more prone to sleep paralysis due to certain factors such as sleep deprivation, irregular sleep schedules, or certain medications. It can also be triggered by other conditions such as narcolepsy, a disorder that affects the way the body regulates sleep. In general, sleep paralysis is not a serious condition and does not cause any long-term harm. However, it can be unsettling and may cause anxiety for some people."
   },
   {
     "file": "cat2_18.wav",
     "label": 1,
     "score": 95.2108,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Bernie Medoff was a financier who operated a massive Ponzi scheme, defrauding thousands of investors of billions of dollars. In a Ponzi scheme, early investors are paid returns with the money of later investors, rather than with any actual profits earned. Medoff claimed to be running a successful investment firm, but in reality he was using the funds of new investors to pay the returns promised to earlier investors, rather than investing the money as promised."
   },
   {
     "file": "cat2_19.wav",
     "label": 1,
     "score": 89.7062,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "There are a few reasons why the United States has been able to sustain larger amounts of debt compared to Greece. First, the United States has a much larger and more diversified economy than Greece. This means that the United States is able to generate more income and wealth, which can be used to pay off its debts. Second, the United States is able to borrow money at low interest rates because it is considered a safe and stable place to invest."
   },
   {
     "file": "cat2_20.wav",
     "label": 1,
     "score": 91.6008,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Doxocycline high-clate is an antibiotic that is used to treat a variety of bacterial infections. It is a type of tetracycline antibiotic and is commonly used to treat infections of the respiratory tract, skin, and urinary tract. It can also be used to treat acne and some sexually transmitted infections, such as chlamydia and gonorrhea."
   },
   {
     "file": "cat4_01.wav",
     "label": 1,
     "score": 93.1123,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "What do you do if the random jury pool includes someone who is the cousin of the victim, or someone who is a literate, or who states openly that they would never vote to convict, or always vote to convict, someone of a particular class or race or religion? Yes, it is possible to manipulate the jury selection system and reforms are possible slash needed, but the need for selection slash screening at some point is hard to remove from the process."
   },
   {
     "file": "cat4_02.wav",
     "label": 1,
     "score": 96.9504,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "It is not so much that the U.S. is behind, on evolution, so much as they re-sprinting as fast as they can in the opposite direction. Seriously, though, if you are a person of strong religious faith, asking that you accept that God is word, or the Holy text you consider to be God is word, is untrue as like asking any other person to accept that two plus two is equal to five. It just doesn't compute. For the faithful, it is essentially down to saying Backslash, who are you going to listen to. A bunch of nerds and lab coats or the dude who created all of existence by thinking it. Backslash remember also that many religions required hearings to proclaim their faith loudly and publicly, either in an attempt to convert others or simply as an example to them. What this means in practical terms is that you and I might believe in evolution, but we re not standing outside JC Penny handing out flyers trying to convince others and redo it meet once a week in groups of hundreds or thousands at a time to coordinate our efforts."
   },
   {
     "file": "cat4_03.wav",
     "label": 1,
     "score": 97.2679,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "It depends on what else needed for a particular kind of cheese and starts with the ingredients which are milk, cream, the enzyme-rennate, and salt. Most cheeses are made from pasteurized milk and cream, pasteurization cooks the raw milk to kill bacteria and render it sterile and fit for human consumption. It also changes the flavor but un pasteurized milk is not generally used in mass-produced cheeses and is usually used in hand made batches not for sale. Safety is a stated concern. Milk and cream are placed in a large tub in an enzyme called Renet is added. Renet used to be sourced from the stomachs of milk drinking calves of sheep, goats, and cows. It has an enzyme that helps a young animal digest milk, and it causes it to coagulate and form curds. The fat and protein in the milk cling together and separate from the more watery way which contains lactose, way protein and water. The curds are mostly fat, protein and water. The cultured milk and cream are stirred and cut several times with special blades to break up the curds and help to separate them from the way. Eventually you end up with the curds pulled to one side and the way is drained."
   },
   {
     "file": "cat4_04.wav",
     "label": 1,
     "score": 79.8928,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "When the string has blood on it, the tampon is no longer absorbing so the blood moves down beyond it to the string. Also, it feels heavy and loose. When it's a new tampon and you've the inserted properly above the muscle, you should end be able to feel it once it's south in place. Actually, the group is almost entirely made up of a family of lawyers. They are able to continue doing what they do through lawsuits. Every time they piss off mourners to the point of retaliation, they can sue. Religion is just a veneer for this group. It's all about the money."
   },
   {
     "file": "cat4_05.wav",
     "label": 1,
     "score": 95.9255,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "First of all, keep in mind backslash smartbackslash just means you learn quicker than most. You re not a born trivia genius, unless you explicitly study trivia. A lot of it has to do with social pressure, especially if your parents and such think you re more intelligent than normal. Backslash, oh, he has such a smart kid, backslash, et cetera, et cetera. You start playing into expectations, using big words because of, you can sus out their from context clues faster than most people in B because people expect you to. Eventually you become the backslash big words backslash kid. You re-enird if you re-enregular public school."
   },
   {
     "file": "cat4_06.wav",
     "label": 1,
     "score": 94.2229,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "In a nutshell, you run a company making widgets and you employ one person to make those widgets. The person can make one widget an hour and is paid $10 a hour. For your company to profit, you set the price for the widgets at $11. Please note I'm being very simplistic here. I'm not going to go into the materials and similar or the fact that the widget company isn't making me any money really. So you sell widgets for $11 and all is fine. But then the government comes along and tells you that $10 is no longer allowed. You have to pay your employee $12. You say okay and you increase your widget price to $13. So what has happened? Well, nothing to you. You are still making your dollar per widget and your employee is making the minimum wage. Enter company number two that makes widgets. Wajits are the item your employee requires to survive and he must have one each hour."
   },
   {
     "file": "cat4_07.wav",
     "label": 1,
     "score": 76.9006,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "The basic idea behind the Vaughan Newman architecture is that a problem can be broken into a list of instructions. And these instructions can be stored inside the computer in the same way any other piece of information can. The computer solves a problem by doing each instruction in the order they are stored in the computer S memory. To allow the computer to make decisions, the person who designs the problem will use a special instruction called a branching instruction. A branching instruction makes the computer skip to a different position in a list of instructions."
   },
   {
     "file": "cat4_08.wav",
     "label": 1,
     "score": 96.9085,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Suppose they're S2 persons, Mary Baker and John Farmer. Mary S. A. Baker, John S. A. Wheat Farmer. Therefore, Mary often buys wheat. John often sells it. Now, John has two problems. One, how does he plan how much wheat to grow during the season? If he grows too much, he will have spent too much money on seed, fertilizer, etc. If he grows too little, he will not have earned as much money as he could have. Two, suppose he makes his plan, grows the wheat. But then, when it is ready, the price of wheat has dropped a lot. In this case, he may lose money, or at least not make the profit he expected."
   },
   {
     "file": "cat4_09.wav",
     "label": 1,
     "score": 81.9527,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "The size of the bet is based on how much wheat she will need, and she wins or loses money proportionate to how far the price ends up from today's price. So now, if wheat goes up, she loses on the cakes, but makes up for it by the earnings of the bet. If wheat goes down, she loses on her bet, but spends less on the wheat for the cakes. Asterisk John goes to the bookie as well, sees Mary S. offered bet, and accepts the other side of it. He bets that wheat prices will go down."
   },
   {
     "file": "cat4_10.wav",
     "label": 1,
     "score": 70.9239,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "charged with means the prosecutors formally begin a trial. O. J. Simpson was charged with the murder of Nicole Brown Simpson and Ron Goldman. He was not convicted, meaning the jury voted unanimously that the prosecution could not prove its case, or charges, beyond a reasonable doubt. Some of jurors have provided details and some points from the bookiness about their reasoning for coming to the decisions they did. They appeared to have substantial continents about the evidence collection and handling practices of the police, which were a major portion of the prosecution's case."
   },
   {
     "file": "cat4_11.wav",
     "label": 1,
     "score": 90.9712,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Computer engineer here, timekeeping on computers. Indeed, most electronic devices is performed using two methods. One, a small quartz crystal that, when energized, oscillates at exactly 32,768 hertz, is fed through an amplifier and bystable oscillating circuit. This assembly is often embedded within a real-time clock circuit, which in some products can track the date and time down to the millisecond. 32,768 is exactly 2 to the power of 15, which is extremely easy to count in logic. One second elapses, every 32,768 oscillations, crystals that oscillate at other frequencies, such as 50 megahertz, and 100 megahertz are available as well."
   },
   {
     "file": "cat4_12.wav",
     "label": 1,
     "score": 96.3717,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "As long as the oscillating frequency is known and oscill problem is that voting is actually a fairly irrational thing to do. The problem is that your vote almost certainly counts for nothing and the amount of effort you invest can be used far, far better. Of course, if no one votes the system breaks down, but that's the rationale."
   },
   {
     "file": "cat4_13.wav",
     "label": 1,
     "score": 94.4395,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Not a significant one. No. Let s assume for the sake of a rough calculation that every human being has 125 square feet of air conditioned space to live in on average. This compensates for the people who do and have it at all with an eight foot ceiling. Then let s assume they also get a 10 by 10 office with a 10 foot ceiling, assuming that this overestimate compensates for things like air conditioned storage. That s2000 cubic feet of air times the 7 billion people on Earth is 14 trillion cubic feet of air. That S only one part in just over 10 million of the air even in the lowest level of the atmosphere. So cooling those spots by, say, 20 degrees Fahrenheit would only heat the outside directly by 0.002 degrees."
   },
   {
     "file": "cat4_14.wav",
     "label": 1,
     "score": 97.6132,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Hi, this looks to me like so-called post-colossistectomy syndrome which has all these symptoms and this occurs in about 10% of patients who undergo colossistectomy usually can be transient and rarely persistent or lifelong. Symptoms include systemic symptoms such as sweating and heat sense but also dyspepsia, nausea and vomiting, flatulence, bloating and diarrhea, persistent pain in the upper right abdomen. Some individuals may benefit from diet modification, such as a reduced fat diet, following colisestectomy, since it may be more difficult for digestion of fatty foods."
   },
   {
     "file": "cat4_15.wav",
     "label": 1,
     "score": 75.2458,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Post-cola-sistectomy syndrome treatment depends on the identified violations that lead to it. Typically, the patient is recommended dietary restriction table with fatty foods, enzyme preparations, anti-spasmodics, sometimes oral or serdeoxicolic acid can alleviate the condition. Hope I have answered your query. Let me know if I can assist you further. regards Dr. Ivan Arvromstein, general surgeon."
   },
   {
     "file": "cat4_16.wav",
     "label": 1,
     "score": 78.7605,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "This comes up every once in a while, but their S surprisingly little understanding of it. There are a few causes of the stability, you can build a bicycle with tiny wheels, and in particular, a second set of wheels spinning backwards, cancelling out the gyroscopic effects, and that bike would be perfectly stable."
   },
   {
     "file": "cat4_17.wav",
     "label": 1,
     "score": 90.4725,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Trail is another factor bike designers take into account when talking about stability. Basically, Trail is the measurement between the point the fork of the bike is pointing at on the ground, and the point where the tire actually touches the ground. With the tire touching the ground behind where the fork is pointing, the front will acts like a caster, like the wheels on the front of a shopping cart. It tends to straighten out when moving forward. However, again, this is in the full story. You can design a bike that has little to no trail, and that bike could still be perfectly stable."
   },
   {
     "file": "cat4_18.wav",
     "label": 1,
     "score": 91.6743,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Steering dynamics are probably the biggest reason, as far as we can tell. All stable bikes seem to steer into a fall. That means that if you lean to one side, the bike tends to steer in that direction, effectively moving the wheels back underneath you, and countering the lean. Really it is centrifugal acceleration, pushing the center of mass outward, and the tires pushing the bottom of the bike inward. Same effect, different ways of thinking about it. It is all about the entirety of the bike and the force on the tires. It is not perfect. Try riding with no hands. It is quite easy to get out of control if you re-not careful, but as far as we can tell, this is the one crucial element for a stable bike."
   },
   {
     "file": "cat4_19.wav",
     "label": 1,
     "score": 97.3603,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "In the original GIF, the middle one, the leg that s up in the air passes in front of the pivot leg and then behind it. You see a aunt tell when it does that, however, because the woman is a solid color and you see a aunt use your depth perception. Your brain just fills this part in. Now look at the side images. There are blue lines and red lines here. You can see when the red line passes over the blue line and then behind it. You have depth perception for the side images because of this."
   },
   {
     "file": "cat4_20.wav",
     "label": 1,
     "score": 95.9555,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "In Australia, the classification board previously known as the Office of Film and Literature Classification, does classify some publications, but unlike movies, only things containing material that is unsuitable for a minor to see or read, or material that is likely to cause offence to a reasonable adult, are legally required to submit for classification. If a publication is classified by the board, it falls into one of four categories, unrestricted, category one or two restricted, sold only to 18 plus, or refused classification, effectively banned. Some classified, unrestricted books will also carry the label M, not recommended for readers under 15 years."
   },
   {
-    "file": "cat1 hc3_14.wav",
-    "label": 0,
-    "score": 0.5693,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1 hc3_16.wav",
-    "label": 0,
-    "score": 0.9332,
-    "threshold_used": 62.5
-  },
-  {
-    "file": "cat1 hc3_18.wav",
+    "file": "cat1_18.wav",
     "label": 0,
     "score": 0.5223,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "What do you do if the random jury pool includes someone who is the cousin of the victim or someone who is illiterate or who states openly that they would never vote to convict or always vote to convict someone of a particular class or race or religion? Yes, it is possible to manipulate the jury selection system and reforms are possible. But the need for screening at some point is hard to remove from the process."
   },
   {
-    "file": "cat1 LS_01.wav",
+    "file": "cat1_01.wav",
     "label": 0,
     "score": 0.4182,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Heady Sorrow often took the opportunity when her aunts back was turned of looking at the pleasing reflection of herself in those polished services. For the oak table was usually turned up like a screen and was more for ornament than for use. And she could see herself sometimes in the great round, pewter dishes that were arranged on the shelves above the long, deal, dinner table or in the hobs of the great which always shown like Jasper."
   },
   {
-    "file": "cat1 LS_02.wav",
+    "file": "cat1_02.wav",
     "label": 0,
     "score": 0.4789,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "My eyes feel tears when I contrast the bliss of such a state, brightened by hopes of the future, with the melancholy state I now live in uncertain that I ever felt true, contrition, wandering, in thought, and deed, longing for holiness, which I shall never, never obtain, smitten at times to the heart, with the conviction that ghastly, calvinistic doctrines are true, darkened in short by the very shadows of spiritual death."
   },
   {
-    "file": "cat1 LS_03.wav",
+    "file": "cat1_03.wav",
     "label": 0,
     "score": 1.7896,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "This happened every year, and the unferred tree that had now grown to a very commonly sized trembled at the site, for the magnificent great trees fell to the earth with noise and cracking. The branches were locked off, and the trees looked long and bare. They were hardly to be recognized, and then they were laid in carts, and the horses dragged them out of the wood."
   },
   {
-    "file": "cat1 LS_04.wav",
+    "file": "cat1_04.wav",
     "label": 0,
     "score": 0.3342,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "You are now in the only country in the world where wit can make a fortune by selling either a genuine or a false article. In the first case, it receives the welcome of intelligent and talented people. And in the second, fools are always ready to reward it. For silliness is truly a characteristic of the people here, and however wonderful it may appear, silliness is the daughter of wit."
   },
   {
-    "file": "cat1 LS_05.wav",
+    "file": "cat1_05.wav",
     "label": 0,
     "score": 7.4841,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Well, as I say, it's an awful queer world. They clap all the burglars in jail and the murderers and the wife beaters. I all or thought a general reproof would be enough punishment for a wife beater because he probably has a lot of provocation that nobody knows. And the firebugs can't think of the right name something like Cindy Aries. And the breakers are the peace and whatnot. And yet, the law has nothing to say to a man like Han Lord."
   },
   {
-    "file": "cat1 LS_06.wav",
+    "file": "cat1_06.wav",
     "label": 0,
     "score": 16.8739,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "But reckoning time, whose million accidents, creep in twixed vows, in changed degrees of kings, ten sacred beauty, blunt the sharpest intense, divert strong minds to the course of altering things. Alas, why fearing of time's tyranny, might I not then say, now I love you best, when I was certain or in certainty, crowning the present doubting of the rest."
   },
   {
-    "file": "cat1 LS_07.wav",
+    "file": "cat1_07.wav",
     "label": 0,
     "score": 0.368,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "He passes abruptly from persons to ideas and numbers, and from ideas and numbers to persons, from the heavens to man, from astronomy to physiology. He confuses, a rather does not distinguish subject and object, first and final causes, and is dreaming of geometrical figures lost in a flux of sense."
   },
   {
-    "file": "cat1 LS_08.wav",
+    "file": "cat1_08.wav",
     "label": 0,
     "score": 2.5049,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "It is a very fine old place of red brick, softened by a pale powdery lichen, which has dispersed itself with happy irregularity. So as to bring the red brick into terms of friendly companionship, with a limestone ornaments surrounding the three gables, the windows and the door place."
   },
   {
-    "file": "cat1 LS_09.wav",
+    "file": "cat1_09.wav",
     "label": 0,
     "score": 8.7418,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "A quarter of an hour afterwards, he returned to the theater. But it will be readily believed that it was only a powerful effort of reason over his great excitement that enabled him to go back. Or perhaps, for love is the strangely constituted. He found that impossible, even to remain much longer separated from the presence of one who had broken his heart."
   },
   {
-    "file": "cat1 LS_10.wav",
+    "file": "cat1_10.wav",
     "label": 0,
     "score": 15.0981,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Another case, said John Wesley, was a little girl, half grown, who was washing windows upstairs one day, and unlocally fell asleep in the window. And in this position was found by her mistress. In a rage, the mistress hid her, a heavy slap knocked her out of the window, and she fell to the pavement, and died in a few hours from the effects thereof."
   },
   {
-    "file": "cat1 LS_11.wav",
+    "file": "cat1_11.wav",
     "label": 0,
     "score": 0.4801,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "They asserted with confidence, and almost with exultation, that the apostolical succession was interrupted, that all the bishops of Europe and Asia were infected by the contagion of guilt and schism, and that the parogatives of the Catholic Church were confined to the chosen portion of the African believers, who alone had preserved in violet the integrity of their faith and discipline."
   },
   {
-    "file": "cat1 LS_12.wav",
+    "file": "cat1_12.wav",
     "label": 0,
     "score": 0.3416,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Hesterprin went one day to the mansion of Governor-Bellingham, with a pair of gloves which she had furnished and embroidered to his order, in which were to be worn on some great occasion of state. For, though, the chances of a popular election had caused this former ruler to descend a step or two from the highest rank. He still held an honorable and influential place among the colonial majesty."
   },
   {
-    "file": "cat1 yt_13.mp3",
+    "file": "cat1_13.mp3",
     "label": 0,
     "score": 0.3847,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "or maybe like this one. People seem to be getting offline more. Picking up analog hobbies, sharing slower routines, buying bricks, and reclaiming their time and choosing to live in the moment. Yes, without sharing it. In short, it's cool to be offline now. And there's a reason the shift is happening. The average person now spends about two hours and 14 minutes per day just on social media. And researchers have linked excessive scrolling with short and attention spans, mental fog, and weakened focus, aka brain rot. Studies also suggest that this frequent screen usage trains the brain for"
   },
   {
-    "file": "cat1 yt_15.mp3",
+    "file": "cat1_14.wav",
+    "label": 0,
+    "score": 0.5693,
+    "threshold_used": 62.5,
+    "transcript": "Mental illness as a concept is only a new thing. In the old days, if you were depressed, you were told to just suck it up. If you could concentrate, you were just a troublesome child. And if you were really bad, you were labeled as insane and locked away in a loony bin. Just in case you went budget crazy and decided to kill someone. fast forward today and those same feelings have been passed down through generations."
+  },
+  {
+    "file": "cat1_15.mp3",
     "label": 0,
     "score": 0.3558,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Seems like a lot of work for very little game. You can only do it once or twice before they figure out what you are doing, and you'd have to come up with a way slash situation in which it was stolen without it looking like it was your fault. Which probably means smashing a window to make it look like a break-in. And a new window would cost more than what you make in selling the gun."
   },
   {
-    "file": "cat1 yt_17.mp3",
+    "file": "cat1_16.wav",
+    "label": 0,
+    "score": 0.9332,
+    "threshold_used": 62.5,
+    "transcript": "Seems like a lot of work for a very little game. You could only do it once or twice before they figure out what you are doing, and you'd have to come up with a situation in which it was stolen without it looking like it was your fault, which probably means smashing a window to make it look like a break in. And a new window would cost more than what you make in selling the gun."
+  },
+  {
+    "file": "cat1_17.mp3",
     "label": 0,
     "score": 0.3825,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "I came back. Just let me know what you prefer so I can use that. I like using my phone to be honest because it has more like clear sound than the mic. But I kind of want to use the mic because I purchased up to you because I'm just going to follow what you feel about the title. This is basically my default mood these days after getting laid off. You're not sick of me, right? Keep talking about my free life without a job again. I still have a few unsolved things with my previous company, but I'm not going to share too much."
   },
   {
-    "file": "cat1 yt_19.mp3",
+    "file": "cat1_19.mp3",
     "label": 0,
     "score": 0.4238,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "enough dopamine to actually generate that motivational pool that is going to get you interested to pursue those things. So if you're not feeling interested in the things that used to bring you joy, it might be that your brain is just not generating enough motivation to make those things worth pursuing. So how does it happen? Well, every time your brain detects something novel, like a notification and you video or a surprising headline, your dopamine spikes up. So it spikes up and then it drops and it gives you that push of motivation to actually click on something and find out that information. And the thing is your brain actually compensates dopamine a little bit by going down and pushing dopamine slightly below the baseline and then it goes back"
   },
   {
-    "file": "cat1 yt_20.wav",
+    "file": "cat1_20.wav",
     "label": 0,
     "score": 0.4592,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "It depends on what's needed for a particular kind of cheese and starts with the ingredients which are milk, cream, the enzyme, granite and salt. Most cheeses are made from pasteurized milk and cream. pasteurization cooks the raw milk to kill bacteria and render its sterile and fit for human consumption. It also changes the flavor, but unpesturized milk is not generally used in mass-produced cheeses, and is usually used in handmade batches, not for sale."
   },
   {
     "file": "Cat3_01.mp3",
     "label": 0,
     "score": 1.4134,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Nursery rhymes are a type of children's song that have been passed down for generations. They are usually simple and catchy and are often used to teach children language skills and to entertain them. Many nursery rhymes have been around for hundreds of years and the origins of many of them are not well known. Some of them may have originated as folk songs or as part of oral tradition and they may have changed over time as they were passed down through the generations."
   },
   {
     "file": "Cat3_02.mp3",
     "label": 0,
     "score": 1.7044,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Bernie Miroff was a financier who operated a massive Ponzi scheme, defrauding thousands of investors of billions of dollars. In a Ponzi scheme, early investors are paid returns with the money of later investors, rather than with any actual profits earned. Madoff came to be running a successful investment firm, but in reality he was using the funds of new investors to pay the returns promised to earlier investors, rather than investing the money as promised."
   },
   {
     "file": "Cat3_03.mp3",
     "label": 0,
     "score": 1.1656,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "There are a few reasons why the United States has been able to sustain larger amounts of debt compared to Greece. First, the United States has a much larger and more diversified economy than Greece. This means that the United States is able to generate more income and wealth, which can be used to pay off its debts. Second, the United States is able to borrow money at low interest rates because it is considered a safe and stable place to invest."
   },
   {
     "file": "Cat3_04.mp3",
     "label": 0,
     "score": 1.2675,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Sure, an internet protocol IP address is a unique numerical label assigned to each device. For example, computer printer connected to a computer network that uses the internet protocol for communication. An IP address serves two main functions, host or network interface identification and location addressing. A subnet or subnetwork is a smaller network that is created within a larger network. It is a way of dividing a larger network into smaller, more manageable chunks."
   },
   {
     "file": "Cat3_05.mp3",
     "label": 0,
     "score": 0.5051,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Sleep paralysis is a condition that can occur when you are falling asleep or waking up. During sleep, your body is paralyzed, which helps to keep you from acting out your dreams. Sleep paralysis happens when this paralysis persists after you wake up, making it difficult or impossible for you to move your body or speak. Sometimes people who experience sleep paralysis may also have vivid dreamlike experiences."
   },
   {
     "file": "Cat3_06.mp3",
@@ -405,7 +470,8 @@
     "file": "Cat3_08.mp3",
     "label": 0,
     "score": 3.1655,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "To buy an OTC over-the-counter stock listed on NASDAQ from India, you will need to follow these steps. Find the broker. You will need to find a broker that allows you to trade OTC stocks listed on NASDAQ. Some popular brokers that offer this service include Easterisk Trade, TD Ameritrade and Interactive Brokers. Open a brokerage account. To trade OTC stocks, you will need to open a brokerage account with the broker you have chosen."
   },
   {
     "file": "Cat3_09.mp3",
@@ -417,66 +483,316 @@
     "file": "Cat3_10.mp3",
     "label": 0,
     "score": 33.8065,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "In general, companies pay dividends if they have profits, and they want to distribute a portion of those profits to their shareholders. Dividents are a way for companies to return value to their shareholders, and they are typically paid out of a company's profits or surplus cash. However, it is possible for a company to pay dividends even if it is not currently profitable, as long as it has sufficient cash on hand, or is able to borrow the money needed to pay the dividends."
   },
   {
     "file": "Cat3_11.mp3",
     "label": 0,
     "score": 70.4855,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Fat Tuesday, also known as Mardi Gras, is a holiday that is celebrated in some parts of the world, including the United States. It falls on the Tuesday before Ash Wednesday, which marks the start of the Christian season of Lent. During Lent, many people give up certain things, such as certain foods or activities as a way of preparing for Easter. Fat Tuesday is a way for people to celebrate and have fun before the more somber season of Lent Begins. On this day, people often dress up in costumes."
   },
   {
     "file": "Cat3_12.mp3",
     "label": 0,
     "score": 4.9209,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Sleep paralysis is a condition that can occur when you are falling asleep or waking up. During sleep, your body is paralyzed, which helps to keep you from acting out your dreams. Sleep paralysis happens when this paralysis persists after you wake up, making it difficult or impossible for you to move your body or speak. Sometimes people who experience sleep paralysis may also have vivid dreamlike experiences."
   },
   {
     "file": "Cat3_13.mp3",
     "label": 0,
     "score": 0.3817,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Hypnosis is a way of helping someone to feel very relaxed and focused. When someone is in a state of hypnosis, they might feel like they are in a dreamlike state or like they are watching something happening to someone else. They might feel very relaxed and calm and they might have a hard time moving or speaking. During hypnosis, a person might be more open to suggestions from the person leading the hypnosis, also known as the hypnotist."
   },
   {
     "file": "Cat3_14.mp3",
     "label": 0,
     "score": 2.346,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "It is true that some nursery rhymes contain themes of death or sin, but it is important to remember that these rhymes were not necessarily intended for children. In the past many nursery rhymes were sung or recited by adults to entertain children, and these rhymes may have been based on adult themes or experiences that children would not necessarily understand."
   },
   {
     "file": "Cat3_15.mp3",
     "label": 0,
     "score": 98.4809,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "While Easter is an important holiday for Christians, it is also a time for people of all faiths and backgrounds to come together and celebrate the coming. So while it is a religious holiday, it is also a time for people to come together and have fun. Your resting heart rate at age 24 can vary depending on a number of factors, including your overall health and fitness level, your genetics and your lifestyle. A normal resting heart rate for an adult is typically between 60 and 100 beats per minute."
   },
   {
     "file": "Cat3_16.mp3",
     "label": 0,
     "score": 79.5276,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Easter is a Christian holiday that celebrates the resurrection of Jesus Christ. According to the Bible, Jesus was a man who lived in the Middle East over 2,000 years ago. He was a teacher in healer and he believed that he was sent by God to help people understand God's love and teachings. Many people believe that Jesus was the son of God and they followed him and learned from him. One day, Jesus was arrested and crucified, which means he was killed by being nailed to a cross. His followers"
   },
   {
     "file": "Cat3_17.mp3",
     "label": 0,
     "score": 33.749,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "While some bodywood movies may be more serious in nature, it is common for these films to include both dramatic and comedic elements, and the inclusion of songs is often a way to balance out the more serious themes, with lighter, more entertaining moments. Ultimately, the inclusion of songs in bodywood movies is a long-standing tradition that is deeply ingrained in the culture of Indian cinema and these musical numbers are often an important part of the overall appeal of these films."
   },
   {
     "file": "Cat3_18.mp3",
     "label": 0,
     "score": 0.5851,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "The premiums you pay over time add up to the death benefit that will be paid out if you die. Life insurance can be a good way for people to protect their loved ones financially if something happens to them. It can help cover things like funeral expenses, outstanding debts and lost income. It can also be used as a way to save for the future or to leave behind a financial legacy for loved ones."
   },
   {
     "file": "Cat3_19.mp3",
     "label": 0,
     "score": 0.5426,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "It is also worth noting that not all companies pay dividends, and the decision to pay dividends is ultimately up to the company's management and board of directors. Some companies choose to reinvest their profits into the business instead of paying dividends, while others may not have sufficient profits or cash on hand to pay dividends."
   },
   {
     "file": "Cat3_20.mp3",
     "label": 0,
     "score": 0.4368,
-    "threshold_used": 62.5
-  }
-]
+    "threshold_used": 62.5,
+    "transcript": "They do this because they want to sell the objects for money. Archaeologists, on the other hand, are scientists who study the past by carefully excavating and documenting ancient sites. They do this to learn more about the history and culture of the people who live there. One reason grave rubbers might beat archaeologists to a site is that they are often looking for quick profits and are willing to break the law to get them."
+  },
+  {
+    "file": "Cat3_06.wav",
+    "label": 0,
+    "score": null,
+    "threshold_used": 62.5,
+    "transcript": "And non-profit organization is a type of organization that does not operate for the purpose of making a profit. Instead, non-profits are typically organized for charitable educational or other types of social purposes. Non-profits may generate some income through donations, grants, or other forms of funding. But they are not allowed to distribute profits to their owners or shareholders on the other hand. A profit organization also known as a full profit organization."
+  },
+  {
+    "file": "Cat3_07.wav",
+    "label": 0,
+    "score": null,
+    "threshold_used": 62.5,
+    "transcript": "A home onus association H.A. is a group that makes and enforces rules for a community of home onus. These rules might cover things like what color you can paint your house, how you can use your property, and how you need to maintain your yard. Some people might not like the rules that an H.A. makes, but they have agreed to follow these rules when they both their home. This means that if they don't follow the rules, the HA can take them to court or find them."
+  },
+  {
+    "file": "Cat3_09.wav",
+    "label": 0,
+    "score": null,
+    "threshold_used": 62.5,
+    "transcript": "Insurance open enrollment periods are set by the government or the insurance company and they last for a certain amount of time each year. During open enrollment, you can sign up for a new health insurance plan or make changes to your current plan. The reason insurance open enrollment periods are set up this way is to make sure that everyone has a chance to review their options and choose the right insurance plan for their needs."
+  },
+  {
+    "file": "cat1_08.wav",
+    "label": 0,
+    "score": null,
+    "threshold_used": 62.5,
+    "transcript": "It is a very fine old place of red brick, softened by a pale powdery lichen, which has dispersed itself with happy irregularity. So as to bring the red brick into terms of friendly companionship, with a limestone ornaments surrounding the three gables, the windows and the door place."
+  },
+  {
+    "file": "cat1_09.wav",
+    "label": 0,
+    "score": null,
+    "threshold_used": 62.5,
+    "transcript": "A quarter of an hour afterwards, he returned to the theater. But it will be readily believed that it was only a powerful effort of reason over his great excitement that enabled him to go back. Or perhaps, for love is the strangely constituted. He found that impossible, even to remain much longer separated from the presence of one who had broken his heart."
+  },
+  {
+    "file": "cat1_10.wav",
+    "label": 0,
+    "score": null,
+    "threshold_used": 62.5,
+    "transcript": "Another case, said John Wesley, was a little girl, half grown, who was washing windows upstairs one day, and unlocally fell asleep in the window. And in this position was found by her mistress. In a rage, the mistress hid her, a heavy slap knocked her out of the window, and she fell to the pavement, and died in a few hours from the effects thereof."
+  },
+  {
+    "file": "cat1_11.wav",
+    "label": 0,
+    "score": null,
+    "threshold_used": 62.5,
+    "transcript": "They asserted with confidence, and almost with exultation, that the apostolical succession was interrupted, that all the bishops of Europe and Asia were infected by the contagion of guilt and schism, and that the parogatives of the Catholic Church were confined to the chosen portion of the African believers, who alone had preserved in violet the integrity of their faith and discipline."
+  },
+  {
+    "file": "cat1_12.wav",
+    "label": 0,
+    "score": null,
+    "threshold_used": 62.5,
+    "transcript": "Hesterprin went one day to the mansion of Governor-Bellingham, with a pair of gloves which she had furnished and embroidered to his order, in which were to be worn on some great occasion of state. For, though, the chances of a popular election had caused this former ruler to descend a step or two from the highest rank. He still held an honorable and influential place among the colonial majesty."
+  },
+  {
+    "file": "cat1_13.mp3",
+    "label": 0,
+    "score": null,
+    "threshold_used": 62.5,
+    "transcript": "or maybe like this one. People seem to be getting offline more. Picking up analog hobbies, sharing slower routines, buying bricks, and reclaiming their time and choosing to live in the moment. Yes, without sharing it. In short, it's cool to be offline now. And there's a reason the shift is happening. The average person now spends about two hours and 14 minutes per day just on social media. And researchers have linked excessive scrolling with short and attention spans, mental fog, and weakened focus, aka brain rot. Studies also suggest that this frequent screen usage trains the brain for"
+  },
+  {
+    {
+      "file": "cat1_15.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "Seems like a lot of work for very little game. You can only do it once or twice before they figure out what you are doing, and you'd have to come up with a way slash situation in which it was stolen without it looking like it was your fault. Which probably means smashing a window to make it look like a break-in. And a new window would cost more than what you make in selling the gun."
+    },
+    {
+      "file": "cat1_17.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "I came back. Just let me know what you prefer so I can use that. I like using my phone to be honest because it has more like clear sound than the mic. But I kind of want to use the mic because I purchased up to you because I'm just going to follow what you feel about the title. This is basically my default mood these days after getting laid off. You're not sick of me, right? Keep talking about my free life without a job again. I still have a few unsolved things with my previous company, but I'm not going to share too much."
+    },
+    {
+      "file": "cat1_18.wav",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "What do you do if the random jury pool includes someone who is the cousin of the victim or someone who is illiterate or who states openly that they would never vote to convict or always vote to convict someone of a particular class or race or religion? Yes, it is possible to manipulate the jury selection system and reforms are possible. But the need for screening at some point is hard to remove from the process."
+    },
+    {
+      "file": "cat1_19.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "enough dopamine to actually generate that motivational pool that is going to get you interested to pursue those things. So if you're not feeling interested in the things that used to bring you joy, it might be that your brain is just not generating enough motivation to make those things worth pursuing. So how does it happen? Well, every time your brain detects something novel, like a notification and you video or a surprising headline, your dopamine spikes up. So it spikes up and then it drops and it gives you that push of motivation to actually click on something and find out that information. And the thing is your brain actually compensates dopamine a little bit by going down and pushing dopamine slightly below the baseline and then it goes back"
+    },
+    {
+      "file": "cat1_20.wav",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "It depends on what's needed for a particular kind of cheese and starts with the ingredients which are milk, cream, the enzyme, granite and salt. Most cheeses are made from pasteurized milk and cream. pasteurization cooks the raw milk to kill bacteria and render its sterile and fit for human consumption. It also changes the flavor, but unpesturized milk is not generally used in mass-produced cheeses, and is usually used in handmade batches, not for sale."
+    },
+    {
+      "file": "cat3_01.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "Nursery rhymes are a type of children's song that have been passed down for generations. They are usually simple and catchy and are often used to teach children language skills and to entertain them. Many nursery rhymes have been around for hundreds of years and the origins of many of them are not well known. Some of them may have originated as folk songs or as part of oral tradition and they may have changed over time as they were passed down through the generations."
+    },
+    {
+      "file": "cat3_02.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "Bernie Miroff was a financier who operated a massive Ponzi scheme, defrauding thousands of investors of billions of dollars. In a Ponzi scheme, early investors are paid returns with the money of later investors, rather than with any actual profits earned. Madoff came to be running a successful investment firm, but in reality he was using the funds of new investors to pay the returns promised to earlier investors, rather than investing the money as promised."
+    },
+    {
+      "file": "cat3_03.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "There are a few reasons why the United States has been able to sustain larger amounts of debt compared to Greece. First, the United States has a much larger and more diversified economy than Greece. This means that the United States is able to generate more income and wealth, which can be used to pay off its debts. Second, the United States is able to borrow money at low interest rates because it is considered a safe and stable place to invest."
+    },
+    {
+      "file": "cat3_04.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "Sure, an internet protocol IP address is a unique numerical label assigned to each device. For example, computer printer connected to a computer network that uses the internet protocol for communication. An IP address serves two main functions, host or network interface identification and location addressing. A subnet or subnetwork is a smaller network that is created within a larger network. It is a way of dividing a larger network into smaller, more manageable chunks."
+    },
+    {
+      "file": "cat3_05.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "Sleep paralysis is a condition that can occur when you are falling asleep or waking up. During sleep, your body is paralyzed, which helps to keep you from acting out your dreams. Sleep paralysis happens when this paralysis persists after you wake up, making it difficult or impossible for you to move your body or speak. Sometimes people who experience sleep paralysis may also have vivid dreamlike experiences."
+    },
+    {
+      "file": "cat3_06.wav",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "And non-profit organization is a type of organization that does not operate for the purpose of making a profit. Instead, non-profits are typically organized for charitable educational or other types of social purposes. Non-profits may generate some income through donations, grants, or other forms of funding. But they are not allowed to distribute profits to their owners or shareholders on the other hand. A profit organization also known as a full profit organization."
+    },
+    {
+      "file": "cat3_07.wav",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "A home onus association H.A. is a group that makes and enforces rules for a community of home onus. These rules might cover things like what color you can paint your house, how you can use your property, and how you need to maintain your yard. Some people might not like the rules that an H.A. makes, but they have agreed to follow these rules when they both their home. This means that if they don't follow the rules, the HA can take them to court or find them."
+    },
+    {
+      "file": "cat3_08.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "To buy an OTC over-the-counter stock listed on NASDAQ from India, you will need to follow these steps. Find the broker. You will need to find a broker that allows you to trade OTC stocks listed on NASDAQ. Some popular brokers that offer this service include Easterisk Trade, TD Ameritrade and Interactive Brokers. Open a brokerage account. To trade OTC stocks, you will need to open a brokerage account with the broker you have chosen."
+    },
+    {
+      "file": "cat3_09.wav",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "Insurance open enrollment periods are set by the government or the insurance company and they last for a certain amount of time each year. During open enrollment, you can sign up for a new health insurance plan or make changes to your current plan. The reason insurance open enrollment periods are set up this way is to make sure that everyone has a chance to review their options and choose the right insurance plan for their needs."
+    },
+    {
+      "file": "cat3_10.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "In general, companies pay dividends if they have profits, and they want to distribute a portion of those profits to their shareholders. Dividents are a way for companies to return value to their shareholders, and they are typically paid out of a company's profits or surplus cash. However, it is possible for a company to pay dividends even if it is not currently profitable, as long as it has sufficient cash on hand, or is able to borrow the money needed to pay the dividends."
+    },
+    {
+      "file": "cat3_11.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "Fat Tuesday, also known as Mardi Gras, is a holiday that is celebrated in some parts of the world, including the United States. It falls on the Tuesday before Ash Wednesday, which marks the start of the Christian season of Lent. During Lent, many people give up certain things, such as certain foods or activities as a way of preparing for Easter. Fat Tuesday is a way for people to celebrate and have fun before the more somber season of Lent Begins. On this day, people often dress up in costumes."
+    },
+    {
+      "file": "cat3_12.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "Sleep paralysis is a condition that can occur when you are falling asleep or waking up. During sleep, your body is paralyzed, which helps to keep you from acting out your dreams. Sleep paralysis happens when this paralysis persists after you wake up, making it difficult or impossible for you to move your body or speak. Sometimes people who experience sleep paralysis may also have vivid dreamlike experiences."
+    },
+    {
+      "file": "cat3_13.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "Hypnosis is a way of helping someone to feel very relaxed and focused. When someone is in a state of hypnosis, they might feel like they are in a dreamlike state or like they are watching something happening to someone else. They might feel very relaxed and calm and they might have a hard time moving or speaking. During hypnosis, a person might be more open to suggestions from the person leading the hypnosis, also known as the hypnotist."
+    },
+    {
+      "file": "cat3_14.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "It is true that some nursery rhymes contain themes of death or sin, but it is important to remember that these rhymes were not necessarily intended for children. In the past many nursery rhymes were sung or recited by adults to entertain children, and these rhymes may have been based on adult themes or experiences that children would not necessarily understand."
+    },
+    {
+      "file": "cat3_15.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "While Easter is an important holiday for Christians, it is also a time for people of all faiths and backgrounds to come together and celebrate the coming. So while it is a religious holiday, it is also a time for people to come together and have fun. Your resting heart rate at age 24 can vary depending on a number of factors, including your overall health and fitness level, your genetics and your lifestyle. A normal resting heart rate for an adult is typically between 60 and 100 beats per minute."
+    },
+    {
+      "file": "cat3_16.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "Easter is a Christian holiday that celebrates the resurrection of Jesus Christ. According to the Bible, Jesus was a man who lived in the Middle East over 2,000 years ago. He was a teacher in healer and he believed that he was sent by God to help people understand God's love and teachings. Many people believe that Jesus was the son of God and they followed him and learned from him. One day, Jesus was arrested and crucified, which means he was killed by being nailed to a cross. His followers"
+    },
+    {
+      "file": "cat3_17.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "While some bodywood movies may be more serious in nature, it is common for these films to include both dramatic and comedic elements, and the inclusion of songs is often a way to balance out the more serious themes, with lighter, more entertaining moments. Ultimately, the inclusion of songs in bodywood movies is a long-standing tradition that is deeply ingrained in the culture of Indian cinema and these musical numbers are often an important part of the overall appeal of these films."
+    },
+    {
+      "file": "cat3_18.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "The premiums you pay over time add up to the death benefit that will be paid out if you die. Life insurance can be a good way for people to protect their loved ones financially if something happens to them. It can help cover things like funeral expenses, outstanding debts and lost income. It can also be used as a way to save for the future or to leave behind a financial legacy for loved ones."
+    },
+    {
+      "file": "cat3_19.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "It is also worth noting that not all companies pay dividends, and the decision to pay dividends is ultimately up to the company's management and board of directors. Some companies choose to reinvest their profits into the business instead of paying dividends, while others may not have sufficient profits or cash on hand to pay dividends."
+    },
+    {
+      "file": "cat3_20.mp3",
+      "label": 0,
+      "score": null,
+      "threshold_used": 62.5,
+      "transcript": "They do this because they want to sell the objects for money. Archaeologists, on the other hand, are scientists who study the past by carefully excavating and documenting ancient sites. They do this to learn more about the history and culture of the people who live there. One reason grave rubbers might beat archaeologists to a site is that they are often looking for quick profits and are willing to break the law to get them."
+    }
+  ]
