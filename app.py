@@ -1,24 +1,14 @@
 """
 app.py  (repository root)
 =========================
-Unified Streamlit Application — AI Audio + Text Forensics Detection System
+Streamlit Application — AI Audio + Text Forensics Detection System
 
-Presents a single, tabbed interface for:
+Presents an interface for:
   - Text-only analysis  (text_forensics pipeline)
   - Audio-only analysis (audio_forensics pipeline)
-  - Combined analysis   (both pipelines + unified score via fusion_integration)
 
 Run from the repository root:
     streamlit run app.py
-
-Architecture Sections:
-    Section 1  : Input routing
-    Section 2  : Per-modality pipeline execution (via fusion_integration)
-    Section 3A : Text result display
-    Section 3B : Audio result display
-    Section 3C : Deferred — notice shown to user
-    Section 4  : Unified score panel (Combined mode)
-    Section 5  : Unified verdict + evidence summary
 """
 
 from __future__ import annotations
@@ -223,7 +213,7 @@ with st.sidebar:
     st.markdown("---")
     mode = st.radio(
         "**Analysis Mode**",
-        options=["📝 Text Only", "🎙️ Audio Only", "🔀 Combined (Text + Audio)"],
+        options=["📝 Text Only", "🎙️ Audio Only"],
         index=0,
     )
     st.markdown("---")
@@ -246,14 +236,6 @@ with st.sidebar:
         2. **ASR** — OpenAI Whisper-Tiny
         3. **Deepfake Score** — `wav2vec2-deepfake-voice-detector`
         $$S_{Audio} = \\text{Sigmoid}(logit_{fake} - logit_{real}) \\times 100$$
-        """)
-
-    if "Combined" in mode:
-        st.markdown("### 🔀 Combined Mode")
-        st.markdown("""
-        Both pipelines run sequentially.
-        **Unified score** = equal-weight average *(placeholder — to be recalibrated)*.
-        **Section 3C** (cross-modal consistency) is **deferred** pending calibration.
         """)
 
     st.markdown("---")
@@ -545,46 +527,6 @@ def _render_audio_panel(result: dict) -> None:
 # ─────────────────────────────────────────────────────────────────────────────
 # Helper: render unified score banner (Section 4)
 # ─────────────────────────────────────────────────────────────────────────────
-def _render_unified_banner(result: dict) -> None:
-    u_score = result["unified_score"]
-    u_verdict = result["unified_verdict"]
-    if u_score is None:
-        return
-
-    if "ai" in u_verdict.lower() or "generated" in u_verdict.lower():
-        score_color = "#F87171"
-        icon = "🤖"
-    elif "human" in u_verdict.lower():
-        score_color = "#4ADE80"
-        icon = "👤"
-    else:
-        score_color = "#FBBF24"
-        icon = "🔶"
-
-    st.markdown(
-        f'<div class="unified-banner">'
-        f'<div class="unified-score-label">UNIFIED AI-LIKELIHOOD SCORE</div>'
-        f'<div class="unified-score-value" style="color:{score_color};">{u_score:.1f} / 100</div>'
-        f'<div class="unified-verdict-text">{icon} {u_verdict}</div>'
-        f'<div style="font-size:0.8rem;color:#94A3B8;margin-top:0.5rem;">'
-        f'⚠️ {result["unified_score_note"]}</div>'
-        f'</div>',
-        unsafe_allow_html=True,
-    )
-
-    # Cross-modal deferred notice (Section 3C)
-    st.info(
-        "🔬 **Section 3C (Cross-Modal Consistency Check) — Deferred**\n\n"
-        "Comparing the deepfake text score of the audio transcript against the original text "
-        "score to detect genuine mismatch requires calibrated delta thresholds — analogous to "
-        "the Correction 9 grid-search for text. This will be implemented once matched real/fake "
-        "audio test clips are available for threshold tuning. "
-        + (f"Raw cross-modal Δ (for future calibration): `{result['transcript_text_delta']:.2f}`"
-           if result.get("transcript_text_delta") is not None else
-           "Raw delta: N/A (insufficient transcript length or text-only mode).")
-    )
-
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Main App: Section 1 — Inputs
 # ─────────────────────────────────────────────────────────────────────────────
@@ -594,32 +536,9 @@ raw_text = ""
 uploaded_audio = None
 tmp_audio_path = None
 
-need_text  = "Text"    in mode or "Combined" in mode
-need_audio = "Audio"   in mode or "Combined" in mode
+is_text_mode = "Text" in mode
 
-if need_text and need_audio:
-    col_ti, col_ai = st.columns(2)
-    with col_ti:
-        st.markdown("**Text to analyze:**")
-        input_mode = st.radio("Text Input Method:", ["Paste Text", "Upload .txt"], horizontal=True, key="text_input_mode")
-        if input_mode == "Paste Text":
-            raw_text = st.text_area("Paste text:", height=180, placeholder="Paste text here...", key="text_area")
-        else:
-            txt_file = st.file_uploader("Upload .txt:", type=["txt"], key="txt_upload")
-            if txt_file:
-                try:
-                    raw_text = txt_file.read().decode("utf-8")
-                except UnicodeDecodeError:
-                    txt_file.seek(0)
-                    raw_text = txt_file.read().decode("latin-1")
-    with col_ai:
-        st.markdown("**Audio file to analyze:**")
-        uploaded_audio = st.file_uploader(
-            "Upload audio:", type=["wav","mp3","flac","ogg","m4a","aac"], key="audio_upload_combined"
-        )
-        if uploaded_audio:
-            st.audio(uploaded_audio, format=f"audio/{uploaded_audio.name.split('.')[-1]}")
-elif need_text:
+if is_text_mode:
     input_mode = st.radio("Input Method:", ["Paste Text", "Upload .txt"], horizontal=True, key="text_input_mode_only")
     if input_mode == "Paste Text":
         raw_text = st.text_area("Paste text to analyze:", height=220, placeholder="Paste text here...", key="text_area_only")
@@ -649,23 +568,19 @@ if raw_text:
     if word_count < 30:
         st.warning("⚠️ **Short text**: Under 30 words. Burstiness signal will return N/A.")
 
-# Robustness checkbox (text modes only)
+# Robustness checkbox (text mode only)
 run_robustness = False
-if need_text:
+if is_text_mode:
     run_robustness = st.checkbox("Run T5 robustness check on text (adds ~30s)", value=False)
 
 # Analyze button
-can_analyze = bool(raw_text.strip()) if need_text and not need_audio else True
-can_analyze = can_analyze and bool(uploaded_audio) if need_audio else can_analyze
+can_analyze = bool(raw_text.strip()) if is_text_mode else (uploaded_audio is not None)
 
 analyze_btn = st.button(
     "🚀 Analyze",
     type="primary",
     use_container_width=True,
-    disabled=not (
-        (need_text and raw_text.strip()) or
-        (need_audio and uploaded_audio is not None)
-    ),
+    disabled=not can_analyze,
 )
 
 
@@ -684,21 +599,15 @@ if analyze_btn:
         tmp.close()
         tmp_audio_path = tmp.name
 
-    spinner_parts = []
-    if need_text and raw_text.strip():
-        spinner_parts.append("text forensics")
-    if need_audio and tmp_audio_path:
-        spinner_parts.append("audio forensics (VAD + ASR + wav2vec2)")
-
-    spinner_msg = f"Running {' and '.join(spinner_parts)}..."
+    spinner_msg = "Running text forensics..." if is_text_mode else "Running audio forensics (VAD + ASR + wav2vec2)..."
 
     t_start = time.time()
 
     try:
         with st.spinner(spinner_msg):
             result = run_full_pipeline(
-                text=raw_text.strip() if (need_text and raw_text.strip()) else None,
-                audio_path=tmp_audio_path,
+                text=raw_text.strip() if is_text_mode else None,
+                audio_path=tmp_audio_path if not is_text_mode else None,
                 run_robustness=run_robustness,
             )
         elapsed = time.time() - t_start
@@ -714,11 +623,6 @@ if analyze_btn:
                 os.remove(tmp_audio_path)
             except OSError:
                 pass
-
-    # ── Section 4: Unified banner (Combined mode) ─────────────────────────────
-    if "Combined" in mode and result["unified_score"] is not None:
-        _render_unified_banner(result)
-        st.divider()
 
     # ── Section 3A: Text panel ─────────────────────────────────────────────────
     if result["text_score"] is not None and raw_text.strip():
@@ -744,9 +648,6 @@ if analyze_btn:
                 "signals": result["text_signals"],
             })
 
-        if result["text_score"] is not None and "Audio" not in mode:
-            st.divider()
-
     # ── Section 3B: Audio panel ────────────────────────────────────────────────
     if result["audio_score"] is not None:
         _render_audio_panel(result)
@@ -766,9 +667,7 @@ if analyze_btn:
 
 else:
     # Empty state
-    if "Text" in mode:
+    if is_text_mode:
         st.info("💡 Paste or upload text above, then click **Analyze**.")
-    elif "Audio" in mode:
-        st.info("💡 Upload an audio clip above, then click **Analyze**.")
     else:
-        st.info("💡 Provide text and/or audio above, then click **Analyze**.")
+        st.info("💡 Upload an audio clip above, then click **Analyze**.")
