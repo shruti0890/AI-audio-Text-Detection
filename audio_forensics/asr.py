@@ -63,21 +63,19 @@ def transcribe(
 
     # 1. Normalize input into format expected by Hugging Face ASR pipeline
     if isinstance(processed_audio, str):
-        if not os.path.exists(processed_audio):
-            raise FileNotFoundError(f"Audio file not found: {processed_audio}")
-        import librosa
-        waveform, sr = librosa.load(processed_audio, sr=sampling_rate, mono=True)
-        audio_input = {"raw": waveform.astype(np.float32), "sampling_rate": sr}
+        from .audio_loader import load_and_normalize_audio
+        waveform, _ = load_and_normalize_audio(processed_audio, target_sr=sampling_rate)
+        audio_input = {"raw": waveform.astype(np.float32), "sampling_rate": sampling_rate}
     elif isinstance(processed_audio, torch.Tensor):
         waveform = processed_audio.detach().cpu().numpy()
         if waveform.ndim > 1:
             waveform = waveform.mean(axis=0)
-        audio_input = {"raw": waveform.astype(np.float32), "sampling_rate": sampling_rate}
+        audio_input = {"raw": np.nan_to_num(waveform, nan=0.0).astype(np.float32), "sampling_rate": sampling_rate}
     elif isinstance(processed_audio, np.ndarray):
         waveform = processed_audio
         if waveform.ndim > 1:
             waveform = waveform.mean(axis=0)
-        audio_input = {"raw": waveform.astype(np.float32), "sampling_rate": sampling_rate}
+        audio_input = {"raw": np.nan_to_num(waveform, nan=0.0).astype(np.float32), "sampling_rate": sampling_rate}
     else:
         raise ValueError(f"Unsupported audio input type: {type(processed_audio)}")
 

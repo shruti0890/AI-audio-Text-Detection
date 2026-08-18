@@ -52,10 +52,8 @@ def strip_silence(
 
     # 1. Load audio and normalize to 16kHz mono float32 waveform
     if isinstance(audio_input, str):
-        if not os.path.exists(audio_input):
-            raise FileNotFoundError(f"Audio file not found: {audio_input}")
-        # librosa automatically handles format decoding (.mp3, .wav), mono conversion, and 16kHz resampling
-        waveform, _ = librosa.load(audio_input, sr=sampling_rate, mono=True)
+        from .audio_loader import load_and_normalize_audio
+        waveform, _ = load_and_normalize_audio(audio_input, target_sr=sampling_rate)
     elif isinstance(audio_input, torch.Tensor):
         waveform = audio_input.detach().cpu().numpy()
         if waveform.ndim > 1:
@@ -67,7 +65,7 @@ def strip_silence(
     else:
         raise ValueError(f"Unsupported audio input type: {type(audio_input)}")
 
-    waveform = waveform.astype(np.float32)
+    waveform = np.nan_to_num(waveform, nan=0.0, posinf=0.0, neginf=0.0).astype(np.float32)
 
     # Handle empty input edge case
     if len(waveform) == 0:

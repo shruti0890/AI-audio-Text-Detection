@@ -191,70 +191,113 @@ def _load_model():
     print(f"[deepfake_model] Config persisted (calibration_parameters preserved) -> {_CALIBRATION_PATH}")
 
 
-# ── Sliding-window scorer ─────────────────────────────────────────────────────
+import gc
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
-def _score_windows(waveform: np.ndarray) -> List[Dict[str, float]]:
-    """Score the full waveform using overlapping sliding windows.
+# ── Sliding-window generator & memory-bounded scorer ──────────────────────────
 
-    All windows are batched and fed through the wav2vec2 classifier.
-    Window length and overlap are loaded from model_config.json.
+def _generate_window_slices(total_samples: int) -> List[Tuple[int, int]]:
+    """Generate (start, end) sample index slices for sliding windows.
 
-    Args:
-        waveform: 1D float32 numpy array at 16kHz.
-
-    Returns:
-        List of dicts: [{'score': float, 'logit_fake': float, 'logit_real': float}]
+    Config parameters:
+        window_seconds = 5
+        window_overlap_seconds = 1
+        step_seconds = 4
+        tail window kept if >= 1 second
     """
     window_samples  = _WINDOW_SECONDS * _SAMPLE_RATE
     overlap_samples = _WINDOW_OVERLAP_SECONDS * _SAMPLE_RATE
     step_samples    = window_samples - overlap_samples
 
-    total_samples = len(waveform)
-
-    # If shorter than one window, score the whole clip as a single window
     if total_samples <= window_samples:
-        windows = [waveform]
-    else:
-        windows = []
-        start = 0
-        while start + window_samples <= total_samples:
-            windows.append(waveform[start: start + window_samples])
-            start += step_samples
-        # Include a tail window if the last full window doesn't reach the end
-        if start < total_samples:
-            tail = waveform[start:]
-            if len(tail) >= _SAMPLE_RATE:  # at least 1s of audio, otherwise skip
-                windows.append(tail)
+        return [(0, total_samples)]
 
-    if not windows:
+    slices = []
+    start = 0
+    while start + window_samples <= total_samples:
+        slices.append((start, start + window_samples))
+        start += step_samples
+
+    # Include tail segment if >= 1s (16,000 samples)
+    if start < total_samples:
+        tail_len = total_samples - start
+        if tail_len >= _SAMPLE_RATE:
+            slices.append((start, total_samples))
+
+    return slices
+
+
+def _score_windows_bounded(
+    waveform: np.ndarray,
+    batch_size: int = 1,
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+) -> List[Dict[str, float]]:
+    """Score the waveform using memory-bounded small inference batches (default batch_size=1).
+
+    Generates window slices lazily, feeds at most `batch_size` windows to wav2vec2
+    at a time under torch.inference_mode(), extracts numeric scores immediately,
+    and deletes temporary tensors after each step to keep peak memory minimal.
+
+    Args:
+        waveform: 1D float32 numpy array at 16kHz.
+        batch_size: Max number of windows processed simultaneously (default: 1).
+        progress_callback: Optional callback func(current_window_idx, total_windows).
+
+    Returns:
+        List of dicts: [{'score': float, 'logit_fake': float, 'logit_real': float}]
+    """
+    total_samples = len(waveform)
+    slices = _generate_window_slices(total_samples)
+    total_windows = len(slices)
+
+    if total_windows == 0:
         return []
 
-    # Clean and pad inputs in batch
-    batched_windows = [np.nan_to_num(win, nan=0.0, posinf=0.0, neginf=0.0) for win in windows]
-
-    inputs = _PROCESSOR(
-        batched_windows,
-        sampling_rate=_SAMPLE_RATE,
-        return_tensors="pt",
-        padding=True,
-    )
-    with torch.no_grad():
-        outputs = _MODEL(**inputs)
-    logits = outputs.logits  # Shape: (batch_size, 2)
-
     results = []
-    for i in range(len(windows)):
-        lf = float(logits[i, _FAKE_IDX].item())
-        lr = float(logits[i, _REAL_IDX].item())
+    effective_batch_size = max(1, batch_size)
 
-        # Temperature-scaled sigmoid
-        diff_scaled = (lf - lr) / _TEMPERATURE
-        s = float(torch.sigmoid(torch.tensor(diff_scaled)).item()) * 100.0
-        results.append({
-            "score": round(s, 4),
-            "logit_fake": round(lf, 6),
-            "logit_real": round(lr, 6)
-        })
+    for b_start in range(0, total_windows, effective_batch_size):
+        b_slices = slices[b_start : b_start + effective_batch_size]
+        batch_windows = [
+            np.nan_to_num(waveform[s_start:s_end], nan=0.0, posinf=0.0, neginf=0.0).astype(np.float32)
+            for s_start, s_end in b_slices
+        ]
+
+        # Prepare input tensors for the small batch
+        inputs = _PROCESSOR(
+            batch_windows,
+            sampling_rate=_SAMPLE_RATE,
+            return_tensors="pt",
+            padding=True,
+        )
+
+        with torch.inference_mode():
+            outputs = _MODEL(**inputs)
+            logits = outputs.logits  # Shape: (batch_len, 2)
+
+        for i in range(len(b_slices)):
+            lf = float(logits[i, _FAKE_IDX].item())
+            lr = float(logits[i, _REAL_IDX].item())
+
+            # Temperature-scaled sigmoid formula: S_i = Sigmoid((L_fake - L_real) / T) * 100
+            diff_scaled = (lf - lr) / _TEMPERATURE
+            s = float(torch.sigmoid(torch.tensor(diff_scaled)).item()) * 100.0
+
+            results.append({
+                "score": round(s, 4),
+                "logit_fake": round(lf, 6),
+                "logit_real": round(lr, 6),
+            })
+
+            cur_idx = len(results)
+            if progress_callback:
+                try:
+                    progress_callback(cur_idx, total_windows)
+                except Exception:
+                    pass
+
+        # Explicitly release temporary tensors for this batch
+        del inputs, outputs, logits, batch_windows
 
     return results
 
@@ -283,27 +326,43 @@ def _aggregate_scores(scores: List[float]) -> float:
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
-def score_audio(processed_audio: Union[str, np.ndarray]) -> Dict:
+def score_audio(
+    processed_audio: Union[str, np.ndarray],
+    batch_size: int = 1,
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+) -> Dict:
     """Classifies audio as real or deepfake and returns a calibrated 0–100 score.
 
-    Uses sliding-window aggregation over the full audio clip (not truncation),
+    Uses memory-bounded sliding-window aggregation over the full audio clip
+    with default batch_size=1 (preventing CPU OOM crashes on long files),
     and applies temperature scaling to logits before sigmoid computation.
-    Decision threshold is loaded from model_config.json (not hardcoded).
+    Decision threshold is loaded from model_config.json.
 
     Args:
         processed_audio: Either a 16kHz float32 numpy array (1D mono) produced
                          by vad.py, or a file path string.
+        batch_size: Max windows processed per model forward pass (default: 1).
+        progress_callback: Optional callable(current_window, total_windows).
 
     Returns:
         dict: {
-            "s_audio":            float  — deepfake confidence 0–100,
-            "logit_fake":         float  — logit from the highest-risk window,
-            "logit_real":         float  — logit from the highest-risk window,
-            "decision_threshold": float  — threshold loaded from config (e.g. 62.5),
-            "temperature":        float  — temperature factor applied,
-            "n_windows":          int    — number of sliding windows processed,
-            "window_scores":      list   — per-window scores for debugging,
-            "confidence_tiers":   dict   — logit margin tier breakpoints from config,
+            "s_audio":               float — deepfake confidence 0–100 (max_risk),
+            "max_score":             float — highest window score,
+            "mean_score":            float — average across windows,
+            "median_score":          float — median across windows,
+            "logit_fake":            float — logit from the highest-risk window,
+            "logit_real":            float — logit from the highest-risk window,
+            "decision_threshold":    float — threshold loaded from config (e.g. 56.0),
+            "temperature":           float — temperature factor applied,
+            "n_windows":             int   — number of sliding windows processed,
+            "windows_analyzed":      int   — alias for n_windows,
+            "audio_duration_seconds": float — total audio duration in seconds,
+            "window_scores":         list  — per-window scores,
+            "confidence_tiers":      dict  — logit margin tier breakpoints,
+            "inference_batch_size":  int   — batch size used during inference (1),
+            "window_size_seconds":   int   — window length (5),
+            "window_overlap_seconds": int  — overlap duration (1),
+            "window_step_seconds":   int   — step size (4),
         }
     """
     global _MODEL, _PROCESSOR, _FAKE_IDX, _REAL_IDX
@@ -313,11 +372,8 @@ def score_audio(processed_audio: Union[str, np.ndarray]) -> Dict:
 
     # ── 1. Resolve waveform ───────────────────────────────────────────────
     if isinstance(processed_audio, str):
-        if not os.path.exists(processed_audio):
-            raise FileNotFoundError(f"Audio file not found: {processed_audio}")
-        import librosa
-        waveform, _ = librosa.load(processed_audio, sr=_SAMPLE_RATE, mono=True)
-        waveform = waveform.astype(np.float32)
+        from .audio_loader import load_and_normalize_audio
+        waveform, _ = load_and_normalize_audio(processed_audio, target_sr=_SAMPLE_RATE)
     elif isinstance(processed_audio, np.ndarray):
         waveform = processed_audio.astype(np.float32)
         if waveform.ndim > 1:
@@ -329,16 +385,26 @@ def score_audio(processed_audio: Union[str, np.ndarray]) -> Dict:
     else:
         raise ValueError(f"Unsupported audio input type: {type(processed_audio)}")
 
-    # ── 2. Sliding-window scoring (replaces hard truncation) ─────────────
-    window_results = _score_windows(waveform)
+    waveform = np.nan_to_num(waveform, nan=0.0, posinf=0.0, neginf=0.0).astype(np.float32)
+    duration_sec = round(len(waveform) / _SAMPLE_RATE, 2)
+
+    # ── 2. Memory-bounded sliding-window scoring ─────────────────────────
+    window_results = _score_windows_bounded(
+        waveform,
+        batch_size=batch_size,
+        progress_callback=progress_callback,
+    )
     window_scores = [w["score"] for w in window_results]
     n_windows = len(window_scores)
 
-    # ── 3. Aggregate window scores ────────────────────────────────────────
+    # ── 3. Aggregate window scores (max_risk preserved) ───────────────────
     s_audio = _aggregate_scores(window_scores)
 
+    # Additional summary statistics
+    mean_score = round(float(np.mean(window_scores)), 4) if window_scores else 50.0
+    median_score = round(float(np.median(window_scores)), 4) if window_scores else 50.0
+
     # ── 4. Retrieve representative logits from the highest-risk window ────
-    # (Logits from the max-risk window are the most meaningful to show.)
     if window_results:
         worst_window_idx = int(np.argmax(window_scores))
         logit_fake = window_results[worst_window_idx]["logit_fake"]
@@ -348,17 +414,28 @@ def score_audio(processed_audio: Union[str, np.ndarray]) -> Dict:
         logit_real = 0.0
 
     print(
-        f"[deepfake_model] n_windows={n_windows}  scores={window_scores}  "
-        f"aggregated={s_audio:.4f}  threshold={_DECISION_THRESHOLD}%  T={_TEMPERATURE}"
+        f"[deepfake_model] n_windows={n_windows} (duration={duration_sec}s, batch_size={batch_size}) "
+        f"max={s_audio:.2f}% mean={mean_score:.2f}% median={median_score:.2f}% "
+        f"threshold={_DECISION_THRESHOLD}% T={_TEMPERATURE}"
     )
 
     return {
-        "s_audio":            round(s_audio, 4),
-        "logit_fake":         logit_fake,
-        "logit_real":         logit_real,
-        "decision_threshold": _DECISION_THRESHOLD,
-        "temperature":        _TEMPERATURE,
-        "n_windows":          n_windows,
-        "window_scores":      window_scores,
-        "confidence_tiers":   _CONFIDENCE_TIERS,
+        "s_audio":               round(s_audio, 4),
+        "max_score":             round(s_audio, 4),
+        "mean_score":            mean_score,
+        "median_score":          median_score,
+        "logit_fake":            logit_fake,
+        "logit_real":            logit_real,
+        "decision_threshold":    _DECISION_THRESHOLD,
+        "temperature":           _TEMPERATURE,
+        "n_windows":             n_windows,
+        "windows_analyzed":      n_windows,
+        "audio_duration_seconds": duration_sec,
+        "window_scores":         window_scores,
+        "confidence_tiers":      _CONFIDENCE_TIERS,
+        "inference_batch_size":  batch_size,
+        "window_size_seconds":   _WINDOW_SECONDS,
+        "window_overlap_seconds": _WINDOW_OVERLAP_SECONDS,
+        "window_step_seconds":   _WINDOW_SECONDS - _WINDOW_OVERLAP_SECONDS,
     }
+

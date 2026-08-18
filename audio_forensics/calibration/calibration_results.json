@@ -280,13 +280,6 @@
     "transcript": "In Australia, the classification board previously known as the Office of Film and Literature Classification, does classify some publications, but unlike movies, only things containing material that is unsuitable for a minor to see or read, or material that is likely to cause offence to a reasonable adult, are legally required to submit for classification. If a publication is classified by the board, it falls into one of four categories, unrestricted, category one or two restricted, sold only to 18 plus, or refused classification, effectively banned. Some classified, unrestricted books will also carry the label M, not recommended for readers under 15 years."
   },
   {
-    "file": "cat1_18.wav",
-    "label": 0,
-    "score": 0.5223,
-    "threshold_used": 62.5,
-    "transcript": "What do you do if the random jury pool includes someone who is the cousin of the victim or someone who is illiterate or who states openly that they would never vote to convict or always vote to convict someone of a particular class or race or religion? Yes, it is possible to manipulate the jury selection system and reforms are possible. But the need for screening at some point is hard to remove from the process."
-  },
-  {
     "file": "cat1_01.wav",
     "label": 0,
     "score": 0.4182,
@@ -406,6 +399,13 @@
     "transcript": "I came back. Just let me know what you prefer so I can use that. I like using my phone to be honest because it has more like clear sound than the mic. But I kind of want to use the mic because I purchased up to you because I'm just going to follow what you feel about the title. This is basically my default mood these days after getting laid off. You're not sick of me, right? Keep talking about my free life without a job again. I still have a few unsolved things with my previous company, but I'm not going to share too much."
   },
   {
+    "file": "cat1_18.wav",
+    "label": 0,
+    "score": 0.5223,
+    "threshold_used": 62.5,
+    "transcript": "What do you do if the random jury pool includes someone who is the cousin of the victim or someone who is illiterate or who states openly that they would never vote to convict or always vote to convict someone of a particular class or race or religion? Yes, it is possible to manipulate the jury selection system and reforms are possible. But the need for screening at some point is hard to remove from the process."
+  },
+  {
     "file": "cat1_19.mp3",
     "label": 0,
     "score": 0.4238,
@@ -455,16 +455,18 @@
     "transcript": "Sleep paralysis is a condition that can occur when you are falling asleep or waking up. During sleep, your body is paralyzed, which helps to keep you from acting out your dreams. Sleep paralysis happens when this paralysis persists after you wake up, making it difficult or impossible for you to move your body or speak. Sometimes people who experience sleep paralysis may also have vivid dreamlike experiences."
   },
   {
-    "file": "Cat3_06.mp3",
+    "file": "Cat3_06.wav",
     "label": 0,
     "score": 90.722,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "And non-profit organization is a type of organization that does not operate for the purpose of making a profit. Instead, non-profits are typically organized for charitable educational or other types of social purposes. Non-profits may generate some income through donations, grants, or other forms of funding. But they are not allowed to distribute profits to their owners or shareholders on the other hand. A profit organization also known as a full profit organization."
   },
   {
-    "file": "Cat3_07.mp3",
+    "file": "Cat3_07.wav",
     "label": 0,
     "score": 93.5492,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "A home onus association H.A. is a group that makes and enforces rules for a community of home onus. These rules might cover things like what color you can paint your house, how you can use your property, and how you need to maintain your yard. Some people might not like the rules that an H.A. makes, but they have agreed to follow these rules when they both their home. This means that if they don't follow the rules, the HA can take them to court or find them."
   },
   {
     "file": "Cat3_08.mp3",
@@ -474,10 +476,11 @@
     "transcript": "To buy an OTC over-the-counter stock listed on NASDAQ from India, you will need to follow these steps. Find the broker. You will need to find a broker that allows you to trade OTC stocks listed on NASDAQ. Some popular brokers that offer this service include Easterisk Trade, TD Ameritrade and Interactive Brokers. Open a brokerage account. To trade OTC stocks, you will need to open a brokerage account with the broker you have chosen."
   },
   {
-    "file": "Cat3_09.mp3",
+    "file": "Cat3_09.wav",
     "label": 0,
     "score": 97.7942,
-    "threshold_used": 62.5
+    "threshold_used": 62.5,
+    "transcript": "Insurance open enrollment periods are set by the government or the insurance company and they last for a certain amount of time each year. During open enrollment, you can sign up for a new health insurance plan or make changes to your current plan. The reason insurance open enrollment periods are set up this way is to make sure that everyone has a chance to review their options and choose the right insurance plan for their needs."
   },
   {
     "file": "Cat3_10.mp3",
@@ -555,244 +558,5 @@
     "score": 0.4368,
     "threshold_used": 62.5,
     "transcript": "They do this because they want to sell the objects for money. Archaeologists, on the other hand, are scientists who study the past by carefully excavating and documenting ancient sites. They do this to learn more about the history and culture of the people who live there. One reason grave rubbers might beat archaeologists to a site is that they are often looking for quick profits and are willing to break the law to get them."
-  },
-  {
-    "file": "Cat3_06.wav",
-    "label": 0,
-    "score": null,
-    "threshold_used": 62.5,
-    "transcript": "And non-profit organization is a type of organization that does not operate for the purpose of making a profit. Instead, non-profits are typically organized for charitable educational or other types of social purposes. Non-profits may generate some income through donations, grants, or other forms of funding. But they are not allowed to distribute profits to their owners or shareholders on the other hand. A profit organization also known as a full profit organization."
-  },
-  {
-    "file": "Cat3_07.wav",
-    "label": 0,
-    "score": null,
-    "threshold_used": 62.5,
-    "transcript": "A home onus association H.A. is a group that makes and enforces rules for a community of home onus. These rules might cover things like what color you can paint your house, how you can use your property, and how you need to maintain your yard. Some people might not like the rules that an H.A. makes, but they have agreed to follow these rules when they both their home. This means that if they don't follow the rules, the HA can take them to court or find them."
-  },
-  {
-    "file": "Cat3_09.wav",
-    "label": 0,
-    "score": null,
-    "threshold_used": 62.5,
-    "transcript": "Insurance open enrollment periods are set by the government or the insurance company and they last for a certain amount of time each year. During open enrollment, you can sign up for a new health insurance plan or make changes to your current plan. The reason insurance open enrollment periods are set up this way is to make sure that everyone has a chance to review their options and choose the right insurance plan for their needs."
-  },
-  {
-    "file": "cat1_08.wav",
-    "label": 0,
-    "score": null,
-    "threshold_used": 62.5,
-    "transcript": "It is a very fine old place of red brick, softened by a pale powdery lichen, which has dispersed itself with happy irregularity. So as to bring the red brick into terms of friendly companionship, with a limestone ornaments surrounding the three gables, the windows and the door place."
-  },
-  {
-    "file": "cat1_09.wav",
-    "label": 0,
-    "score": null,
-    "threshold_used": 62.5,
-    "transcript": "A quarter of an hour afterwards, he returned to the theater. But it will be readily believed that it was only a powerful effort of reason over his great excitement that enabled him to go back. Or perhaps, for love is the strangely constituted. He found that impossible, even to remain much longer separated from the presence of one who had broken his heart."
-  },
-  {
-    "file": "cat1_10.wav",
-    "label": 0,
-    "score": null,
-    "threshold_used": 62.5,
-    "transcript": "Another case, said John Wesley, was a little girl, half grown, who was washing windows upstairs one day, and unlocally fell asleep in the window. And in this position was found by her mistress. In a rage, the mistress hid her, a heavy slap knocked her out of the window, and she fell to the pavement, and died in a few hours from the effects thereof."
-  },
-  {
-    "file": "cat1_11.wav",
-    "label": 0,
-    "score": null,
-    "threshold_used": 62.5,
-    "transcript": "They asserted with confidence, and almost with exultation, that the apostolical succession was interrupted, that all the bishops of Europe and Asia were infected by the contagion of guilt and schism, and that the parogatives of the Catholic Church were confined to the chosen portion of the African believers, who alone had preserved in violet the integrity of their faith and discipline."
-  },
-  {
-    "file": "cat1_12.wav",
-    "label": 0,
-    "score": null,
-    "threshold_used": 62.5,
-    "transcript": "Hesterprin went one day to the mansion of Governor-Bellingham, with a pair of gloves which she had furnished and embroidered to his order, in which were to be worn on some great occasion of state. For, though, the chances of a popular election had caused this former ruler to descend a step or two from the highest rank. He still held an honorable and influential place among the colonial majesty."
-  },
-  {
-    "file": "cat1_13.mp3",
-    "label": 0,
-    "score": null,
-    "threshold_used": 62.5,
-    "transcript": "or maybe like this one. People seem to be getting offline more. Picking up analog hobbies, sharing slower routines, buying bricks, and reclaiming their time and choosing to live in the moment. Yes, without sharing it. In short, it's cool to be offline now. And there's a reason the shift is happening. The average person now spends about two hours and 14 minutes per day just on social media. And researchers have linked excessive scrolling with short and attention spans, mental fog, and weakened focus, aka brain rot. Studies also suggest that this frequent screen usage trains the brain for"
-  },
-  {
-    {
-      "file": "cat1_15.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "Seems like a lot of work for very little game. You can only do it once or twice before they figure out what you are doing, and you'd have to come up with a way slash situation in which it was stolen without it looking like it was your fault. Which probably means smashing a window to make it look like a break-in. And a new window would cost more than what you make in selling the gun."
-    },
-    {
-      "file": "cat1_17.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "I came back. Just let me know what you prefer so I can use that. I like using my phone to be honest because it has more like clear sound than the mic. But I kind of want to use the mic because I purchased up to you because I'm just going to follow what you feel about the title. This is basically my default mood these days after getting laid off. You're not sick of me, right? Keep talking about my free life without a job again. I still have a few unsolved things with my previous company, but I'm not going to share too much."
-    },
-    {
-      "file": "cat1_18.wav",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "What do you do if the random jury pool includes someone who is the cousin of the victim or someone who is illiterate or who states openly that they would never vote to convict or always vote to convict someone of a particular class or race or religion? Yes, it is possible to manipulate the jury selection system and reforms are possible. But the need for screening at some point is hard to remove from the process."
-    },
-    {
-      "file": "cat1_19.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "enough dopamine to actually generate that motivational pool that is going to get you interested to pursue those things. So if you're not feeling interested in the things that used to bring you joy, it might be that your brain is just not generating enough motivation to make those things worth pursuing. So how does it happen? Well, every time your brain detects something novel, like a notification and you video or a surprising headline, your dopamine spikes up. So it spikes up and then it drops and it gives you that push of motivation to actually click on something and find out that information. And the thing is your brain actually compensates dopamine a little bit by going down and pushing dopamine slightly below the baseline and then it goes back"
-    },
-    {
-      "file": "cat1_20.wav",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "It depends on what's needed for a particular kind of cheese and starts with the ingredients which are milk, cream, the enzyme, granite and salt. Most cheeses are made from pasteurized milk and cream. pasteurization cooks the raw milk to kill bacteria and render its sterile and fit for human consumption. It also changes the flavor, but unpesturized milk is not generally used in mass-produced cheeses, and is usually used in handmade batches, not for sale."
-    },
-    {
-      "file": "cat3_01.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "Nursery rhymes are a type of children's song that have been passed down for generations. They are usually simple and catchy and are often used to teach children language skills and to entertain them. Many nursery rhymes have been around for hundreds of years and the origins of many of them are not well known. Some of them may have originated as folk songs or as part of oral tradition and they may have changed over time as they were passed down through the generations."
-    },
-    {
-      "file": "cat3_02.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "Bernie Miroff was a financier who operated a massive Ponzi scheme, defrauding thousands of investors of billions of dollars. In a Ponzi scheme, early investors are paid returns with the money of later investors, rather than with any actual profits earned. Madoff came to be running a successful investment firm, but in reality he was using the funds of new investors to pay the returns promised to earlier investors, rather than investing the money as promised."
-    },
-    {
-      "file": "cat3_03.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "There are a few reasons why the United States has been able to sustain larger amounts of debt compared to Greece. First, the United States has a much larger and more diversified economy than Greece. This means that the United States is able to generate more income and wealth, which can be used to pay off its debts. Second, the United States is able to borrow money at low interest rates because it is considered a safe and stable place to invest."
-    },
-    {
-      "file": "cat3_04.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "Sure, an internet protocol IP address is a unique numerical label assigned to each device. For example, computer printer connected to a computer network that uses the internet protocol for communication. An IP address serves two main functions, host or network interface identification and location addressing. A subnet or subnetwork is a smaller network that is created within a larger network. It is a way of dividing a larger network into smaller, more manageable chunks."
-    },
-    {
-      "file": "cat3_05.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "Sleep paralysis is a condition that can occur when you are falling asleep or waking up. During sleep, your body is paralyzed, which helps to keep you from acting out your dreams. Sleep paralysis happens when this paralysis persists after you wake up, making it difficult or impossible for you to move your body or speak. Sometimes people who experience sleep paralysis may also have vivid dreamlike experiences."
-    },
-    {
-      "file": "cat3_06.wav",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "And non-profit organization is a type of organization that does not operate for the purpose of making a profit. Instead, non-profits are typically organized for charitable educational or other types of social purposes. Non-profits may generate some income through donations, grants, or other forms of funding. But they are not allowed to distribute profits to their owners or shareholders on the other hand. A profit organization also known as a full profit organization."
-    },
-    {
-      "file": "cat3_07.wav",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "A home onus association H.A. is a group that makes and enforces rules for a community of home onus. These rules might cover things like what color you can paint your house, how you can use your property, and how you need to maintain your yard. Some people might not like the rules that an H.A. makes, but they have agreed to follow these rules when they both their home. This means that if they don't follow the rules, the HA can take them to court or find them."
-    },
-    {
-      "file": "cat3_08.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "To buy an OTC over-the-counter stock listed on NASDAQ from India, you will need to follow these steps. Find the broker. You will need to find a broker that allows you to trade OTC stocks listed on NASDAQ. Some popular brokers that offer this service include Easterisk Trade, TD Ameritrade and Interactive Brokers. Open a brokerage account. To trade OTC stocks, you will need to open a brokerage account with the broker you have chosen."
-    },
-    {
-      "file": "cat3_09.wav",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "Insurance open enrollment periods are set by the government or the insurance company and they last for a certain amount of time each year. During open enrollment, you can sign up for a new health insurance plan or make changes to your current plan. The reason insurance open enrollment periods are set up this way is to make sure that everyone has a chance to review their options and choose the right insurance plan for their needs."
-    },
-    {
-      "file": "cat3_10.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "In general, companies pay dividends if they have profits, and they want to distribute a portion of those profits to their shareholders. Dividents are a way for companies to return value to their shareholders, and they are typically paid out of a company's profits or surplus cash. However, it is possible for a company to pay dividends even if it is not currently profitable, as long as it has sufficient cash on hand, or is able to borrow the money needed to pay the dividends."
-    },
-    {
-      "file": "cat3_11.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "Fat Tuesday, also known as Mardi Gras, is a holiday that is celebrated in some parts of the world, including the United States. It falls on the Tuesday before Ash Wednesday, which marks the start of the Christian season of Lent. During Lent, many people give up certain things, such as certain foods or activities as a way of preparing for Easter. Fat Tuesday is a way for people to celebrate and have fun before the more somber season of Lent Begins. On this day, people often dress up in costumes."
-    },
-    {
-      "file": "cat3_12.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "Sleep paralysis is a condition that can occur when you are falling asleep or waking up. During sleep, your body is paralyzed, which helps to keep you from acting out your dreams. Sleep paralysis happens when this paralysis persists after you wake up, making it difficult or impossible for you to move your body or speak. Sometimes people who experience sleep paralysis may also have vivid dreamlike experiences."
-    },
-    {
-      "file": "cat3_13.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "Hypnosis is a way of helping someone to feel very relaxed and focused. When someone is in a state of hypnosis, they might feel like they are in a dreamlike state or like they are watching something happening to someone else. They might feel very relaxed and calm and they might have a hard time moving or speaking. During hypnosis, a person might be more open to suggestions from the person leading the hypnosis, also known as the hypnotist."
-    },
-    {
-      "file": "cat3_14.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "It is true that some nursery rhymes contain themes of death or sin, but it is important to remember that these rhymes were not necessarily intended for children. In the past many nursery rhymes were sung or recited by adults to entertain children, and these rhymes may have been based on adult themes or experiences that children would not necessarily understand."
-    },
-    {
-      "file": "cat3_15.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "While Easter is an important holiday for Christians, it is also a time for people of all faiths and backgrounds to come together and celebrate the coming. So while it is a religious holiday, it is also a time for people to come together and have fun. Your resting heart rate at age 24 can vary depending on a number of factors, including your overall health and fitness level, your genetics and your lifestyle. A normal resting heart rate for an adult is typically between 60 and 100 beats per minute."
-    },
-    {
-      "file": "cat3_16.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "Easter is a Christian holiday that celebrates the resurrection of Jesus Christ. According to the Bible, Jesus was a man who lived in the Middle East over 2,000 years ago. He was a teacher in healer and he believed that he was sent by God to help people understand God's love and teachings. Many people believe that Jesus was the son of God and they followed him and learned from him. One day, Jesus was arrested and crucified, which means he was killed by being nailed to a cross. His followers"
-    },
-    {
-      "file": "cat3_17.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "While some bodywood movies may be more serious in nature, it is common for these films to include both dramatic and comedic elements, and the inclusion of songs is often a way to balance out the more serious themes, with lighter, more entertaining moments. Ultimately, the inclusion of songs in bodywood movies is a long-standing tradition that is deeply ingrained in the culture of Indian cinema and these musical numbers are often an important part of the overall appeal of these films."
-    },
-    {
-      "file": "cat3_18.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "The premiums you pay over time add up to the death benefit that will be paid out if you die. Life insurance can be a good way for people to protect their loved ones financially if something happens to them. It can help cover things like funeral expenses, outstanding debts and lost income. It can also be used as a way to save for the future or to leave behind a financial legacy for loved ones."
-    },
-    {
-      "file": "cat3_19.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "It is also worth noting that not all companies pay dividends, and the decision to pay dividends is ultimately up to the company's management and board of directors. Some companies choose to reinvest their profits into the business instead of paying dividends, while others may not have sufficient profits or cash on hand to pay dividends."
-    },
-    {
-      "file": "cat3_20.mp3",
-      "label": 0,
-      "score": null,
-      "threshold_used": 62.5,
-      "transcript": "They do this because they want to sell the objects for money. Archaeologists, on the other hand, are scientists who study the past by carefully excavating and documenting ancient sites. They do this to learn more about the history and culture of the people who live there. One reason grave rubbers might beat archaeologists to a site is that they are often looking for quick profits and are willing to break the law to get them."
-    }
-  ]
+  }
+]

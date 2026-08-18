@@ -25,49 +25,34 @@ Output schema (keys are contractually fixed — do not rename):
 
 import os
 import time
-from typing import Dict, Any
+from typing import Callable, Dict, Any, Optional
 
+from .audio_loader import load_and_normalize_audio
 from .vad import strip_silence
 from .asr import transcribe
 from .deepfake_model import score_audio
 
 
-def analyze_audio(audio_path: str) -> Dict[str, Any]:
+def analyze_audio(
+    audio_path: str,
+    batch_size: int = 1,
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+) -> Dict[str, Any]:
     """Runs the full audio forensics pipeline on an input file.
 
-    Chains:
-        strip_silence(audio_path) → transcribe(waveform) → score_audio(waveform)
-
-    Decision threshold and temperature scaling are loaded dynamically from
-    audio_forensics/calibration/model_config.json (calibration_parameters block).
-    These are currently placeholder values derived from ASVspoof 2021 benchmarks;
-    they will be replaced after empirical calibration per AUDIO_CALIBRATION_PROTOCOL.md.
+    Flow:
+        load_and_normalize_audio(audio_path)
+            → strip_silence(waveform)
+            → transcribe(processed_audio)
+            → score_audio(processed_audio, batch_size=1, progress_callback)
 
     Args:
-        audio_path (str): Path to input audio clip (.wav, .mp3, etc.).
-                          Must be an existing file; FileNotFoundError is raised otherwise.
+        audio_path (str): Path to input audio clip (.wav, .mp3, .flac, .ogg, .m4a, .aac).
+        batch_size (int): Inference batch size for sliding-window evaluation (default: 1).
+        progress_callback: Optional callable(current_window, total_windows) for live progress.
 
     Returns:
         Dict[str, Any]: Audio forensic evaluation results formatted for fusion consumption.
-            Key names are contractually fixed and must not be changed.
-
-            Example output:
-                {
-                    "audio_score":           81.2,
-                    "logit_fake":            2.14,
-                    "logit_real":           -0.87,
-                    "transcript":            "text transcribed from audio...",
-                    "wer_confidence_note":   "internal sanity-check only, not per-clip WER",
-                    "decision_threshold_pct": 62.5,
-                    "temperature":           1.15,
-                    "n_windows":             6,
-                    "window_scores":         [79.1, 82.4, 81.2, 84.0, 80.5, 79.8],
-                    "confidence_tiers":      {"extreme_logit_margin": 3.0, ...},
-                }
-
-    Raises:
-        FileNotFoundError: If `audio_path` does not exist on disk.
-        ValueError: If the audio input type is not supported by downstream modules.
     """
     if not os.path.exists(audio_path):
         raise FileNotFoundError(f"[pipeline] Audio file not found: {audio_path}")
@@ -75,9 +60,12 @@ def analyze_audio(audio_path: str) -> Dict[str, Any]:
     t_start = time.perf_counter()
     print(f"[pipeline] Starting analysis -> {audio_path}")
 
+    # ── 0. Decode & Normalize ONCE ───────────────────────────────────────────
+    raw_waveform, audio_meta = load_and_normalize_audio(audio_path, target_sr=16000)
+
     # ── 1. Voice Activity Detection (Silence Stripping) ───────────────────────
     t0 = time.perf_counter()
-    processed_audio = strip_silence(audio_path)
+    processed_audio = strip_silence(raw_waveform)
     vad_time = time.perf_counter() - t0
     print(f"[pipeline] VAD complete  | samples={len(processed_audio):,} "
           f"| duration={len(processed_audio)/16000:.2f}s "
@@ -93,7 +81,11 @@ def analyze_audio(audio_path: str) -> Dict[str, Any]:
 
     # ── 3. Deepfake Classification (wav2vec2-deepfake-voice-detector) ─────────
     t0 = time.perf_counter()
-    scores = score_audio(processed_audio)
+    scores = score_audio(
+        processed_audio,
+        batch_size=batch_size,
+        progress_callback=progress_callback,
+    )
     deepfake_time = time.perf_counter() - t0
     print(f"[pipeline] Deepfake done | s_audio={scores['s_audio']:.4f} "
           f"threshold={scores['decision_threshold']}% "
@@ -107,18 +99,28 @@ def analyze_audio(audio_path: str) -> Dict[str, Any]:
 
     # ── 4. Assemble standard schema matching fusion contract ──────────────────
     return {
-        "audio_score":           float(scores["s_audio"]),
-        "logit_fake":            float(scores["logit_fake"]),
-        "logit_real":            float(scores["logit_real"]),
-        "transcript":            transcript,
-        "wer_confidence_note":   "internal sanity-check only, not per-clip WER",
+        "audio_score":            float(scores["s_audio"]),
+        "max_score":              float(scores.get("max_score", scores["s_audio"])),
+        "mean_score":             float(scores.get("mean_score", scores["s_audio"])),
+        "median_score":           float(scores.get("median_score", scores["s_audio"])),
+        "logit_fake":             float(scores["logit_fake"]),
+        "logit_real":             float(scores["logit_real"]),
+        "transcript":             transcript,
+        "wer_confidence_note":    "internal sanity-check only, not per-clip WER",
         "decision_threshold_pct": float(scores["decision_threshold"]),
-        "temperature":           float(scores["temperature"]),
-        "n_windows":             int(scores["n_windows"]),
-        "window_scores":         list(scores["window_scores"]),
-        "confidence_tiers":      dict(scores["confidence_tiers"]),
-        "vad_time":              float(vad_time),
-        "asr_time":              float(asr_time),
-        "deepfake_time":         float(deepfake_time),
-        "total_time":            float(total),
+        "temperature":            float(scores["temperature"]),
+        "n_windows":              int(scores["n_windows"]),
+        "windows_analyzed":       int(scores.get("windows_analyzed", scores["n_windows"])),
+        "audio_duration_seconds": float(scores.get("audio_duration_seconds", audio_meta["normalized_duration_seconds"])),
+        "window_scores":          list(scores["window_scores"]),
+        "confidence_tiers":       dict(scores["confidence_tiers"]),
+        "inference_batch_size":   int(scores.get("inference_batch_size", batch_size)),
+        "window_size_seconds":    int(scores.get("window_size_seconds", 5)),
+        "window_overlap_seconds": int(scores.get("window_overlap_seconds", 1)),
+        "window_step_seconds":    int(scores.get("window_step_seconds", 4)),
+        "audio_metadata":         audio_meta,
+        "vad_time":               float(vad_time),
+        "asr_time":               float(asr_time),
+        "deepfake_time":          float(deepfake_time),
+        "total_time":             float(total),
     }

@@ -202,24 +202,23 @@ def run_full_pipeline(
     text: Optional[str] = None,
     audio_path: Optional[str] = None,
     run_robustness: bool = False,
+    batch_size: int = 1,
+    audio_progress_callback: Optional[callable] = None,
 ) -> dict:
     """
-    Run the combined Text + Audio forensics pipeline.
+    Run the Text / Audio forensics pipeline.
 
     At least one of `text` or `audio_path` must be provided.
 
     Args:
-        text:            Plain text string to analyze (or None to skip text modality).
-        audio_path:      Path to an audio file (.wav/.mp3/.flac/etc.) or None to skip.
-        run_robustness:  Whether to run T5 paraphrase robustness check on text
-                         (adds ~30s; default False to keep combined mode snappy).
+        text:                    Plain text string to analyze (or None to skip text modality).
+        audio_path:              Path to an audio file (.wav/.mp3/.flac/etc.) or None to skip.
+        run_robustness:          Whether to run T5 paraphrase robustness check on text.
+        batch_size:              Batch size for audio sliding-window evaluation (default: 1).
+        audio_progress_callback: Optional callback(cur_window, total_windows).
 
     Returns:
-        dict matching the locked output schema defined in this module's docstring.
-
-    Raises:
-        ValueError: If neither text nor audio_path is provided.
-        FileNotFoundError: If audio_path is given but the file does not exist.
+        dict matching the output schema.
     """
     if not text and not audio_path:
         raise ValueError(
@@ -283,27 +282,41 @@ def run_full_pipeline(
         logger.info("[fusion] Running audio forensics pipeline...")
         try:
             from audio_forensics.pipeline import analyze_audio
-            audio_out = analyze_audio(audio_path)
+            audio_out = analyze_audio(
+                audio_path,
+                batch_size=batch_size,
+                progress_callback=audio_progress_callback,
+            )
             result["audio_score"]   = audio_out["audio_score"]
             result["audio_verdict"] = _audio_verdict(audio_out["audio_score"])
             result["logit_fake"]    = audio_out["logit_fake"]
             result["logit_real"]    = audio_out["logit_real"]
             result["transcript"]    = audio_out.get("transcript", "")
-            # Pass calibration metadata through so UI can display them
+            # Pass calibration and window metadata through so UI can display them
             result["audio_decision_threshold_pct"] = audio_out.get("decision_threshold_pct", _AUDIO_TIERS["decision_threshold_pct"])
             result["audio_temperature"]            = audio_out.get("temperature", 1.15)
             result["audio_n_windows"]              = audio_out.get("n_windows", 1)
+            result["audio_windows_analyzed"]       = audio_out.get("windows_analyzed", 1)
+            result["audio_duration_seconds"]       = audio_out.get("audio_duration_seconds")
             result["audio_window_scores"]          = audio_out.get("window_scores", [])
+            result["audio_max_score"]              = audio_out.get("max_score", audio_out["audio_score"])
+            result["audio_mean_score"]             = audio_out.get("mean_score", audio_out["audio_score"])
+            result["audio_median_score"]           = audio_out.get("median_score", audio_out["audio_score"])
             result["audio_confidence_tiers"]       = audio_out.get("confidence_tiers", {})
+            result["audio_inference_batch_size"]   = audio_out.get("inference_batch_size", batch_size)
+            result["audio_window_size_seconds"]    = audio_out.get("window_size_seconds", 5)
+            result["audio_window_overlap_seconds"] = audio_out.get("window_overlap_seconds", 1)
+            result["audio_window_step_seconds"]    = audio_out.get("window_step_seconds", 4)
+            result["audio_metadata"]               = audio_out.get("audio_metadata", {})
             result["audio_vad_time"]               = audio_out.get("vad_time")
             result["audio_asr_time"]               = audio_out.get("asr_time")
             result["audio_deepfake_time"]          = audio_out.get("deepfake_time")
             result["audio_total_time"]             = audio_out.get("total_time")
             logger.info(
-                "[fusion] Audio score: %.2f → %s (threshold=%.1f%%, T=%.2f, windows=%d)",
+                "[fusion] Audio score: %.2f → %s (threshold=%.1f%%, T=%.2f, windows=%d, batch=%d)",
                 audio_out["audio_score"], result["audio_verdict"],
                 result["audio_decision_threshold_pct"], result["audio_temperature"],
-                result["audio_n_windows"],
+                result["audio_n_windows"], batch_size,
             )
         except Exception as exc:
             logger.error("[fusion] Audio pipeline failed: %s", exc, exc_info=True)
