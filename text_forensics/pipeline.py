@@ -1,32 +1,63 @@
 """
 text_forensics/pipeline.py
 
-Public Interface: Text Forensics Pipeline — Full Implementation (Phase 1.9).
+Public Interface: Text Forensics Pipeline — Five-Feature Production Architecture.
 
 This module is the single entry point for the Text Forensics Pipeline.
-Other modules (cross-modal consistency checker, tagging engine) MUST use
-only analyze_text() from this module. The schema below is the locked contract.
+Other modules (cross-modal consistency checker, tagging engine, web UI) MUST
+use only analyze_text() from this module.
 
-LOCKED PUBLIC INTERFACE — do not change after Phase 1.9:
+Two paths run simultaneously:
+  PATH A — Four-Feature Corrected Baseline (legacy fallback, preserved for backward compatibility)
+  PATH B — Five-Feature Logistic Regression (PRODUCTION MODEL)
 
-    analyze_text(text: str) -> dict
+LOCKED PUBLIC INTERFACE:
+
+    analyze_text(text: str, run_robustness: bool = True) -> dict
 
     Return schema:
     {
-        "text_score": float,           # 0-100 fused AI-likelihood score (higher = more AI-like)
+        # ── PATH A — Four-feature baseline (preserved) ─────────────────────
+        "text_score": float,           # 0-100 fused AI-likelihood score (PATH A)
+        "signal_agreement": str,       # "agreement" or "disagreement"
         "signals": {
-            "curvature_raw": float | None,    # Fast-DetectGPT discrepancy (None if < 20 tokens)
-            "curvature_score": float | None,  # calibrated 0-100 sub-score
-            "burstiness_raw": float | None,   # σ/μ sentence-length ratio (None if < 5 sentences)
-            "burstiness_score": float | None, # calibrated 0-100 sub-score
-            "cliche_density_pct": float,      # cliché density as % of total words
-            "cliche_score": float,            # calibrated 0-100 sub-score
-            "ttr": float,                     # type-token ratio (rolling 200-word window if > 400 words)
-            "entropy": float,                 # Shannon entropy in bits
-            "entropy_score": float,           # calibrated 0-100 sub-score
+            "curvature_raw": float | None,
+            "curvature_score": float | None,
+            "burstiness_raw": float | None,
+            "burstiness_score": float | None,
+            "cliche_density_pct": float,
+            "cliche_score": float,
+            "ttr": float,
+            "entropy": float,
+            "entropy_score": float,
         },
-        "stability_flag": str,          # "stable", "unstable", or "unknown"
-        "paraphrase_delta": float       # absolute score shift after paraphrasing
+        "stability_flag": str,
+        "paraphrase_delta": float,
+        "compared_on_truncated": bool,
+
+        # ── PATH B — Five-feature LR (PRODUCTION) ──────────────────────────
+        "ai_probability": float,       # P(AI|X) in [0, 1] from 5-feature LR model
+        "ai_score": float,             # ai_probability * 100 in [0, 100]
+        "verdict": str,                # "Human" | "Likely Human" | "Likely AI" | "AI"
+        "confidence": str,             # "Low" | "Moderate" | "High"
+        "model_used": str,             # "five_feature_logistic_regression"
+
+        "features": {                  # all 5 raw feature values
+            "curvature": float | None,
+            "burstiness": float | None,
+            "lexical_entropy": float | None,
+            "structural_regularity": float | None,
+            "cliche_density": float,
+        },
+
+        "sentence_evidence": {         # contextual sentence-level AI summary
+            "mean_ai_probability": float | None,
+            "upper_quartile": float | None,
+            "ai_sentence_ratio": float | None,
+            "n_sentences_analyzed": int,
+        },
+
+        "short_text_warning": bool,    # True if text has < 30 words or < 5 sentences
     }
 """
 
@@ -41,7 +72,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Load calibration baseline stats at module import time (not on every call)
+# Load calibration baseline stats at module import time
 # ---------------------------------------------------------------------------
 _BASELINE_STATS_PATH = Path(__file__).parent / "calibration" / "baseline_stats.json"
 _BASELINE_STATS: Optional[dict] = None
@@ -52,7 +83,7 @@ def _load_baseline_stats() -> Optional[dict]:
     Load baseline_stats.json from the calibration directory.
 
     Returns:
-        dict: Calibration stats, or None if the file is missing/empty.
+        dict: Calibration stats, or empty dict if missing.
     """
     global _BASELINE_STATS
     if _BASELINE_STATS is not None:
@@ -61,7 +92,6 @@ def _load_baseline_stats() -> Optional[dict]:
     if not _BASELINE_STATS_PATH.exists():
         logger.warning(
             "baseline_stats.json not found at %s. "
-            "Run calibration/run_calibration.py first. "
             "Scores will use fallback (mu0=0, sigma0=1) defaults.",
             _BASELINE_STATS_PATH,
         )
@@ -72,10 +102,6 @@ def _load_baseline_stats() -> Optional[dict]:
         data = json.load(f)
 
     if not data:
-        logger.warning(
-            "baseline_stats.json exists but is empty. "
-            "Scores will use fallback (mu0=0, sigma0=1) defaults."
-        )
         _BASELINE_STATS = {}
         return _BASELINE_STATS
 
@@ -88,27 +114,69 @@ def _load_baseline_stats() -> Optional[dict]:
 _load_baseline_stats()
 
 
+def _compute_sentence_evidence(
+    sentences_scored: list[dict],
+    ai_threshold: float = 0.50,
+) -> dict:
+    """
+    Aggregate sentence-level AI probabilities into document-level contextual evidence.
+
+    Args:
+        sentences_scored: list of dicts with "curvature_score" (0-100) from sentence_scorer.
+        ai_threshold: probability above which a sentence is considered AI-like.
+
+    Returns:
+        dict with mean_ai_probability, upper_quartile, ai_sentence_ratio, n_sentences_analyzed.
+    """
+    probs = []
+    for s in sentences_scored:
+        cs = s.get("curvature_score")
+        if cs is not None:
+            probs.append(cs / 100.0)
+
+    if not probs:
+        return {
+            "mean_ai_probability": None,
+            "upper_quartile": None,
+            "ai_sentence_ratio": None,
+            "n_sentences_analyzed": 0,
+        }
+
+    import statistics
+    mean_prob = statistics.mean(probs)
+    sorted_probs = sorted(probs)
+    n = len(sorted_probs)
+    q3_idx = int(0.75 * n)
+    upper_q = sorted_probs[min(q3_idx, n - 1)]
+    ai_sentence_ratio = sum(1 for p in probs if p >= ai_threshold) / n
+
+    return {
+        "mean_ai_probability": round(mean_prob, 4),
+        "upper_quartile": round(upper_q, 4),
+        "ai_sentence_ratio": round(ai_sentence_ratio, 4),
+        "n_sentences_analyzed": n,
+    }
+
+
 def analyze_text(text: str, run_robustness: bool = True) -> dict:
     """
-    Full text forensics pipeline.
+    Full text forensics pipeline — Five-Feature Production Architecture.
 
-    Validates input, loads calibration stats, runs all 4 signals (curvature,
-    burstiness, cliche_density, lexical_entropy), fuses them into a calibrated
-    0-100 AI-likelihood score, optionally runs the adversarial robustness self-test,
-    and returns the complete result matching the locked schema.
+    Runs both:
+      PATH A — four-feature corrected baseline (text_score)
+      PATH B — five-feature Logistic Regression (ai_probability, verdict)
 
     Args:
         text: Non-empty string to analyze. Must be a str type.
         run_robustness: Whether to run the T5 paraphrase robustness check (default True).
 
     Returns:
-        dict: Matching the locked schema defined in this module's docstring.
+        dict: Matching the locked production schema.
 
     Raises:
         TypeError: If text is not a str.
         ValueError: If text is empty or whitespace-only.
     """
-    # ---- Input validation ----
     if not isinstance(text, str):
         raise TypeError(
             f"analyze_text() expects a str, got {type(text).__name__!r}. "
@@ -120,32 +188,47 @@ def analyze_text(text: str, run_robustness: bool = True) -> dict:
             "Provide actual text content to analyze."
         )
 
-    # ---- Import signals (lazy — avoids loading models if pipeline not used) ----
+    clean_text = text.strip()
+    words = clean_text.split()
+    word_count = len(words)
+    short_text_warning = word_count < 30
+
+    # ---- Import signals lazily ----
     from text_forensics.signals.curvature import get_curvature
     from text_forensics.signals.burstiness import get_burstiness
     from text_forensics.signals.cliche_scanner import get_cliche_density
     from text_forensics.signals.lexical_entropy import get_lexical_stats
-    from text_forensics.fusion import compute_text_score
+    from text_forensics.signals.structural_regularity import get_structural_regularity
+    from text_forensics.fusion import compute_text_score, compute_five_feature_score
     from text_forensics.robustness_test import check_stability
+    from text_forensics.signals.sentence_scorer import score_sentences
 
     baseline = _load_baseline_stats()
 
-    # ---- Run all signals ----
+    # ========================================================================
+    # FEATURE EXTRACTION — 5 core production features
+    # ========================================================================
     logger.info("Running curvature signal...")
-    curvature_raw = get_curvature(text)
+    curvature_raw = get_curvature(clean_text)
 
     logger.info("Running burstiness signal...")
-    burstiness_raw = get_burstiness(text)
+    burstiness_raw = get_burstiness(clean_text)
 
     logger.info("Running cliche density signal...")
-    cliche_pct = get_cliche_density(text)
+    cliche_pct = get_cliche_density(clean_text)
 
     logger.info("Running lexical entropy signal...")
-    lex = get_lexical_stats(text)
+    lex = get_lexical_stats(clean_text)
     entropy_val = lex["entropy"]
     ttr_val = lex["ttr"]
 
-    # ---- Fuse signals ----
+    logger.info("Running structural regularity signal...")
+    struct_result = get_structural_regularity(clean_text)
+    struct_composite = struct_result["composite"]
+
+    # ========================================================================
+    # PATH A — Four-feature corrected baseline (legacy fallback)
+    # ========================================================================
     raw_signals = {
         "curvature_raw": curvature_raw,
         "burstiness_raw": burstiness_raw,
@@ -157,10 +240,41 @@ def analyze_text(text: str, run_robustness: bool = True) -> dict:
     text_score = fusion_result["text_score"]
     sub_scores = fusion_result["sub_scores"]
 
-    # ---- Robustness self-test ----
+    # ========================================================================
+    # PATH B — Five-feature Logistic Regression (PRODUCTION)
+    # ========================================================================
+    lr_result = compute_five_feature_score(
+        curvature=curvature_raw,
+        burstiness=burstiness_raw,
+        lexical_entropy=entropy_val,
+        structural_regularity=struct_composite,
+        cliche_density=cliche_pct,
+        baseline_stats=baseline,
+    )
+
+    # ========================================================================
+    # SENTENCE-LEVEL EVIDENCE
+    # ========================================================================
+    logger.info("Running sentence-level scoring...")
+    try:
+        sentence_analysis = score_sentences(clean_text, baseline)
+        sentence_evidence = _compute_sentence_evidence(sentence_analysis)
+    except Exception as e:
+        logger.warning("Sentence scoring failed: %s", e)
+        sentence_analysis = []
+        sentence_evidence = {
+            "mean_ai_probability": None,
+            "upper_quartile": None,
+            "ai_sentence_ratio": None,
+            "n_sentences_analyzed": 0,
+        }
+
+    # ========================================================================
+    # ROBUSTNESS SELF-TEST
+    # ========================================================================
     if run_robustness:
         logger.info("Running robustness self-test...")
-        robustness = check_stability(text, text_score, baseline)
+        robustness = check_stability(clean_text, text_score, baseline)
     else:
         logger.info("Skipping robustness self-test per request.")
         robustness = {
@@ -169,8 +283,11 @@ def analyze_text(text: str, run_robustness: bool = True) -> dict:
             "compared_on_truncated": False,
         }
 
-    # ---- Assemble locked output schema ----
+    # ========================================================================
+    # ASSEMBLE OUTPUT SCHEMA
+    # ========================================================================
     result = {
+        # ── PATH A (preserved keys) ──────────────────────────────────────────
         "text_score": text_score,
         "signal_agreement": fusion_result.get("signal_agreement", "agreement"),
         "signals": {
@@ -186,8 +303,32 @@ def analyze_text(text: str, run_robustness: bool = True) -> dict:
         },
         "stability_flag": robustness["stability_flag"],
         "paraphrase_delta": robustness["paraphrase_delta"],
-        # Correction 4: expose whether the robustness delta used a truncated comparison
         "compared_on_truncated": robustness.get("compared_on_truncated", False),
+
+        # ── PATH B (production keys) ─────────────────────────────────────────
+        "ai_probability": lr_result["ai_probability"],
+        "ai_score": lr_result["ai_score"],
+        "verdict": lr_result["verdict"],
+        "confidence": lr_result["confidence"],
+        "model_used": lr_result["model_used"],
+
+        "features": {
+            "curvature": curvature_raw,
+            "burstiness": burstiness_raw,
+            "lexical_entropy": entropy_val,
+            "structural_regularity": struct_composite,
+            "cliche_density": cliche_pct,
+        },
+
+        "sentence_evidence": sentence_evidence,
+        "short_text_warning": short_text_warning,
+
+        # Subcomponent details for explainability
+        "structural_details": {
+            "starter_diversity": struct_result["starter_diversity"],
+            "pos_similarity": struct_result["pos_similarity"],
+            "discourse_density": struct_result["discourse_density"],
+        },
     }
 
     return result

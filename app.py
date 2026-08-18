@@ -1,24 +1,14 @@
 """
 app.py  (repository root)
 =========================
-Unified Streamlit Application — AI Audio + Text Forensics Detection System
+Streamlit Application — AI Text & Audio Forensics Detection System
 
-Presents a single, tabbed interface for:
-  - Text-only analysis  (text_forensics pipeline)
-  - Audio-only analysis (audio_forensics pipeline)
-  - Combined analysis   (both pipelines + unified score via fusion_integration)
+Presents an interface for:
+  - Text Analysis  (5-feature text_forensics pipeline)
+  - Audio Analysis (audio_forensics pipeline)
 
 Run from the repository root:
     streamlit run app.py
-
-Architecture Sections:
-    Section 1  : Input routing
-    Section 2  : Per-modality pipeline execution (via fusion_integration)
-    Section 3A : Text result display
-    Section 3B : Audio result display
-    Section 3C : Deferred — notice shown to user
-    Section 4  : Unified score panel (Combined mode)
-    Section 5  : Unified verdict + evidence summary
 """
 
 from __future__ import annotations
@@ -64,7 +54,7 @@ except LookupError:
 # Page config + CSS
 # ─────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="AI Forensics — Text & Audio Detection",
+    page_title="AI Text & Audio Forensics",
     page_icon="🔬",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -123,18 +113,6 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 .verdict-title-human         { font-size: 1.7rem; font-weight: 800; color: #15803D; }
 .verdict-title-uncertain     { font-size: 1.7rem; font-weight: 800; color: #92400E; }
 .verdict-subtitle { font-size: 1.05rem; margin-top: 0.3rem; }
-
-/* ── Unified score banner ── */
-.unified-banner {
-    background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
-    border-radius: 16px;
-    padding: 1.6rem 2rem;
-    color: white;
-    margin-bottom: 1.2rem;
-}
-.unified-score-label { font-size: 0.9rem; color: #94A3B8; letter-spacing: 0.08em; }
-.unified-score-value { font-size: 3rem; font-weight: 800; margin: 0.1rem 0; }
-.unified-verdict-text { font-size: 1.1rem; color: #CBD5E1; }
 
 /* ── Text box ── */
 .text-box {
@@ -223,37 +201,30 @@ with st.sidebar:
     st.markdown("---")
     mode = st.radio(
         "**Analysis Mode**",
-        options=["📝 Text Only", "🎙️ Audio Only", "🔀 Combined (Text + Audio)"],
+        options=["📝 Text Analysis", "🎙️ Audio Analysis"],
         index=0,
     )
     st.markdown("---")
 
     if "Text" in mode:
-        st.markdown("### 📝 Text Pipeline")
+        st.markdown("### 📝 Text Forensics Pipeline")
         st.markdown("""
-        1. **Prob. Curvature** — Fast-DetectGPT via `distilgpt2`
+        1. **Curvature** — Fast-DetectGPT via `distilgpt2`
         2. **Burstiness** — Sentence-length σ/μ
-        3. **Cliché Scan** — 50 AI buzzwords
-        4. **Lexical Entropy** — TTR + Shannon H
+        3. **Lexical Entropy** — TTR + Shannon entropy
+        4. **Structural Regularity** — Starter diversity & POS overlap
+        5. **Cliché Scan** — 50+ overused AI buzzwords
 
-        Fused with calibrated weights (ROC-AUC **0.9994** on 120 HC3 samples).
+        Fused via calibrated 5-Feature Logistic Regression (F1 **94.95%** on multi-genre corpus).
         """)
 
-    if "Audio" in mode:
-        st.markdown("### 🎙️ Audio Pipeline")
+    elif "Audio" in mode:
+        st.markdown("### 🎙️ Audio Forensics Pipeline")
         st.markdown("""
         1. **VAD** — Silero silence stripping
         2. **ASR** — OpenAI Whisper-Tiny
         3. **Deepfake Score** — `wav2vec2-deepfake-voice-detector`
-        $$S_{Audio} = \\text{Sigmoid}(logit_{fake} - logit_{real}) \\times 100$$
-        """)
-
-    if "Combined" in mode:
-        st.markdown("### 🔀 Combined Mode")
-        st.markdown("""
-        Both pipelines run sequentially.
-        **Unified score** = equal-weight average *(placeholder — to be recalibrated)*.
-        **Section 3C** (cross-modal consistency) is **deferred** pending calibration.
+        $$S_{Audio} = \\text{Sigmoid}\\!\\left(\\frac{logit_{fake} - logit_{real}}{T}\\right) \\times 100$$
         """)
 
     st.markdown("---")
@@ -263,14 +234,14 @@ with st.sidebar:
 # ─────────────────────────────────────────────────────────────────────────────
 # Header
 # ─────────────────────────────────────────────────────────────────────────────
-st.markdown('<h1 style="font-size:2.2rem;font-weight:800;color:#1E293B;margin-bottom:0.1rem;">🔬 AI Forensics — Text & Audio Detection</h1>', unsafe_allow_html=True)
-st.markdown('<p style="color:#64748B;font-size:1.05rem;margin-bottom:1.5rem;">Detect AI-generated text and audio deepfakes using statistical forensics.</p>', unsafe_allow_html=True)
+st.markdown('<h1 style="font-size:2.2rem;font-weight:800;color:#1E293B;margin-bottom:0.1rem;">🔬 AI Text & Audio Forensics</h1>', unsafe_allow_html=True)
+st.markdown('<p style="color:#64748B;font-size:1.05rem;margin-bottom:1.5rem;">Forensic detection of AI-generated text and synthetic voice deepfakes.</p>', unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helper: verdict HTML card
 # ─────────────────────────────────────────────────────────────────────────────
-def _verdict_card(verdict: str, score: float, subtitle: str = "") -> str:
+def _verdict_card(verdict: str, score: float, subtitle: str = "", model_name: str = "Five-Feature Logistic Regression") -> str:
     v = verdict.lower()
     if v == "ai" or (("likely ai" not in v) and ("ai" in v or "deepfake" in v or "generated" in v)):
         css, title_css = "verdict-ai", "verdict-title-ai"
@@ -291,7 +262,8 @@ def _verdict_card(verdict: str, score: float, subtitle: str = "") -> str:
     return (
         f'<div class="{css}">'
         f'<div class="{title_css}">{icon} {verdict}</div>'
-        f'<div class="verdict-subtitle">Score: <b>{score:.1f} / 100</b></div>'
+        f'<div class="verdict-subtitle">AI Probability: <b>{score:.1f}%</b></div>'
+        f'<div style="font-size:0.85rem;color:#64748B;margin-top:0.25rem;">Model: <b>{model_name}</b></div>'
         f'{sub}'
         f'</div>'
     )
@@ -349,15 +321,19 @@ def _render_cliche_highlights(text: str) -> None:
 def _render_text_panel(result: dict, raw_text: str) -> None:
     text_score = result["text_score"]
     text_verdict = result["text_verdict"]
+    model_name = result.get("text_model_used", "Five-Feature Logistic Regression")
+    if "five_feature" in model_name:
+        model_display = "Five-Feature Logistic Regression"
+    else:
+        model_display = "Corrected Four-Feature Baseline"
 
-    st.markdown('<div class="section-header">📝 Text Analysis Results</div>', unsafe_allow_html=True)
-    st.markdown(_verdict_card(text_verdict, text_score), unsafe_allow_html=True)
+    st.markdown('<div class="section-header">📝 Text Forensics Results</div>', unsafe_allow_html=True)
+    st.markdown(_verdict_card(text_verdict, text_score, model_name=model_display), unsafe_allow_html=True)
 
     if result.get("text_signal_agreement") == "disagreement":
         st.error(
             "⚠️ **Signals Disagree Significantly**: Individual detectors are giving "
-            "conflicting evidence (sub-score spread > 40 points). Treat the combined "
-            "score with extra caution."
+            "conflicting evidence (sub-score spread > 40 points). Review the feature breakdown below."
         )
 
     st.divider()
@@ -369,24 +345,46 @@ def _render_text_panel(result: dict, raw_text: str) -> None:
 
     st.divider()
 
-    # Sub-scores + clichés in tabs
-    tab1, tab2, tab3 = st.tabs(["📊 Signal Sub-Scores", "🚩 Cliché Evidence", "📏 Rhythm Analysis"])
+    # Core Features + clichés in tabs
+    tab1, tab2, tab3 = st.tabs(["📊 Core Five Features", "🚩 Cliché Evidence", "📏 Rhythm Analysis"])
 
     with tab1:
-        sigs = result.get("text_signals", {}) or {}
-        chart_data = [
-            {"Signal": "Curvature (Fast-DetectGPT)", "Score": sigs.get("curvature_score") or 0},
-            {"Signal": "Burstiness (Rhythm)",         "Score": sigs.get("burstiness_score") or 0},
-            {"Signal": "Cliché Density",              "Score": sigs.get("cliche_score") or 0},
-            {"Signal": "Lexical Entropy",             "Score": sigs.get("entropy_score") or 0},
+        feats = result.get("text_features", {}) or {}
+        feature_rows = [
+            {
+                "Feature": "📈 Curvature (Fast-DetectGPT)",
+                "Raw Value": f"{feats.get('curvature'):.4f}" if feats.get('curvature') is not None else "N/A",
+                "Direction": "Higher → AI-like (+3.947 weight)",
+                "Interpretation": "Negative log-probability discrepancy under distilgpt2",
+            },
+            {
+                "Feature": "⚡ Burstiness",
+                "Raw Value": f"{feats.get('burstiness'):.4f}" if feats.get('burstiness') is not None else "N/A (<5 sents)",
+                "Direction": "Lower → AI-like (-1.128 weight)",
+                "Interpretation": "Sentence length variation σ/μ (uniform length suggests AI)",
+            },
+            {
+                "Feature": "🔤 Lexical Entropy",
+                "Raw Value": f"{feats.get('lexical_entropy'):.4f}" if feats.get('lexical_entropy') is not None else "N/A",
+                "Direction": "Lower → AI-like (-1.062 weight)",
+                "Interpretation": "Shannon entropy of token distribution",
+            },
+            {
+                "Feature": "🏗️ Structural Regularity",
+                "Raw Value": f"{feats.get('structural_regularity'):.1f} / 100" if feats.get('structural_regularity') is not None else "N/A (<3 sents)",
+                "Direction": "Uniformity (-0.037 weight)",
+                "Interpretation": "Sentence-starter diversity & POS overlap composite",
+            },
+            {
+                "Feature": "🚩 Cliché Density",
+                "Raw Value": f"{feats.get('cliche_density'):.2f}%" if feats.get('cliche_density') is not None else "N/A",
+                "Direction": "Higher → AI-like (+0.891 weight)",
+                "Interpretation": "Frequency of 50+ overused AI idioms & buzzwords",
+            },
         ]
-        df = pd.DataFrame(chart_data)
-        col_c, col_t = st.columns([2, 1])
-        with col_c:
-            st.bar_chart(df, x="Signal", y="Score", color="#3B82F6", use_container_width=True)
-        with col_t:
-            for row in chart_data:
-                st.write(f"• **{row['Signal']}**: `{row['Score']:.1f}` / 100")
+        df = pd.DataFrame(feature_rows)
+        st.dataframe(df, use_container_width=True)
+        st.caption("ℹ️ *Note: These are raw forensic feature values fed into the Logistic Regression model, not individual AI probabilities.*")
 
     with tab2:
         _render_cliche_highlights(raw_text)
@@ -594,78 +592,80 @@ raw_text = ""
 uploaded_audio = None
 tmp_audio_path = None
 
-need_text  = "Text"    in mode or "Combined" in mode
-need_audio = "Audio"   in mode or "Combined" in mode
-
-if need_text and need_audio:
-    col_ti, col_ai = st.columns(2)
-    with col_ti:
-        st.markdown("**Text to analyze:**")
-        input_mode = st.radio("Text Input Method:", ["Paste Text", "Upload .txt"], horizontal=True, key="text_input_mode")
+if "Text" in mode:
+    col_input, col_info = st.columns([3, 2])
+    with col_input:
+        st.markdown("**Provide text to analyze:**")
+        input_mode = st.radio(
+            "Input Method:",
+            ["Paste Text", "Upload .txt"],
+            horizontal=True,
+            key="text_input_mode_selector",
+        )
         if input_mode == "Paste Text":
-            raw_text = st.text_area("Paste text:", height=180, placeholder="Paste text here...", key="text_area")
+            raw_text = st.text_area(
+                "Paste text to analyze:",
+                height=220,
+                placeholder="Paste text here for five-feature forensic analysis...",
+                key="text_area_input",
+            )
         else:
-            txt_file = st.file_uploader("Upload .txt:", type=["txt"], key="txt_upload")
+            txt_file = st.file_uploader(
+                "Upload .txt file:",
+                type=["txt"],
+                key="txt_file_uploader",
+            )
             if txt_file:
                 try:
                     raw_text = txt_file.read().decode("utf-8")
                 except UnicodeDecodeError:
                     txt_file.seek(0)
                     raw_text = txt_file.read().decode("latin-1")
-    with col_ai:
-        st.markdown("**Audio file to analyze:**")
+
+    with col_info:
+        st.markdown("**Analysis Specifications:**")
+        st.info(
+            "• **Engine**: Five-Feature Logistic Regression (DistilGPT-2 + Rhythm + Entropy + Regularity + Clichés)\n\n"
+            "• **Decision Tiers**: Human ($\le 20\%$) · Likely Human ($20\text{–}45\%$) · Likely AI ($45\text{–}70\%$) · AI ($\ge 70\%$)\n\n"
+            "• **Optimal Input**: Paragraphs $\ge 30$ words ($\ge 5$ sentences for full rhythm analysis)"
+        )
+        word_count = len(raw_text.split()) if raw_text else 0
+        if raw_text:
+            st.caption(f"📊 Text size: **{word_count} words** | **{len(raw_text)} characters**")
+            if word_count < 30:
+                st.warning("⚠️ **Short text**: Under 30 words. Burstiness and structural regularity will be safely imputed.")
+
+    run_robustness = st.checkbox("Run adversarial robustness check (T5 paraphrase, adds ~30s)", value=False)
+    can_analyze = bool(raw_text.strip())
+
+else:
+    col_upload, col_preview = st.columns([1, 1])
+    with col_upload:
+        st.markdown("**Upload audio file to analyze:**")
         uploaded_audio = st.file_uploader(
-            "Upload audio:", type=["wav","mp3","flac","ogg","m4a","aac"], key="audio_upload_combined"
+            "Supported formats: .wav, .mp3, .flac, .ogg, .m4a, .aac",
+            type=["wav", "mp3", "flac", "ogg", "m4a", "aac"],
+            key="audio_file_uploader",
         )
         if uploaded_audio:
+            st.info(f"**Filename:** `{uploaded_audio.name}`\n\n**File Size:** `{uploaded_audio.size / 1024:.1f} KB`")
+
+    with col_preview:
+        st.markdown("**Audio Preview & Specs:**")
+        if uploaded_audio:
             st.audio(uploaded_audio, format=f"audio/{uploaded_audio.name.split('.')[-1]}")
-elif need_text:
-    input_mode = st.radio("Input Method:", ["Paste Text", "Upload .txt"], horizontal=True, key="text_input_mode_only")
-    if input_mode == "Paste Text":
-        raw_text = st.text_area("Paste text to analyze:", height=220, placeholder="Paste text here...", key="text_area_only")
-    else:
-        txt_file = st.file_uploader("Upload .txt file:", type=["txt"], key="txt_upload_only")
-        if txt_file:
-            try:
-                raw_text = txt_file.read().decode("utf-8")
-            except UnicodeDecodeError:
-                txt_file.seek(0)
-                raw_text = txt_file.read().decode("latin-1")
-else:
-    uploaded_audio = st.file_uploader(
-        "Upload audio file:", type=["wav","mp3","flac","ogg","m4a","aac"], key="audio_upload_only"
-    )
-    if uploaded_audio:
-        col_f, col_p = st.columns([1, 2])
-        with col_f:
-            st.info(f"**File:** `{uploaded_audio.name}`\n\n**Size:** `{uploaded_audio.size/1024:.1f} KB`")
-        with col_p:
-            st.audio(uploaded_audio, format=f"audio/{uploaded_audio.name.split('.')[-1]}")
+            st.caption("🔍 Pipeline: Silero VAD (silence stripping) $\\to$ Whisper-Tiny ASR $\\to$ wav2vec2 Deepfake Classifier")
+        else:
+            st.info("ℹ️ Upload an audio file to enable playback preview and forensic scoring.")
 
-# Word count hint
-word_count = len(raw_text.split()) if raw_text else 0
-if raw_text:
-    st.caption(f"Text: {word_count} words | {len(raw_text)} characters")
-    if word_count < 30:
-        st.warning("⚠️ **Short text**: Under 30 words. Burstiness signal will return N/A.")
-
-# Robustness checkbox (text modes only)
-run_robustness = False
-if need_text:
-    run_robustness = st.checkbox("Run T5 robustness check on text (adds ~30s)", value=False)
-
-# Analyze button
-can_analyze = bool(raw_text.strip()) if need_text and not need_audio else True
-can_analyze = can_analyze and bool(uploaded_audio) if need_audio else can_analyze
+    run_robustness = False
+    can_analyze = uploaded_audio is not None
 
 analyze_btn = st.button(
-    "🚀 Analyze",
+    "🚀 Analyze Text" if "Text" in mode else "🚀 Analyze Audio",
     type="primary",
     use_container_width=True,
-    disabled=not (
-        (need_text and raw_text.strip()) or
-        (need_audio and uploaded_audio is not None)
-    ),
+    disabled=not can_analyze,
 )
 
 
@@ -684,21 +684,18 @@ if analyze_btn:
         tmp.close()
         tmp_audio_path = tmp.name
 
-    spinner_parts = []
-    if need_text and raw_text.strip():
-        spinner_parts.append("text forensics")
-    if need_audio and tmp_audio_path:
-        spinner_parts.append("audio forensics (VAD + ASR + wav2vec2)")
-
-    spinner_msg = f"Running {' and '.join(spinner_parts)}..."
+    if "Text" in mode and raw_text.strip():
+        spinner_msg = "Running Five-Feature Text Forensics Pipeline..."
+    else:
+        spinner_msg = "Running Audio Forensics Pipeline (VAD + ASR + wav2vec2)..."
 
     t_start = time.time()
 
     try:
         with st.spinner(spinner_msg):
             result = run_full_pipeline(
-                text=raw_text.strip() if (need_text and raw_text.strip()) else None,
-                audio_path=tmp_audio_path,
+                text=raw_text.strip() if ("Text" in mode and raw_text.strip()) else None,
+                audio_path=tmp_audio_path if ("Audio" in mode) else None,
                 run_robustness=run_robustness,
             )
         elapsed = time.time() - t_start
@@ -715,40 +712,45 @@ if analyze_btn:
             except OSError:
                 pass
 
-    # ── Section 4: Unified banner (Combined mode) ─────────────────────────────
-    if "Combined" in mode and result["unified_score"] is not None:
-        _render_unified_banner(result)
-        st.divider()
-
     # ── Section 3A: Text panel ─────────────────────────────────────────────────
-    if result["text_score"] is not None and raw_text.strip():
+    if "Text" in mode and result.get("text_score") is not None and raw_text.strip():
         _render_text_panel(result, raw_text.strip())
 
         with st.expander("Advanced: Text Robustness Check"):
             stab = result.get("text_stability_flag", "skipped")
-            delta = result.get("text_signals", {}) or {}
             if stab == "stable":
-                st.success(f"✅ **Stable** — T5 paraphrase delta within threshold.")
+                st.success("✅ **Stable** — T5 paraphrase delta within threshold.")
             elif stab == "unstable":
-                st.warning(f"⚠️ **Unstable** — Score is sensitive to phrasing changes.")
+                st.warning("⚠️ **Unstable** — Score is sensitive to phrasing changes.")
             elif stab == "skipped":
                 st.info("ℹ️ Robustness check not run. Enable checkbox to run.")
             else:
                 st.info(f"Status: `{stab}`")
 
-        with st.expander("Show Raw Text Signal Values (JSON)"):
+        with st.expander("Advanced: Model Details & Legacy Baseline"):
+            st.markdown("**Production Model Output:**")
+            st.write(f"• **AI Probability**: `{result.get('text_ai_probability', result['text_score']/100):.4f}` ({result['text_score']:.2f}%)")
+            st.write(f"• **Verdict**: `{result['text_verdict']}`")
+            st.write(f"• **Model Used**: `{result.get('text_model_used', 'five_feature_logistic_regression')}`")
+            st.divider()
+            st.markdown("**Legacy Baseline Score (PATH A Reference):**")
+            st.write(f"• **Legacy Score**: `{result.get('text_legacy_score', 'N/A')}` / 100")
+            st.write(f"• **Signal Agreement**: `{result.get('text_signal_agreement', 'agreement')}`")
+            st.caption("ℹ️ The legacy score uses historical Gaussian CDF heuristic fusion and is preserved only for audit trail/backward compatibility.")
+
+        with st.expander("Show Complete Raw Output (JSON)"):
             st.json({
-                "text_score": result["text_score"],
-                "text_verdict": result["text_verdict"],
-                "signal_agreement": result["text_signal_agreement"],
-                "signals": result["text_signals"],
+                "production_ai_probability": result.get("text_ai_probability"),
+                "production_ai_score": result["text_score"],
+                "production_verdict": result["text_verdict"],
+                "model_used": result.get("text_model_used"),
+                "features": result.get("text_features"),
+                "legacy_baseline_score": result.get("text_legacy_score"),
+                "signals": result.get("text_signals"),
             })
 
-        if result["text_score"] is not None and "Audio" not in mode:
-            st.divider()
-
     # ── Section 3B: Audio panel ────────────────────────────────────────────────
-    if result["audio_score"] is not None:
+    elif "Audio" in mode and result.get("audio_score") is not None:
         _render_audio_panel(result)
 
         with st.expander("Show Raw Audio Signal Values (JSON)"):
@@ -767,8 +769,6 @@ if analyze_btn:
 else:
     # Empty state
     if "Text" in mode:
-        st.info("💡 Paste or upload text above, then click **Analyze**.")
-    elif "Audio" in mode:
-        st.info("💡 Upload an audio clip above, then click **Analyze**.")
+        st.info("💡 Paste or upload text above, then click **Analyze Text**.")
     else:
-        st.info("💡 Provide text and/or audio above, then click **Analyze**.")
+        st.info("💡 Upload an audio clip above, then click **Analyze Audio**.")

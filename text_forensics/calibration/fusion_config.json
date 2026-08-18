@@ -1,17 +1,41 @@
 {
-  "weights": {
-    "curvature": 0.80,
-    "burstiness": 0.15,
-    "cliche": 0.02,
-    "entropy": 0.03
+  "production_model": "five_feature_logistic_regression",
+  "production_model_path": "calibration/five_feature_model/",
+  "production_features": [
+    "curvature",
+    "burstiness",
+    "lexical_entropy",
+    "structural_regularity",
+    "cliche_density"
+  ],
+  "production_thresholds_4way": {
+    "human_max": 0.20,
+    "likely_human_max": 0.45,
+    "likely_ai_min": 0.45,
+    "ai_min": 0.70
   },
+  "features": {
+    "curvature": true,
+    "burstiness": true,
+    "lexical_entropy": true,
+    "structural_regularity": true,
+    "cliche_density": true,
+    "ngram_repetition": false
+  },
+  "weights": {
+    "curvature": 0.65,
+    "burstiness": 0.20,
+    "cliche": 0.05,
+    "entropy": 0.10
+  },
+  "_weights_note": "Legacy 4-feature Gaussian CDF weights for PATH A fallback only.",
   "thresholds": {
-    "human_max": 69.74430000000001,
+    "human_max": 69.7443,
     "mixed_range": [
-      69.74430000000001,
-      77.99600000000001
+      69.7443,
+      77.996
     ],
-    "ai_min": 77.99600000000001
+    "ai_min": 77.996
   },
   "thresholds_4way": {
     "human_max": 50.0,
@@ -19,99 +43,9 @@
     "likely_ai_min": 70.0,
     "ai_min": 85.0
   },
-  "tuned_on": "Correction 15 genre-diverse held-out set: HC3 conversational (50 human + 50 AI) + news/legal/technical genre additions (75 human + 66 AI). Total held-out: 241 samples.",
-  "tuned_date": "2026-08-14",
-  "threshold_method": "Correction 15 \u2014 same percentile method as Corrections 12/13: t_human=h_90, t_ai=ai_10; overlap fallback: crossover\u00b15. Applied to genre-diverse held-out set (conversational + news + legal + technical).",
-  "selection_criterion": "Correction 15 \u2014 threshold-aware F1 grid search on genre-diverse held-out set. Same Correction 13 algorithm, new genre-balanced evaluation corpus. Curvature floor 0.20. Ranked by F1 DESC, ROC-AUC DESC as tiebreaker.",
-  "calibration_corpus_note": "Correction 15: baseline_stats.json (mu0/sigma0) recomputed on ~475 samples: 250 HC3 human_answers + 75 CNN/DailyMail news + 75 BillSum legal + 75 Wikitext-103 technical. Curvature uses the full passage with no token ceiling (distilgpt2 context window = 1024 tokens). Genre coverage: conversational, news, legal/bureaucratic, technical/informational. Known gaps: social media, creative writing, poetry \u2014 not covered in this calibration.",
-  "supersedes": "Corrections 12, 13, 14",
-  "manual_override_note_c14": "[Retained for audit trail] C14 entropy cap at 0.03 is superseded by C15 genre-diverse re-tune. The C14 cap failed to fix the Bar Council article (curvature was the root cause, not entropy). C15 addresses root cause via genre-diverse calibration.",
-  "baseline_comparison": {
-    "c13_hc3_only": {
-      "weights": {
-        "curvature": 0.5,
-        "burstiness": 0.15,
-        "cliche": 0.25,
-        "entropy": 0.1
-      },
-      "roc_auc": 1.0,
-      "f1_at_tai": 0.9474,
-      "t_human": 66.131,
-      "t_ai": 73.838
-    },
-    "c15_genre_diverse": {
-      "weights": {
-        "curvature": 0.65,
-        "burstiness": 0.2,
-        "cliche": 0.05,
-        "entropy": 0.1
-      },
-      "roc_auc": 0.9872,
-      "f1_at_tai": 0.9455,
-      "t_human": 69.74430000000001,
-      "t_ai": 77.99600000000001
-    }
+  "archived_experiments": {
+    "six_feature_model": "calibration/six_feature_model/",
+    "five_feature_experiment": "calibration/five_feature_experiment/"
   },
-  "top_5_grid_candidates": [
-    {
-      "weights": {
-        "curvature": 0.65,
-        "burstiness": 0.2,
-        "cliche": 0.05,
-        "entropy": 0.1
-      },
-      "t_human": 69.7443,
-      "t_ai": 77.996,
-      "roc_auc": 0.9872,
-      "f1_at_t_ai": 0.9455
-    },
-    {
-      "weights": {
-        "curvature": 0.7,
-        "burstiness": 0.15,
-        "cliche": 0.05,
-        "entropy": 0.1
-      },
-      "t_human": 72.9203,
-      "t_ai": 80.7305,
-      "roc_auc": 0.9871,
-      "f1_at_t_ai": 0.9455
-    },
-    {
-      "weights": {
-        "curvature": 0.65,
-        "burstiness": 0.15,
-        "cliche": 0.05,
-        "entropy": 0.15
-      },
-      "t_human": 69.6889,
-      "t_ai": 77.6953,
-      "roc_auc": 0.9867,
-      "f1_at_t_ai": 0.9455
-    },
-    {
-      "weights": {
-        "curvature": 0.6,
-        "burstiness": 0.2,
-        "cliche": 0.05,
-        "entropy": 0.15
-      },
-      "t_human": 67.4227,
-      "t_ai": 74.9075,
-      "roc_auc": 0.9866,
-      "f1_at_t_ai": 0.9455
-    },
-    {
-      "weights": {
-        "curvature": 0.75,
-        "burstiness": 0.1,
-        "cliche": 0.05,
-        "entropy": 0.1
-      },
-      "t_human": 75.5252,
-      "t_ai": 83.2245,
-      "roc_auc": 0.9866,
-      "f1_at_t_ai": 0.9455
-    }
-  ]
+  "notes": "Production configuration for five-feature text forensics system. Fused via StandardScaler + LogisticRegression."
 }

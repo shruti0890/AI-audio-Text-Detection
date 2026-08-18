@@ -259,12 +259,21 @@ def run_full_pipeline(
         try:
             from text_forensics.pipeline import analyze_text
             text_out = analyze_text(text.strip(), run_robustness=run_robustness)
-            result["text_score"]            = text_out["text_score"]
-            result["text_verdict"]          = _text_verdict(text_out["text_score"])
+            result["text_score"]            = text_out["ai_score"]  # Production P(AI) * 100 in [0, 100]
+            result["text_ai_probability"]   = text_out["ai_probability"]  # P(AI) in [0, 1]
+            result["text_verdict"]          = text_out["verdict"]  # Calibrated 4-way verdict
+            result["text_confidence"]       = text_out.get("confidence", "Moderate")
+            result["text_model_used"]       = text_out.get("model_used", "five_feature_logistic_regression")
+            result["text_features"]         = text_out.get("features", {})
+            result["text_sentence_evidence"] = text_out.get("sentence_evidence", {})
+            result["text_legacy_score"]     = text_out["text_score"]  # Legacy PATH A score for debug
             result["text_signals"]          = text_out.get("signals", {})
             result["text_signal_agreement"] = text_out.get("signal_agreement", "agreement")
             result["text_stability_flag"]   = text_out.get("stability_flag", "skipped")
-            logger.info("[fusion] Text score: %.2f → %s", text_out["text_score"], result["text_verdict"])
+            logger.info(
+                "[fusion] Text AI Prob: %.4f (%.2f%%) → %s [Model: %s]",
+                text_out["ai_probability"], text_out["ai_score"], result["text_verdict"], result["text_model_used"]
+            )
         except Exception as exc:
             logger.error("[fusion] Text pipeline failed: %s", exc, exc_info=True)
             raise

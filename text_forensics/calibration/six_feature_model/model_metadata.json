@@ -1,0 +1,164 @@
+{
+  "feature_order": [
+    "curvature",
+    "burstiness",
+    "lexical_entropy",
+    "ngram_repetition",
+    "structural_regularity",
+    "cliche_density"
+  ],
+  "feature_means": {
+    "curvature": -0.7290270542425494,
+    "burstiness": 0.5823693228262657,
+    "lexical_entropy": 6.446153312500003,
+    "ngram_repetition": 0.051291558467741895,
+    "structural_regularity": 35.00458510204083,
+    "cliche_density": 0.0447857438548956
+  },
+  "coefficients": {
+    "curvature": 4.0628,
+    "burstiness": -0.7481,
+    "lexical_entropy": -1.454,
+    "ngram_repetition": -0.8091,
+    "structural_regularity": 0.1949,
+    "cliche_density": 0.8511
+  },
+  "intercept": 0.12704071569287498,
+  "thresholds_4way": {
+    "human_max": 0.2,
+    "likely_human_max": 0.45,
+    "likely_ai_min": 0.45,
+    "ai_min": 0.7
+  },
+  "train_n": 496,
+  "val_n": 106,
+  "test_n": 109,
+  "train_ratio": 0.7,
+  "val_ratio": 0.15,
+  "test_ratio": 0.15,
+  "random_seed": 42,
+  "model_class": "LogisticRegression",
+  "model_params": {
+    "C": 1.0,
+    "max_iter": 1000,
+    "class_weight": "balanced"
+  },
+  "dataset_description": "genre_corpus_additions_human/ai.json + hc3_test_pool_human/ai.json. Multi-genre: technical, academic, news, legal, business, conversational, informational, creative. Multiple LLM sources included in AI corpus.",
+  "test_metrics": {
+    "label": "New (six-feature LR)",
+    "n_total": 109,
+    "n_definite": 101,
+    "accuracy": 0.9307,
+    "precision": 0.96,
+    "recall": 0.9057,
+    "f1": 0.932,
+    "roc_auc": 0.962,
+    "fpr": 0.0417,
+    "fnr": 0.0943
+  },
+  "feature_correlations": {
+    "curvature_vs_burstiness": -0.1692,
+    "curvature_vs_lexical_entropy": -0.1595,
+    "curvature_vs_ngram_repetition": 0.1988,
+    "curvature_vs_structural_regularity": 0.2576,
+    "curvature_vs_cliche_density": 0.181,
+    "burstiness_vs_lexical_entropy": -0.0678,
+    "burstiness_vs_ngram_repetition": 0.3901,
+    "burstiness_vs_structural_regularity": -0.2291,
+    "burstiness_vs_cliche_density": -0.0403,
+    "lexical_entropy_vs_ngram_repetition": -0.3874,
+    "lexical_entropy_vs_structural_regularity": 0.2603,
+    "lexical_entropy_vs_cliche_density": -0.0256,
+    "ngram_repetition_vs_structural_regularity": 0.0777,
+    "ngram_repetition_vs_cliche_density": -0.0759,
+    "structural_regularity_vs_cliche_density": 0.0467
+  },
+  "ablation_results": [
+    {
+      "label": "All 6 features",
+      "n_total": 109,
+      "n_definite": 101,
+      "accuracy": 0.9307,
+      "precision": 0.96,
+      "recall": 0.9057,
+      "f1": 0.932,
+      "roc_auc": 0.962,
+      "fpr": 0.0417,
+      "fnr": 0.0943
+    },
+    {
+      "label": "Without curvature",
+      "n_total": 109,
+      "n_definite": 48,
+      "accuracy": 0.9167,
+      "precision": 0.9259,
+      "recall": 0.9259,
+      "f1": 0.9259,
+      "roc_auc": 0.8646,
+      "fpr": 0.0952,
+      "fnr": 0.0741
+    },
+    {
+      "label": "Without burstiness",
+      "n_total": 109,
+      "n_definite": 101,
+      "accuracy": 0.9307,
+      "precision": 0.9608,
+      "recall": 0.9074,
+      "f1": 0.9333,
+      "roc_auc": 0.9589,
+      "fpr": 0.0426,
+      "fnr": 0.0926
+    },
+    {
+      "label": "Without lexical_entropy",
+      "n_total": 109,
+      "n_definite": 92,
+      "accuracy": 0.9239,
+      "precision": 0.9388,
+      "recall": 0.92,
+      "f1": 0.9293,
+      "roc_auc": 0.9441,
+      "fpr": 0.0714,
+      "fnr": 0.08
+    },
+    {
+      "label": "Without ngram_repetition",
+      "n_total": 109,
+      "n_definite": 95,
+      "accuracy": 0.9474,
+      "precision": 0.9792,
+      "recall": 0.9216,
+      "f1": 0.9495,
+      "roc_auc": 0.9569,
+      "fpr": 0.0227,
+      "fnr": 0.0784
+    },
+    {
+      "label": "Without structural_regularity",
+      "n_total": 109,
+      "n_definite": 101,
+      "accuracy": 0.9307,
+      "precision": 0.9412,
+      "recall": 0.9231,
+      "f1": 0.932,
+      "roc_auc": 0.964,
+      "fpr": 0.0612,
+      "fnr": 0.0769
+    },
+    {
+      "label": "Without cliche_density",
+      "n_total": 109,
+      "n_definite": 96,
+      "accuracy": 0.9167,
+      "precision": 0.9375,
+      "recall": 0.9,
+      "f1": 0.9184,
+      "roc_auc": 0.9579,
+      "fpr": 0.0652,
+      "fnr": 0.1
+    }
+  ],
+  "trained_date": "2026-08-18",
+  "correction": "Correction 16 \u2014 six-feature LR model"
+}

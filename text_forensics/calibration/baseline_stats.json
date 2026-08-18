@@ -23,5 +23,18 @@
   "source": "Correction 15 genre-diverse: HC3 human_answers (250) + CNN/DailyMail news (75) + BillSum legal (75) + Wikitext-103 technical (75). Curvature computed on full passage (no truncation ceiling \u2014 entire input passed to distilgpt2).",
   "date": "2026-08-14",
   "calibration_version": "v3_genre_diverse",
-  "corpus_composition": "Correction 15 genre-diverse: HC3 human_answers (250) + CNN/DailyMail news (75) + BillSum legal (75) + Wikitext-103 technical (75). Curvature computed on full passage (no truncation ceiling \u2014 entire input passed to distilgpt2)."
+  "corpus_composition": "Correction 15 genre-diverse: HC3 human_answers (250) + CNN/DailyMail news (75) + BillSum legal (75) + Wikitext-103 technical (75). Curvature computed on full passage (no truncation ceiling \u2014 entire input passed to distilgpt2).",
+  "ngram_repetition": {
+    "mu0": 0.049822,
+    "sigma0": 0.050538,
+    "n_valid": 251,
+    "source": "Correction 16 \u2014 training split human samples"
+  },
+  "structural_regularity": {
+    "mu0": 33.737229,
+    "sigma0": 7.149822,
+    "n_valid": 251,
+    "source": "Correction 16 \u2014 training split human samples"
+  },
+  "six_feature_model_date": "2026-08-18"
 }

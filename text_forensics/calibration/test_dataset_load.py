@@ -3,9 +3,9 @@ import sys, logging
 sys.path.insert(0, '.')
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
 
-from text_forensics.calibration.run_calibration_hc3 import load_dataset_with_fallback
+from text_forensics.calibration.run_calibration_hc3 import load_datasets
 
-h, a, src = load_dataset_with_fallback()
+h, a, src = load_datasets()
 print(f"Loaded: {len(h)} human, {len(a)} AI")
 print(f"Source: {src[:80]}")
 if h:
