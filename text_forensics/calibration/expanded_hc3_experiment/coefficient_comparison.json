@@ -1,0 +1,42 @@
+[
+  {
+    "feature": "curvature",
+    "production_coefficient": 3.9473,
+    "expanded_coefficient": 2.1495,
+    "absolute_change": -1.7978,
+    "percentage_change": "-45.55%",
+    "direction": "Preserved"
+  },
+  {
+    "feature": "burstiness",
+    "production_coefficient": -1.1283,
+    "expanded_coefficient": -0.8877,
+    "absolute_change": 0.2406,
+    "percentage_change": "+21.33%",
+    "direction": "Preserved"
+  },
+  {
+    "feature": "lexical_entropy",
+    "production_coefficient": -1.0621,
+    "expanded_coefficient": -1.2845,
+    "absolute_change": -0.2224,
+    "percentage_change": "-20.94%",
+    "direction": "Preserved"
+  },
+  {
+    "feature": "structural_regularity",
+    "production_coefficient": -0.0372,
+    "expanded_coefficient": 0.0624,
+    "absolute_change": 0.0996,
+    "percentage_change": "+267.75%",
+    "direction": "Sign Inverted"
+  },
+  {
+    "feature": "cliche_density",
+    "production_coefficient": 0.8909,
+    "expanded_coefficient": 1.4768,
+    "absolute_change": 0.5859,
+    "percentage_change": "+65.76%",
+    "direction": "Preserved"
+  }
+]

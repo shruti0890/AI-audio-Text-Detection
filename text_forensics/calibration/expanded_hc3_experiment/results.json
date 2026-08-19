@@ -1,0 +1,343 @@
+{
+  "new_test_set": {
+    "n_samples": 152,
+    "human_n": 89,
+    "ai_n": 63,
+    "accuracy": 0.9342105263157895,
+    "precision": 0.9264705882352942,
+    "recall": 0.9264705882352942,
+    "f1": 0.9264705882352942,
+    "roc_auc": 0.9721638655462186,
+    "fpr": 0.05952380952380952,
+    "fnr": 0.07352941176470588,
+    "confusion_matrix": [
+      [
+        79,
+        5
+      ],
+      [
+        5,
+        63
+      ]
+    ],
+    "tier_distribution": {
+      "definite_human": 74,
+      "likely_human": 10,
+      "likely_ai": 14,
+      "definite_ai": 54
+    }
+  },
+  "locked_production_test_set": {
+    "n_samples": 107,
+    "accuracy": 0.9345794392523364,
+    "precision": 1.0,
+    "recall": 0.8679245283018868,
+    "f1": 0.9292929292929293,
+    "roc_auc": 0.9622641509433962,
+    "fpr": 0.0,
+    "fnr": 0.1320754716981132,
+    "confusion_matrix": [
+      [
+        54,
+        0
+      ],
+      [
+        7,
+        46
+      ]
+    ]
+  },
+  "benchmarks": [
+    {
+      "id": "HUMAN_BICYCLE_TRAIL_001",
+      "ground_truth": "Human",
+      "prod_p": "60.98%",
+      "exp_p": "77.84%",
+      "prod_verdict": "Likely AI",
+      "exp_verdict": "AI"
+    },
+    {
+      "id": "AI_GENERIC_EDUCATIONAL_001",
+      "ground_truth": "AI",
+      "prod_p": "9.70%",
+      "exp_p": "13.10%",
+      "prod_verdict": "Human",
+      "exp_verdict": "Human"
+    },
+    {
+      "id": "HUMAN_PAXOS_TECHNICAL_001",
+      "ground_truth": "Human",
+      "prod_p": "0.33%",
+      "exp_p": "16.80%",
+      "prod_verdict": "Human",
+      "exp_verdict": "Human"
+    },
+    {
+      "id": "AI_UNSEEN_TECHNICAL_001",
+      "ground_truth": "AI",
+      "prod_p": "0.00%",
+      "exp_p": "0.50%",
+      "prod_verdict": "Human",
+      "exp_verdict": "Human"
+    }
+  ],
+  "domain_evaluation": [
+    {
+      "domain": "Academic / Scientific",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "0.0%",
+      "ai_fnr": "100.0%",
+      "f1": "0.00%",
+      "mean_p_human": "9.1%",
+      "mean_p_ai": "4.6%"
+    },
+    {
+      "domain": "Artificial Intelligence / Machine Learning",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "0.0%",
+      "ai_fnr": "100.0%",
+      "f1": "0.00%",
+      "mean_p_human": "1.3%",
+      "mean_p_ai": "1.4%"
+    },
+    {
+      "domain": "Blogs / Articles",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "50.0%",
+      "ai_fnr": "50.0%",
+      "f1": "50.00%",
+      "mean_p_human": "38.0%",
+      "mean_p_ai": "55.1%"
+    },
+    {
+      "domain": "Computer Science",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "0.0%",
+      "ai_fnr": "100.0%",
+      "f1": "0.00%",
+      "mean_p_human": "1.0%",
+      "mean_p_ai": "0.8%"
+    },
+    {
+      "domain": "Conversational / Q&A",
+      "human_count": 61,
+      "ai_count": 62,
+      "human_fpr": "14.8%",
+      "ai_fnr": "0.0%",
+      "f1": "93.23%",
+      "mean_p_human": "25.7%",
+      "mean_p_ai": "95.3%"
+    },
+    {
+      "domain": "Creative Writing / Stories",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "0.0%",
+      "ai_fnr": "0.0%",
+      "f1": "100.00%",
+      "mean_p_human": "3.5%",
+      "mean_p_ai": "100.0%"
+    },
+    {
+      "domain": "Educational",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "50.0%",
+      "ai_fnr": "100.0%",
+      "f1": "0.00%",
+      "mean_p_human": "38.6%",
+      "mean_p_ai": "32.9%"
+    },
+    {
+      "domain": "Finance",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "0.0%",
+      "ai_fnr": "100.0%",
+      "f1": "0.00%",
+      "mean_p_human": "7.1%",
+      "mean_p_ai": "3.2%"
+    },
+    {
+      "domain": "General Informational Writing",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "50.0%",
+      "ai_fnr": "100.0%",
+      "f1": "0.00%",
+      "mean_p_human": "38.7%",
+      "mean_p_ai": "15.7%"
+    },
+    {
+      "domain": "Healthcare / Medical",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "50.0%",
+      "ai_fnr": "50.0%",
+      "f1": "50.00%",
+      "mean_p_human": "41.0%",
+      "mean_p_ai": "31.5%"
+    },
+    {
+      "domain": "Legal",
+      "human_count": 100,
+      "ai_count": 100,
+      "human_fpr": "4.0%",
+      "ai_fnr": "6.0%",
+      "f1": "94.95%",
+      "mean_p_human": "16.0%",
+      "mean_p_ai": "82.4%"
+    },
+    {
+      "domain": "Legal / Formal",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "100.0%",
+      "ai_fnr": "0.0%",
+      "f1": "66.67%",
+      "mean_p_human": "79.8%",
+      "mean_p_ai": "82.3%"
+    },
+    {
+      "domain": "Marketing / Advertising",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "0.0%",
+      "ai_fnr": "50.0%",
+      "f1": "66.67%",
+      "mean_p_human": "29.6%",
+      "mean_p_ai": "76.5%"
+    },
+    {
+      "domain": "News",
+      "human_count": 99,
+      "ai_count": 91,
+      "human_fpr": "2.0%",
+      "ai_fnr": "16.5%",
+      "f1": "89.94%",
+      "mean_p_human": "18.0%",
+      "mean_p_ai": "77.9%"
+    },
+    {
+      "domain": "News / Journalism",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "0.0%",
+      "ai_fnr": "50.0%",
+      "f1": "66.67%",
+      "mean_p_human": "42.7%",
+      "mean_p_ai": "73.7%"
+    },
+    {
+      "domain": "Product Reviews",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "50.0%",
+      "ai_fnr": "50.0%",
+      "f1": "50.00%",
+      "mean_p_human": "33.8%",
+      "mean_p_ai": "60.7%"
+    },
+    {
+      "domain": "Real Estate",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "50.0%",
+      "ai_fnr": "0.0%",
+      "f1": "80.00%",
+      "mean_p_human": "47.4%",
+      "mean_p_ai": "94.0%"
+    },
+    {
+      "domain": "Social Media",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "0.0%",
+      "ai_fnr": "0.0%",
+      "f1": "100.00%",
+      "mean_p_human": "3.8%",
+      "mean_p_ai": "100.0%"
+    },
+    {
+      "domain": "Technical",
+      "human_count": 100,
+      "ai_count": 100,
+      "human_fpr": "3.0%",
+      "ai_fnr": "6.0%",
+      "f1": "95.43%",
+      "mean_p_human": "15.9%",
+      "mean_p_ai": "83.2%"
+    },
+    {
+      "domain": "Technical / Engineering",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "0.0%",
+      "ai_fnr": "100.0%",
+      "f1": "0.00%",
+      "mean_p_human": "4.5%",
+      "mean_p_ai": "3.1%"
+    },
+    {
+      "domain": "Tutorials / How-To",
+      "human_count": 2,
+      "ai_count": 2,
+      "human_fpr": "100.0%",
+      "ai_fnr": "50.0%",
+      "f1": "40.00%",
+      "mean_p_human": "82.5%",
+      "mean_p_ai": "46.2%"
+    }
+  ],
+  "length_evaluation": [
+    {
+      "bucket": "30\u201360 words",
+      "human_count": 27,
+      "ai_count": 34,
+      "human_fpr": "37.0%",
+      "ai_fnr": "52.9%",
+      "f1": "53.33%",
+      "mean_p_ai": "44.2%"
+    },
+    {
+      "bucket": "60\u2013100 words",
+      "human_count": 25,
+      "ai_count": 6,
+      "human_fpr": "20.0%",
+      "ai_fnr": "33.3%",
+      "f1": "53.33%",
+      "mean_p_ai": "35.9%"
+    },
+    {
+      "bucket": "100\u2013200 words",
+      "human_count": 39,
+      "ai_count": 118,
+      "human_fpr": "20.5%",
+      "ai_fnr": "5.9%",
+      "f1": "93.67%",
+      "mean_p_ai": "72.5%"
+    },
+    {
+      "bucket": "200\u2013400 words",
+      "human_count": 86,
+      "ai_count": 223,
+      "human_fpr": "1.2%",
+      "ai_fnr": "9.0%",
+      "f1": "95.08%",
+      "mean_p_ai": "64.5%"
+    },
+    {
+      "bucket": "400\u2013700 words",
+      "human_count": 217,
+      "ai_count": 6,
+      "human_fpr": "1.8%",
+      "ai_fnr": "0.0%",
+      "f1": "75.00%",
+      "mean_p_ai": "15.8%"
+    }
+  ]
+}

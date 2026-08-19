@@ -1211,7 +1211,7 @@ $$S_{Audio} = \\text{Sigmoid}\\!\\left(\\frac{logit_{fake} - logit_{real}}{T}\\r
             st.markdown("**Analysis Specifications:**")
             st.info(
                 r"• **Engine**: Five-Feature Logistic Regression (DistilGPT-2 + Rhythm + Entropy + Regularity + Clichés)" "\n\n"
-                r"• **Decision Tiers**: Human ($\le 20\%$) · Likely Human ($20\text{–}45\%$) · Likely AI ($45\text{–}70\%$) · AI ($\ge 70\%$)" "\n\n"
+                r"• **Decision Tiers**: Human ($\le 36\%$) · Likely Human ($36\text{–}55\%$) · Likely AI ($55\text{–}75\%$) · AI ($\ge 75\%$)" "\n\n"
                 r"• **Optimal Input**: Paragraphs $\ge 30$ words ($\ge 5$ sentences for full rhythm analysis)"
             )
             word_count = len(raw_text.split()) if raw_text else 0

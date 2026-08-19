@@ -59,15 +59,5 @@
     "roc_auc": 0.9622641509433962,
     "fpr": 0.0,
     "fnr": 0.1320754716981132
-  },
-  "thresholds_4way": {
-    "human_max": 0.36,
-    "likely_human_max": 0.55,
-    "likely_ai_min": 0.55,
-    "ai_min": 0.75
-  },
-  "status": "production_promoted",
-  "train_n": 508,
-  "val_n": 121,
-  "test_n": 152
+  }
 }

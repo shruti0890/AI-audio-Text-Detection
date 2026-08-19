@@ -13,10 +13,10 @@ PATH B — Five-Feature Logistic Regression (PRODUCTION):
     calibration/five_feature_model/. Returns an AI probability in [0, 1].
     Features: [curvature, burstiness, lexical_entropy, structural_regularity, cliche_density]
     Calibrated Decision Thresholds:
-        Human:        P(AI) <= 0.20
-        Likely Human: 0.20 < P(AI) < 0.45
-        Likely AI:    0.45 <= P(AI) < 0.70
-        AI:           P(AI) >= 0.70
+        Human:        P(AI) <= 0.36
+        Likely Human: 0.36 < P(AI) < 0.55
+        Likely AI:    0.55 <= P(AI) < 0.75
+        AI:           P(AI) >= 0.75
 
     Falls back to PATH A if the model file is absent.
 """
@@ -52,10 +52,10 @@ _DEFAULT_THRESHOLDS = {
 
 # Production 4-way calibrated probability thresholds (0.0 to 1.0)
 _DEFAULT_LR_THRESHOLDS_4WAY = {
-    "human_max": 0.20,
-    "likely_human_max": 0.45,
-    "likely_ai_min": 0.45,
-    "ai_min": 0.70,
+    "human_max": 0.36,
+    "likely_human_max": 0.55,
+    "likely_ai_min": 0.55,
+    "ai_min": 0.75,
 }
 
 # Module-level cache for the five-feature model
@@ -342,18 +342,18 @@ def compute_five_feature_score(
         proba = model.predict_proba(X_scaled)[0]
         ai_prob = float(proba[1])
 
-        thresholds_4way = metadata.get("thresholds_4way", _DEFAULT_LR_THRESHOLDS_4WAY)
+        thresholds_4way = metadata.get("thresholds_4way") or metadata.get("thresholds") or _DEFAULT_LR_THRESHOLDS_4WAY
         model_used = "five_feature_logistic_regression"
 
     # ---- Calibrated 4-Way Decision Classification ----
     # Boundaries:
-    #   P(AI) <= 0.20        -> Human
-    #   0.20 < P(AI) < 0.45  -> Likely Human
-    #   0.45 <= P(AI) < 0.70 -> Likely AI
-    #   P(AI) >= 0.70        -> AI
-    t_ai = thresholds_4way.get("ai_min", 0.70)
-    t_likely_ai = thresholds_4way.get("likely_ai_min", 0.45)
-    t_human = thresholds_4way.get("human_max", 0.20)
+    #   P(AI) <= 0.36        -> Human
+    #   0.36 < P(AI) < 0.55  -> Likely Human
+    #   0.55 <= P(AI) < 0.75 -> Likely AI
+    #   P(AI) >= 0.75        -> AI
+    t_ai = thresholds_4way.get("ai_min", 0.75)
+    t_likely_ai = thresholds_4way.get("likely_ai_min", 0.55)
+    t_human = thresholds_4way.get("human_max", 0.36)
 
     if ai_prob >= t_ai:
         verdict = "AI"

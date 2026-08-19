@@ -9,10 +9,10 @@
     "cliche_density"
   ],
   "production_thresholds_4way": {
-    "human_max": 0.20,
-    "likely_human_max": 0.45,
-    "likely_ai_min": 0.45,
-    "ai_min": 0.70
+    "human_max": 0.36,
+    "likely_human_max": 0.55,
+    "likely_ai_min": 0.55,
+    "ai_min": 0.75
   },
   "features": {
     "curvature": true,

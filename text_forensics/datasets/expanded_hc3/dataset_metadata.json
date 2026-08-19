@@ -1,0 +1,146 @@
+{
+  "dataset_name": "Expanded Multi-Domain HC3 Text Forensics Corpus",
+  "version": "2.0.0",
+  "created_date": "2026-08-19",
+  "total_samples": 781,
+  "total_human": 394,
+  "total_ai": 387,
+  "human_ai_ratio": "394/387 (50.4% / 49.6%)",
+  "domain_distribution": {
+    "News": {
+      "human": 99,
+      "ai": 91,
+      "total": 190
+    },
+    "Legal": {
+      "human": 100,
+      "ai": 100,
+      "total": 200
+    },
+    "Technical": {
+      "human": 100,
+      "ai": 100,
+      "total": 200
+    },
+    "Conversational / Q&A": {
+      "human": 61,
+      "ai": 62,
+      "total": 123
+    },
+    "Technical / Engineering": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Computer Science": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Artificial Intelligence / Machine Learning": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Academic / Scientific": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Educational": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Social Media": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Marketing / Advertising": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Real Estate": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Blogs / Articles": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "News / Journalism": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Product Reviews": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Finance": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Healthcare / Medical": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Legal / Formal": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Creative Writing / Stories": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "Tutorials / How-To": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    },
+    "General Informational Writing": {
+      "human": 2,
+      "ai": 2,
+      "total": 4
+    }
+  },
+  "length_distribution": {
+    "long (250-700w)": {
+      "human": 268,
+      "ai": 123,
+      "total": 391
+    },
+    "medium (80-250w)": {
+      "human": 83,
+      "ai": 226,
+      "total": 309
+    },
+    "short (30-80w)": {
+      "human": 43,
+      "ai": 38,
+      "total": 81
+    }
+  },
+  "generator_distribution": {
+    "human": 394,
+    "ChatGPT": 351,
+    "GPT-4": 8,
+    "Claude 3.5 Sonnet": 7,
+    "Gemini 1.5 Pro": 7,
+    "LLaMA 3 70B": 7,
+    "Mistral Large": 7
+  },
+  "files": {
+    "jsonl": "expanded_hc3_dataset.jsonl",
+    "csv": "expanded_hc3_dataset.csv"
+  }
+}

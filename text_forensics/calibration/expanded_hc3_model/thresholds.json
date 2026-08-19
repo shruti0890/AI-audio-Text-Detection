@@ -1,0 +1,6 @@
+{
+  "human_max": 0.36,
+  "likely_human_max": 0.55,
+  "likely_ai_min": 0.55,
+  "ai_min": 0.75
+}
