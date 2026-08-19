@@ -252,7 +252,7 @@ with st.sidebar:
     st.markdown("---")
     mode = st.radio(
         "**Analysis Mode**",
-        options=["📝 Text Analysis", "🎙️ Audio Analysis", "🎤 Live Microphone"],
+        options=["📝 Text Analysis", "🎙️ Audio Analysis"],
         index=0,
     )
     st.markdown("---")
@@ -276,20 +276,12 @@ with st.sidebar:
         2. **ASR** — OpenAI Whisper-Tiny
         3. **Deepfake Score** — `wav2vec2-deepfake-voice-detector`
         $$S_{Audio} = \\text{Sigmoid}\\!\\left(\\frac{logit_{fake} - logit_{real}}{T}\\right) \\times 100$$
-        """)
 
-    elif "Live" in mode:
-        st.markdown("### 🎤 Live Microphone Mode")
-        st.markdown("""
-        Record directly from your microphone.
+        **Input Options:**
+        - 📁 **Upload Audio File** (.wav, .mp3, .flac, .ogg, .m4a, .aac)
+        - 🎤 **Live Recording** (Browser WebRTC capture)
 
-        **Pipeline:**
-        1. **Record** — Browser-native audio capture
-        2. **VAD** — Silero silence stripping
-        3. **ASR** — Whisper-Tiny transcription
-        4. **Deepfake Score** — wav2vec2 audio classifier
-        5. **Text Forensics** — Five-Feature LR on transcript
-        6. **Cross-Modality** — Combined audio + text verdict
+        **Stage 2:** Interactive Cross-Modality Analysis on Whisper transcript.
         """)
 
     st.markdown("---")
@@ -739,7 +731,9 @@ st.subheader("1. Input")
 
 raw_text = ""
 uploaded_audio = None
+recorded_audio = None
 tmp_audio_path = None
+is_live_recording = False
 
 if "Text" in mode:
     col_input, col_info = st.columns([3, 2])
@@ -795,92 +789,107 @@ if "Text" in mode:
     can_analyze = bool(raw_text.strip()) and _text_word_count > 30
 
 elif "Audio" in mode:
-    col_upload, col_preview = st.columns([1, 1])
-    with col_upload:
-        st.markdown("**Upload audio file to analyze:**")
-        uploaded_audio = st.file_uploader(
-            "Supported formats: .wav, .mp3, .flac, .ogg, .m4a, .aac",
-            type=["wav", "mp3", "flac", "ogg", "m4a", "aac"],
-            key="audio_file_uploader",
-        )
-        if uploaded_audio:
-            st.info(f"**Filename:** `{uploaded_audio.name}`\n\n**File Size:** `{uploaded_audio.size / 1024:.1f} KB`")
-            current_file_id = getattr(uploaded_audio, "file_id", uploaded_audio.name)
-            if st.session_state["audio_file_id"] != current_file_id:
-                st.session_state["audio_file_id"]              = current_file_id
-                st.session_state["audio_result"]               = None
-                st.session_state["cross_modal_text_result"]    = None
-                st.session_state["cross_modal_audio_score"]    = None
-                st.session_state["cross_modal_audio_result"]   = None
-                st.session_state["cross_modal_reasoner_result"]= None
-
-    with col_preview:
-        st.markdown("**Audio Preview & Specs:**")
-        if uploaded_audio:
-            st.audio(uploaded_audio, format=f"audio/{uploaded_audio.name.split('.')[-1]}")
-            st.caption("🔍 Pipeline: Silero VAD $\\to$ Whisper-Tiny ASR $\\to$ wav2vec2 Deepfake Classifier")
-        else:
-            st.info("ℹ️ Upload an audio file to enable playback preview and forensic scoring.")
-
-    run_robustness = False
-    mic_audio = None
-    tmp_audio_path = None
-    can_analyze = uploaded_audio is not None
-
-else:  # Live Microphone
-    col_mic, col_mic_info = st.columns([1, 1])
-    with col_mic:
-        st.markdown("**Record from your microphone:**")
-        try:
-            from streamlit_mic_recorder import mic_recorder
-            mic_audio = mic_recorder(
-                start_prompt="⏺ Start Recording",
-                stop_prompt="⏹ Stop Recording",
-                just_once=True,
-                key="live_mic_recorder",
+    audio_source = st.radio(
+        "**Audio Input Method:**",
+        options=["📁 Upload Audio File", "🎤 Live Recording"],
+        horizontal=True,
+        key="audio_input_method_selector",
+    )
+    if audio_source == "📁 Upload Audio File":
+        col_upload, col_preview = st.columns([1, 1])
+        with col_upload:
+            st.markdown("**Upload audio file to analyze:**")
+            uploaded_audio = st.file_uploader(
+                "Supported formats: .wav, .mp3, .flac, .ogg, .m4a, .aac",
+                type=["wav", "mp3", "flac", "ogg", "m4a", "aac"],
+                key="audio_file_uploader",
             )
-        except ImportError:
-            st.error("❌ `streamlit-mic-recorder` not installed.")
-            mic_audio = None
+            if uploaded_audio:
+                st.info(f"**Filename:** `{uploaded_audio.name}`\n\n**File Size:** `{uploaded_audio.size / 1024:.1f} KB`")
+                current_file_id = getattr(uploaded_audio, "file_id", uploaded_audio.name)
+                if st.session_state["audio_file_id"] != current_file_id:
+                    st.session_state["audio_file_id"]              = current_file_id
+                    st.session_state["audio_result"]               = None
+                    st.session_state["cross_modal_text_result"]    = None
+                    st.session_state["cross_modal_audio_score"]    = None
+                    st.session_state["cross_modal_audio_result"]   = None
+                    st.session_state["cross_modal_reasoner_result"]= None
 
-    with col_mic_info:
-        st.markdown("**Live Capture Specs:**")
-        st.info(
-            "🎤 **Capture**: Browser-native WebRTC microphone input\n\n"
-            "🔍 **Pipeline**: VAD → Whisper-Tiny → wav2vec2 → Text LR → Cross-Modality\n\n"
-            "📊 **Output**: Audio score + Text score + Combined verdict"
+        with col_preview:
+            st.markdown("**Audio Preview & Specs:**")
+            if uploaded_audio:
+                st.audio(uploaded_audio, format=f"audio/{uploaded_audio.name.split('.')[-1]}")
+                st.caption("🔍 Pipeline: Silero VAD $\\to$ Whisper-Tiny ASR $\\to$ wav2vec2 Deepfake Classifier")
+            else:
+                st.info("ℹ️ Upload an audio file to enable playback preview and forensic scoring.")
+
+        run_robustness = False
+        recorded_audio = None
+        tmp_audio_path = None
+        can_analyze = uploaded_audio is not None
+
+    else:
+        is_live_recording = True
+
+if is_live_recording:
+    col_live, col_live_info = st.columns([1, 1])
+    with col_live:
+        st.markdown("### 🎤 LIVE RECORDING")
+        st.markdown(
+            "Record your voice and analyse it using the **Audio Forensics** pipeline.\n\n"
+            "Click the microphone button below to start recording."
         )
-        if mic_audio:
-            st.caption(f'🎙️ Recording captured · {len(mic_audio["bytes"]) // 1024} KB')
-            st.audio(mic_audio['bytes'], format="audio/wav")
+
+        recorded_audio = st.audio_input(
+            label="Record voice from microphone:",
+            key="live_recording_audio_input",
+        )
+
+        if recorded_audio is not None:
+            rec_bytes = recorded_audio.getvalue()
+            rec_size_kb = len(rec_bytes) / 1024
+            if rec_size_kb > 0:
+                st.success(f"✅ **Recording complete.** Captured `{rec_size_kb:.1f} KB` audio.")
+                st.caption("Click **Analyse Recording** below to process with Audio Forensics.")
+
+                # Action row
+                if st.button("🔄 Record Again", key="btn_record_again", use_container_width=True):
+                    for k in [
+                        "audio_result",
+                        "cross_modal_text_result",
+                        "cross_modal_audio_score",
+                        "cross_modal_audio_result",
+                        "cross_modal_reasoner_result",
+                        "live_recording_audio_input",
+                    ]:
+                        if k in st.session_state:
+                            st.session_state[k] = None
+                    st.rerun()
+            else:
+                st.error("❌ Recorded audio is empty. Please speak clearly into the microphone and try again.")
+                recorded_audio = None
+
+    with col_live_info:
+        st.markdown("**🎙️ Live Recording Pipeline Specs:**")
+        st.info(
+            "1. **Capture**: Browser-native `MediaRecorder` WebRTC microphone stream\n\n"
+            "2. **Audio Forensics**: Silero VAD silence stripping $\\to$ Whisper-Tiny ASR $\\to$ wav2vec2 classifier\n\n"
+            "3. **Transcribed Text**: Optional Five-Feature Logistic Regression analysis on generated transcript\n\n"
+            "4. **Cross-Modality**: Deterministic acoustic vs linguistic consistency evaluation"
+        )
+        st.caption("🔒 *Privacy notice: Live recordings are processed temporarily in memory/temp storage and are automatically deleted upon session reset or new recording.*")
 
     run_robustness = False
     uploaded_audio = None
     tmp_audio_path = None
-    if mic_audio:
-        import wave
-        _mic_bytes = mic_audio['bytes']
-        _mic_sr    = mic_audio.get('sample_rate', 16000)
-        _mic_sw    = mic_audio.get('sample_width', 2)
-        _mic_ch    = mic_audio.get('num_channels', 1)
-        tmp_mic = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-        with wave.open(tmp_mic.name, 'wb') as wf:
-            wf.setnchannels(_mic_ch)
-            wf.setsampwidth(_mic_sw)
-            wf.setframerate(_mic_sr)
-            wf.writeframes(_mic_bytes)
-        tmp_audio_path = tmp_mic.name
-        if st.session_state.get("mic_audio_id") != id(_mic_bytes):
-            st.session_state["mic_audio_id"]               = id(_mic_bytes)
-            st.session_state["audio_result"]               = None
-            st.session_state["cross_modal_text_result"]    = None
-            st.session_state["cross_modal_audio_score"]    = None
-            st.session_state["cross_modal_audio_result"]   = None
-            st.session_state["cross_modal_reasoner_result"]= None
-    can_analyze = mic_audio is not None
+    can_analyze = recorded_audio is not None and len(recorded_audio.getvalue()) > 0
+else:
+    is_live_recording = False
+    recorded_audio = None
 
+btn_label = "🚀 Analyze Text" if "Text" in mode else ("🚀 Analyse Recording" if is_live_recording else "🚀 Analyze Audio")
 analyze_btn = st.button(
-    "🚀 Analyze Text" if "Text" in mode else ("🚀 Analyze Audio" if "Audio" in mode else "🚀 Analyze Live Recording"),
+    btn_label,
     type="primary",
     use_container_width=True,
     disabled=not can_analyze,
@@ -894,16 +903,24 @@ if analyze_btn:
     st.divider()
     st.subheader("2. Analysis Results")
 
-    # Save audio to temp file if provided
+    # Save audio to temp file if provided (Uploaded file or Live Recording)
+    import uuid
+    temp_dir = Path(_REPO_ROOT) / "temp"
+    temp_dir.mkdir(exist_ok=True)
+
     if uploaded_audio is not None:
         file_ext = os.path.splitext(uploaded_audio.name)[1] or ".wav"
-        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=file_ext)
-        tmp.write(uploaded_audio.getvalue())
-        tmp.close()
-        tmp_audio_path = tmp.name
+        tmp_filename = f"upload_{uuid.uuid4().hex[:10]}{file_ext}"
+        tmp_audio_path = str(temp_dir / tmp_filename)
+        with open(tmp_audio_path, "wb") as f:
+            f.write(uploaded_audio.getvalue())
+    elif recorded_audio is not None:
+        tmp_filename = f"live_recording_{uuid.uuid4().hex[:10]}.wav"
+        tmp_audio_path = str(temp_dir / tmp_filename)
+        with open(tmp_audio_path, "wb") as f:
+            f.write(recorded_audio.getvalue())
 
     t_start = time.time()
-
     progress_placeholder = st.empty()
 
     def _audio_progress(cur: int, total: int):
@@ -920,34 +937,13 @@ if analyze_btn:
                     run_robustness=run_robustness,
                 )
 
-        elif "Live" in mode:
-            # ── Live Mic: Full combined pipeline (Audio + Text + Cross-Modal) ──
-            with st.spinner("🎙️ Running Audio Forensics (VAD + Whisper-Tiny + wav2vec2)..."):
-                result = run_full_pipeline(
-                    text=None,
-                    audio_path=tmp_audio_path,
-                    batch_size=1,
-                    audio_progress_callback=_audio_progress,
-                )
-            progress_placeholder.empty()
-            st.session_state["audio_result"] = result
-
-            # Auto-run text analysis on the transcript (combined mode)
-            transcript_for_text = (result.get("transcript") or "").strip()
-            transcript_wc = len(transcript_for_text.split()) if transcript_for_text else 0
-            if transcript_wc > 30:
-                with st.spinner("📝 Running Text Forensics on live transcript..."):
-                    from text_forensics.pipeline import analyze_text
-                    from cross_modal_reasoner import evaluate_cross_modality
-                    text_res = analyze_text(transcript_for_text, run_robustness=False)
-                    reasoner_res = evaluate_cross_modality(result, text_res)
-                    st.session_state["cross_modal_text_result"]     = text_res
-                    st.session_state["cross_modal_audio_score"]     = result.get("audio_score")
-                    st.session_state["cross_modal_audio_result"]    = result
-                    st.session_state["cross_modal_reasoner_result"] = reasoner_res
-
         else:
-            with st.spinner("Initializing Audio Forensics Pipeline (VAD + ASR + wav2vec2)..."):
+            spinner_msg = (
+                "🎙️ Analysing Live Recording (VAD + Whisper-Tiny + wav2vec2)..."
+                if is_live_recording
+                else "Initializing Audio Forensics Pipeline (VAD + ASR + wav2vec2)..."
+            )
+            with st.spinner(spinner_msg):
                 result = run_full_pipeline(
                     text=None,
                     audio_path=tmp_audio_path,
@@ -957,6 +953,11 @@ if analyze_btn:
             progress_placeholder.empty()
             # Persist audio result so cross-modal button reruns can access it
             st.session_state["audio_result"] = result
+            # Reset previous cross modal state for new audio run
+            st.session_state["cross_modal_text_result"] = None
+            st.session_state["cross_modal_reasoner_result"] = None
+            st.session_state["cross_modal_audio_score"] = None
+            st.session_state["cross_modal_audio_result"] = None
 
         elapsed = time.time() - t_start
     except Exception as e:
@@ -964,10 +965,13 @@ if analyze_btn:
         err_msg = str(e)
         st.error(f"❌ **Pipeline Error**: `{type(e).__name__}`\n\n{err_msg}")
         if tmp_audio_path and os.path.exists(tmp_audio_path):
-            os.remove(tmp_audio_path)
+            try:
+                os.remove(tmp_audio_path)
+            except OSError:
+                pass
         st.stop()
     finally:
-        # Cleanup temp audio file
+        # Cleanup temp audio file safely
         if tmp_audio_path and os.path.exists(tmp_audio_path):
             try:
                 os.remove(tmp_audio_path)
@@ -1011,8 +1015,8 @@ if analyze_btn:
                 "signals": result.get("text_signals"),
             })
 
-    # ── Section 3B: Audio panel ────────────────────────────────────────────────
-    elif "Audio" in mode and result.get("audio_score") is not None:
+    # ── Section 3B: Audio & Live Recording panel ──────────────────────────────
+    elif result.get("audio_score") is not None:
         _render_audio_panel(result)
 
         with st.expander("Show Raw Audio Signal Values (JSON)"):
@@ -1021,63 +1025,8 @@ if analyze_btn:
                 "audio_verdict": result["audio_verdict"],
                 "logit_fake": result["logit_fake"],
                 "logit_real": result["logit_real"],
-                "transcript_length": len(result["transcript"]),
+                "transcript_length": len(result.get("transcript", "")),
                 "audio_verdict_note": result["audio_verdict_note"],
-            })
-
-    # -- Section 3C: Live Mic combined panel --
-    elif "Live" in mode and result.get("audio_score") is not None:
-        _render_audio_panel(result)
-
-        # Show auto-rendered cross-modal result if transcript was long enough
-        cm_r = st.session_state.get("cross_modal_reasoner_result")
-        cm_t = st.session_state.get("cross_modal_text_result")
-        _live_transcript = (result.get("transcript") or "").strip()
-        _live_wc = len(_live_transcript.split()) if _live_transcript else 0
-        if _live_wc <= 30:
-            st.warning(
-                f"⚠️ Transcript too short ({_live_wc} words) for text forensics — "
-                "audio deepfake score shown above is still valid."
-            )
-        elif cm_r and cm_t:
-            st.markdown("---")
-            st.markdown(
-                '<div class="section-header section-header-audio">🧬 Combined Analysis — Cross-Modality Verdict</div>',
-                unsafe_allow_html=True,
-            )
-            _cls = cm_r["classification"]
-            _consistent = cm_r["consistent"]
-            _card_cls = "cross-modal-consistent" if _consistent else "cross-modal-conflict"
-            _icon = "✅" if _consistent else "⚠️"
-            _label = "CONSISTENT" if _consistent else "CONFLICT"
-            st.markdown(
-                f'<div class="cross-modal-card {_card_cls}">'
-                f'<div class="cross-modal-badge">{_icon} {_label}</div>'
-                f'<div class="cross-modal-title">{_cls.replace("_", " ")}</div>'
-                f'<div class="cross-modal-desc">{cm_r.get("description", "")}</div>'
-                "</div>",
-                unsafe_allow_html=True,
-            )
-            c1, c2 = st.columns(2)
-            with c1:
-                st.markdown("**🎙️ Audio Modality**")
-                st.write(f"• **Score:** `{cm_r['audio']['score']:.2f}%`")
-                st.write(f"• **Threshold:** `{cm_r['audio']['threshold']:.1f}%`")
-                st.write(f"• **Classification:** `{cm_r['audio']['classification']}` ({cm_r['audio']['verdict']})")
-            with c2:
-                st.markdown("**📝 Text Modality (Transcript)**")
-                st.write(f"• **Score:** `{cm_r['text']['score']:.2f}%`")
-                st.write(f"• **Threshold:** `{cm_r['text']['threshold']:.1f}%`")
-                st.write(f"• **Classification:** `{cm_r['text']['classification']}` ({cm_r['text']['verdict']})")
-
-        with st.expander("Show Raw Signal Values (JSON)"):
-            st.json({
-                "audio_score": result["audio_score"],
-                "audio_verdict": result["audio_verdict"],
-                "logit_fake": result["logit_fake"],
-                "logit_real": result["logit_real"],
-                "transcript_word_count": _live_wc,
-                "cross_modal_classification": cm_r["classification"] if cm_r else "N/A",
             })
 
     st.divider()
@@ -1085,10 +1034,8 @@ if analyze_btn:
 
 else:
     # ── Show persisted audio results + cross-modal panel on reruns ─────────────
-    # When analyse_btn was NOT clicked (e.g. after st.rerun() from cross-modal
-    # button), restore from session state so the panel and Stage 2 remain visible.
     _persisted_audio = st.session_state.get("audio_result")
-    if ("Audio" in mode or "Live" in mode) and _persisted_audio is not None and _persisted_audio.get("audio_score") is not None:
+    if ("Audio" in mode or is_live_recording) and _persisted_audio is not None and _persisted_audio.get("audio_score") is not None:
         st.divider()
         st.subheader("2. Analysis Results")
         _render_audio_panel(_persisted_audio)
@@ -1100,13 +1047,13 @@ else:
                 "logit_fake": _persisted_audio["logit_fake"],
                 "logit_real": _persisted_audio["logit_real"],
                 "transcript_length": len(_persisted_audio.get("transcript", "")),
-                "audio_verdict_note": _persisted_audio["audio_verdict_note"],
+                "audio_verdict_note": _persisted_audio.get("audio_verdict_note", ""),
             })
     else:
         # Empty state
         if "Text" in mode:
             st.info("💡 Paste or upload text above, then click **Analyze Text**.")
-        elif "Live" in mode:
-            st.info("💡 Record audio above, then click **Analyze Live Recording**.")
+        elif is_live_recording:
+            st.info("💡 Record audio above, then click **Analyse Recording**.")
         else:
             st.info("💡 Upload an audio clip above, then click **Analyze Audio**.")
