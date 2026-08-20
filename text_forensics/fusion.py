@@ -1,14 +1,14 @@
 """
 text_forensics/fusion.py
 
-Signal Fusion module — Production Five-Feature Architecture.
+Signal Fusion module - Production Five-Feature Architecture.
 
-PATH A — Four-Feature Corrected Baseline (legacy fallback):
+PATH A - Four-Feature Corrected Baseline (legacy fallback):
     Converts raw signal values (curvature, burstiness, cliche_density, entropy) into
     a single calibrated 0-100 AI-likelihood score using Gaussian CDF mapping.
     Corrected weights: curvature=0.65, burstiness=0.20, cliche=0.05, entropy=0.10.
 
-PATH B — Five-Feature Logistic Regression (PRODUCTION):
+PATH B - Five-Feature Logistic Regression (PRODUCTION):
     Loads the trained Logistic Regression + StandardScaler from
     calibration/five_feature_model/. Returns an AI probability in [0, 1].
     Features: [curvature, burstiness, lexical_entropy, structural_regularity, cliche_density]
@@ -95,22 +95,21 @@ def load_fusion_config() -> tuple[dict[str, float], dict]:
     return _DEFAULT_WEIGHTS, _DEFAULT_THRESHOLDS
 
 
+_LAST_LOADED_MTIME = 0.0
+
+
 def load_five_feature_model() -> Tuple[Optional[object], Optional[object], Optional[dict]]:
     """
     Load the trained production five-feature Logistic Regression model, scaler, and metadata.
 
-    Models are cached at module level after first load.
+    Automatically reloads if model.pkl on disk is modified.
 
     Returns:
         tuple: (model, scaler, metadata)
                Any element may be None if the model file is absent or load fails.
     """
-    global _FIVE_FEATURE_MODEL, _FIVE_FEATURE_SCALER, _FIVE_FEATURE_METADATA, _MODEL_LOAD_ATTEMPTED
+    global _FIVE_FEATURE_MODEL, _FIVE_FEATURE_SCALER, _FIVE_FEATURE_METADATA, _LAST_LOADED_MTIME
 
-    if _MODEL_LOAD_ATTEMPTED:
-        return _FIVE_FEATURE_MODEL, _FIVE_FEATURE_SCALER, _FIVE_FEATURE_METADATA
-
-    _MODEL_LOAD_ATTEMPTED = True
     model_path = _FIVE_FEATURE_MODEL_DIR / "model.pkl"
     scaler_path = _FIVE_FEATURE_MODEL_DIR / "scaler.pkl"
     meta_path = _FIVE_FEATURE_MODEL_DIR / "model_metadata.json"
@@ -124,12 +123,17 @@ def load_five_feature_model() -> Tuple[Optional[object], Optional[object], Optio
         return None, None, None
 
     try:
+        current_mtime = model_path.stat().st_mtime
+        if _FIVE_FEATURE_MODEL is not None and current_mtime <= _LAST_LOADED_MTIME:
+            return _FIVE_FEATURE_MODEL, _FIVE_FEATURE_SCALER, _FIVE_FEATURE_METADATA
+
         with open(model_path, "rb") as f:
             _FIVE_FEATURE_MODEL = pickle.load(f)
         with open(scaler_path, "rb") as f:
             _FIVE_FEATURE_SCALER = pickle.load(f)
         with open(meta_path, "r", encoding="utf-8") as f:
             _FIVE_FEATURE_METADATA = json.load(f)
+        _LAST_LOADED_MTIME = current_mtime
         logger.info("Loaded production five-feature LR model from %s", _FIVE_FEATURE_MODEL_DIR)
     except Exception as e:
         logger.warning("Failed to load five-feature model: %s. Using baseline.", e)
@@ -155,7 +159,7 @@ def _cdf_score(raw_value: float, mu0: float, sigma0: float) -> float:
 
 def compute_text_score(signals: dict, baseline_stats: dict) -> dict:
     """
-    PATH A — Four-Feature Corrected Baseline.
+    PATH A - Four-Feature Corrected Baseline.
 
     Convert raw signal values into calibrated 0-100 sub-scores and a fused final score.
     Uses data-driven weights (0.65/0.20/0.05/0.10).
@@ -265,7 +269,7 @@ def compute_five_feature_score(
     baseline_stats: dict,
 ) -> dict:
     """
-    PATH B — Five-Feature Logistic Regression (PRODUCTION).
+    PATH B - Five-Feature Logistic Regression (PRODUCTION).
 
     Applies the trained StandardScaler + LogisticRegression model from
     five_feature_model/ to produce an AI probability.
@@ -294,7 +298,7 @@ def compute_five_feature_score(
     model, scaler, metadata = load_five_feature_model()
 
     if model is None or scaler is None or metadata is None:
-        logger.info("compute_five_feature_score: model not available — using baseline score as fallback.")
+        logger.info("compute_five_feature_score: model not available - using baseline score as fallback.")
         raw_signals = {
             "curvature_raw": curvature,
             "burstiness_raw": burstiness,
@@ -327,7 +331,7 @@ def compute_five_feature_score(
             if val is None:
                 fallback_val = col_means.get(fname, 0.0)
                 logger.info(
-                    "compute_five_feature_score: feature '%s' is None — imputing with training mean %.4f",
+                    "compute_five_feature_score: feature '%s' is None - imputing with training mean %.4f",
                     fname,
                     fallback_val,
                 )
@@ -341,6 +345,16 @@ def compute_five_feature_score(
 
         proba = model.predict_proba(X_scaled)[0]
         ai_prob = float(proba[1])
+
+        # Short-Text Casual Human Guard:
+        # When burstiness is unavailable (< 5 sentences) and curvature indicates human text (curvature < -0.8246),
+        # only apply discount if structural regularity is low (< 28.0, typical of casual human writing,
+        # not structured LLM output like ChatGPT/Claude explanations).
+        if burstiness is None and curvature is not None and curvature < -0.8246:
+            if structural_regularity is None or structural_regularity < 28.0:
+                curv_margin = -0.8246 - curvature
+                discount = min(0.20, curv_margin * 0.5)
+                ai_prob = max(0.0, ai_prob - discount)
 
         thresholds_4way = metadata.get("thresholds_4way") or metadata.get("thresholds") or _DEFAULT_LR_THRESHOLDS_4WAY
         model_used = "five_feature_logistic_regression"

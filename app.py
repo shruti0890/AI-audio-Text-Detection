@@ -166,6 +166,42 @@ def _render_text_panel(result: dict, raw_text: str) -> None:
     st.markdown('<div class="section-header">📝 Text Forensics Results</div>', unsafe_allow_html=True)
     st.markdown(_verdict_card(text_verdict, text_score, model_name=model_display), unsafe_allow_html=True)
 
+    # ── Stage 2: Experimental AI-Generator Attribution ──
+    if text_verdict in ["Likely AI", "AI"]:
+        try:
+            from text_forensics.calibration.generator_attribution_experiment.attribution_pipeline import analyze_text_with_attribution
+            attr_res = analyze_text_with_attribution(raw_text, run_robustness=False)
+            attr_dist = attr_res.get("generator_attribution")
+            pred_gen = attr_res.get("predicted_generator", "Unknown / Other AI")
+            gen_conf = attr_res.get("generator_confidence", 0.0)
+            gen_verdict = attr_res.get("generator_verdict", "")
+            disclaimer = attr_res.get("attribution_disclaimer", "")
+
+            if attr_dist:
+                st.markdown("##### 🎯 AI-Generator Attribution (Stage 2 Experimental)")
+                col_g1, col_g2 = st.columns([1, 1])
+                with col_g1:
+                    st.metric("Estimated Model Family", pred_gen, delta=f"Confidence: {gen_conf*100:.1f}%", delta_color="normal")
+                with col_g2:
+                    st.caption(f"Status: **{gen_verdict}**")
+                    st.caption(f"⚖️ *{disclaimer}*")
+
+                g_col1, g_col2, g_col3, g_col4 = st.columns(4)
+                with g_col1:
+                    st.write(f"**ChatGPT / OpenAI**: `{attr_dist.get('chatgpt', 0.0)*100:.1f}%`")
+                    st.progress(float(attr_dist.get('chatgpt', 0.0)))
+                with g_col2:
+                    st.write(f"**Google Gemini**: `{attr_dist.get('gemini', 0.0)*100:.1f}%`")
+                    st.progress(float(attr_dist.get('gemini', 0.0)))
+                with g_col3:
+                    st.write(f"**Anthropic Claude**: `{attr_dist.get('claude', 0.0)*100:.1f}%`")
+                    st.progress(float(attr_dist.get('claude', 0.0)))
+                with g_col4:
+                    st.write(f"**Other / Unknown AI**: `{attr_dist.get('other_ai', 0.0)*100:.1f}%`")
+                    st.progress(float(attr_dist.get('other_ai', 0.0)))
+        except Exception:
+            pass
+
     if result.get("text_signal_agreement") == "disagreement":
         st.error(
             "⚠️ **Signals Disagree Significantly**: Individual detectors are giving "

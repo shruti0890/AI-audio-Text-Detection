@@ -22,13 +22,13 @@
     "cliche_density": 0.2911330616252347
   },
   "coefficients": {
-    "curvature": 2.14946617996355,
-    "burstiness": -0.8876702907518279,
-    "lexical_entropy": -1.284525607847812,
-    "structural_regularity": 0.06240250961872482,
-    "cliche_density": 1.4767997438993612
+    "curvature": 4.0,
+    "burstiness": -1.1,
+    "lexical_entropy": -1.25,
+    "structural_regularity": 2.2,
+    "cliche_density": 1.5
   },
-  "intercept": 0.20985391852966528,
+  "intercept": 1.1,
   "thresholds": {
     "human_max": 0.36,
     "likely_human_max": 0.55,

@@ -1,0 +1,54 @@
+{
+  "dataset_name": "Multi-Generator Parallel Prompt Attribution Corpus",
+  "random_seed": 42,
+  "total_samples": 75,
+  "total_prompts": 15,
+  "train_samples": 50,
+  "val_samples": 10,
+  "test_samples": 15,
+  "train_prompts": [
+    "tech_eng_pid_03",
+    "tut_docker_python_08",
+    "legal_force_majeure_15",
+    "cr_lighthouse_keeper_12",
+    "news_semiconductor_06",
+    "fin_capm_09",
+    "mkt_launch_strategy_05",
+    "med_t2d_pathophysiology_10",
+    "cs_consensus_01",
+    "sm_ai_agents_future_13"
+  ],
+  "val_prompts": [
+    "edu_climate_adaptation_04",
+    "re_lease_structures_11"
+  ],
+  "test_prompts": [
+    "acad_crispr_hdr_14",
+    "qa_git_rebase_merge_07",
+    "aiml_self_attention_02"
+  ],
+  "generator_distribution": {
+    "ChatGPT": 15,
+    "Gemini": 15,
+    "Claude": 15,
+    "Other_AI": 15,
+    "Human": 15
+  },
+  "domain_distribution": [
+    "Educational",
+    "Real Estate",
+    "Artificial Intelligence / Machine Learning",
+    "Conversational / Q&A",
+    "Computer Science",
+    "News / Journalism",
+    "Technical / Engineering",
+    "Tutorials / How-To",
+    "Marketing / Advertising",
+    "Creative Writing / Stories",
+    "Healthcare / Medical",
+    "Social Media",
+    "Academic / Scientific",
+    "Legal / Formal",
+    "Finance"
+  ]
+}

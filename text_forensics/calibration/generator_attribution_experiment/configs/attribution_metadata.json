@@ -1,0 +1,107 @@
+{
+  "winning_candidate": "Random_Forest",
+  "classes": [
+    "ChatGPT",
+    "Gemini",
+    "Claude",
+    "Other_AI"
+  ],
+  "feature_order": [
+    "curvature",
+    "burstiness",
+    "lexical_entropy",
+    "structural_regularity",
+    "cliche_density",
+    "avg_sentence_len",
+    "std_sentence_len",
+    "em_dash_density",
+    "semicolon_colon_density",
+    "parenthetical_density",
+    "bullet_list_density",
+    "quote_density",
+    "uppercase_word_ratio",
+    "formal_transition_density",
+    "introductory_clause_density",
+    "hedging_density",
+    "sentence_starter_diversity",
+    "type_token_ratio",
+    "root_ttr",
+    "pronoun_density",
+    "preposition_density",
+    "modal_verb_density"
+  ],
+  "n_features": 22,
+  "train_samples": 40,
+  "val_samples": 8,
+  "candidate_comparison": {
+    "Multinomial_Logistic_Regression": {
+      "val_accuracy": 0.5,
+      "val_macro_f1": 0.3929
+    },
+    "Random_Forest": {
+      "val_accuracy": 0.625,
+      "val_macro_f1": 0.5595
+    },
+    "Gradient_Boosting": {
+      "val_accuracy": 0.625,
+      "val_macro_f1": 0.5595
+    },
+    "Extra_Trees": {
+      "val_accuracy": 0.5,
+      "val_macro_f1": 0.3929
+    }
+  },
+  "feature_means": {
+    "curvature": -1.717612,
+    "burstiness": 0.557865,
+    "lexical_entropy": 5.863777,
+    "structural_regularity": 20.995305,
+    "cliche_density": 0.272214,
+    "avg_sentence_len": 18.590382,
+    "std_sentence_len": 6.624875,
+    "em_dash_density": 0.804413,
+    "semicolon_colon_density": 1.341395,
+    "parenthetical_density": 1.2369,
+    "bullet_list_density": 13.098215,
+    "quote_density": 1.903397,
+    "uppercase_word_ratio": 0.027788,
+    "formal_transition_density": 0.082468,
+    "introductory_clause_density": 7.482142,
+    "hedging_density": 0.05222,
+    "sentence_starter_diversity": 0.94958,
+    "type_token_ratio": 0.85203,
+    "root_ttr": 7.531862,
+    "pronoun_density": 2.152765,
+    "preposition_density": 8.728535,
+    "modal_verb_density": 0.256798
+  },
+  "feature_scales": {
+    "curvature": 0.33209,
+    "burstiness": 0.224028,
+    "lexical_entropy": 0.408708,
+    "structural_regularity": 6.023043,
+    "cliche_density": 0.845094,
+    "avg_sentence_len": 6.325188,
+    "std_sentence_len": 5.011691,
+    "em_dash_density": 1.631591,
+    "semicolon_colon_density": 2.716476,
+    "parenthetical_density": 1.840102,
+    "bullet_list_density": 29.522281,
+    "quote_density": 4.372375,
+    "uppercase_word_ratio": 0.028467,
+    "formal_transition_density": 0.289707,
+    "introductory_clause_density": 14.898549,
+    "hedging_density": 0.228549,
+    "sentence_starter_diversity": 0.105115,
+    "type_token_ratio": 0.070654,
+    "root_ttr": 0.90587,
+    "pronoun_density": 1.626045,
+    "preposition_density": 2.629276,
+    "modal_verb_density": 0.654414
+  },
+  "uncertainty_thresholds": {
+    "min_confidence_for_attribution": 0.45,
+    "max_entropy_for_attribution": 1.3,
+    "fallback_class": "Unknown / Other AI"
+  }
+}
