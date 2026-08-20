@@ -186,31 +186,31 @@ def _render_text_panel(result: dict, raw_text: str) -> None:
             {
                 "Feature": "📈 Curvature (Fast-DetectGPT)",
                 "Raw Value": f"{feats.get('curvature'):.4f}" if feats.get('curvature') is not None else "N/A",
-                "Direction": "Higher → AI-like (+3.947 weight)",
-                "Interpretation": "Negative log-probability discrepancy under distilgpt2",
+                "Direction": "Higher → AI-like (+4.837 weight)",
+                "Interpretation": "Negative log-probability discrepancy under SmolLM2-135M",
             },
             {
                 "Feature": "⚡ Burstiness",
                 "Raw Value": f"{feats.get('burstiness'):.4f}" if feats.get('burstiness') is not None else "N/A (<5 sents)",
-                "Direction": "Lower → AI-like (-1.128 weight)",
+                "Direction": "Lower → AI-like (-1.447 weight)",
                 "Interpretation": "Sentence length variation σ/μ (uniform length suggests AI)",
             },
             {
                 "Feature": "🔤 Lexical Entropy",
                 "Raw Value": f"{feats.get('lexical_entropy'):.4f}" if feats.get('lexical_entropy') is not None else "N/A",
-                "Direction": "Lower → AI-like (-1.062 weight)",
+                "Direction": "Lower → AI-like (-0.246 weight)",
                 "Interpretation": "Shannon entropy of token distribution",
             },
             {
                 "Feature": "🏗️ Structural Regularity",
                 "Raw Value": f"{feats.get('structural_regularity'):.1f} / 100" if feats.get('structural_regularity') is not None else "N/A (<3 sents)",
-                "Direction": "Uniformity (-0.037 weight)",
+                "Direction": "Uniformity (-0.035 weight)",
                 "Interpretation": "Sentence-starter diversity & POS overlap composite",
             },
             {
                 "Feature": "🚩 Cliché Density",
                 "Raw Value": f"{feats.get('cliche_density'):.2f}%" if feats.get('cliche_density') is not None else "N/A",
-                "Direction": "Higher → AI-like (+0.891 weight)",
+                "Direction": "Higher → AI-like (+0.628 weight)",
                 "Interpretation": "Frequency of 50+ overused AI idioms & buzzwords",
             },
         ]
@@ -1145,13 +1145,13 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
         if "Text" in mode_radio:
             st.markdown("### 📝 Text Forensics Pipeline")
             st.markdown("""
-1. **Curvature** — Fast-DetectGPT via `distilgpt2`
+1. **Curvature** — Fast-DetectGPT via `SmolLM2-135M`
 2. **Burstiness** — Sentence-length σ/μ
 3. **Lexical Entropy** — TTR + Shannon entropy
 4. **Structural Regularity** — Starter diversity & POS overlap
 5. **Cliché Scan** — 50+ overused AI buzzwords
 
-Fused via calibrated 5-Feature Logistic Regression (F1 **94.95%** on multi-genre corpus).
+Fused via calibrated 5-Feature Logistic Regression (ROC-AUC **96.60%**, F1 **92.45%** on multi-genre corpus).
 """)
         else:
             st.markdown("### 🎙️ Audio Forensics Pipeline")
@@ -1210,7 +1210,7 @@ $$S_{Audio} = \\text{Sigmoid}\\!\\left(\\frac{logit_{fake} - logit_{real}}{T}\\r
         with col_info:
             st.markdown("**Analysis Specifications:**")
             st.info(
-                r"• **Engine**: Five-Feature Logistic Regression (DistilGPT-2 + Rhythm + Entropy + Regularity + Clichés)" "\n\n"
+                r"• **Engine**: Five-Feature Logistic Regression (SmolLM2-135M + Rhythm + Entropy + Regularity + Clichés)" "\n\n"
                 r"• **Decision Tiers**: Human ($\le 20\%$) · Likely Human ($20\text{–}45\%$) · Likely AI ($45\text{–}70\%$) · AI ($\ge 70\%$)" "\n\n"
                 r"• **Optimal Input**: Paragraphs $\ge 30$ words ($\ge 5$ sentences for full rhythm analysis)"
             )

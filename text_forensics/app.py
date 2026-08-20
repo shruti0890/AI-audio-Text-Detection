@@ -147,7 +147,7 @@ with st.sidebar:
         
         The engine uses **5 independent forensic features** fused by a calibrated Logistic Regression model:
         
-        1. 📈 **Curvature** — Fast-DetectGPT: log-probability discrepancy under `distilgpt2`.
+        1. 📈 **Curvature** — Fast-DetectGPT: log-probability discrepancy under `SmolLM2-135M`.
         2. ⚡ **Burstiness** — σ/μ sentence-length variation: human writing naturally varies rhythm.
         3. 🔤 **Lexical Entropy** — Shannon entropy + TTR: AI text often exhibits uniform vocabulary.
         4. 🏗️ **Structural Regularity** — Sentence-starter diversity and POS pattern consistency.
@@ -339,31 +339,31 @@ if analyze_btn:
             {
                 "Feature": "📈 Curvature (Fast-DetectGPT)",
                 "Raw Value": f"{feats.get('curvature'):.4f}" if feats.get('curvature') is not None else "N/A",
-                "Direction": "Higher → AI-like (+3.947 weight)",
-                "Interpretation": "Negative log-probability curvature under distilgpt2",
+                "Direction": "Higher → AI-like (+4.837 weight)",
+                "Interpretation": "Negative log-probability curvature under SmolLM2-135M",
             },
             {
                 "Feature": "⚡ Burstiness",
                 "Raw Value": f"{feats.get('burstiness'):.4f}" if feats.get('burstiness') is not None else "N/A (<5 sents)",
-                "Direction": "Lower → AI-like (-1.128 weight)",
+                "Direction": "Lower → AI-like (-1.447 weight)",
                 "Interpretation": "Sentence length variation σ/μ (uniform length suggests AI)",
             },
             {
                 "Feature": "🔤 Lexical Entropy",
                 "Raw Value": f"{feats.get('lexical_entropy'):.4f}" if feats.get('lexical_entropy') is not None else "N/A",
-                "Direction": "Lower → AI-like (-1.062 weight)",
+                "Direction": "Lower → AI-like (-0.246 weight)",
                 "Interpretation": "Shannon entropy of token distribution",
             },
             {
                 "Feature": "🏗️ Structural Regularity",
                 "Raw Value": f"{feats.get('structural_regularity'):.1f} / 100" if feats.get('structural_regularity') is not None else "N/A (<3 sents)",
-                "Direction": "Uniformity (-0.037 weight)",
+                "Direction": "Uniformity (-0.035 weight)",
                 "Interpretation": "Sentence-starter diversity & POS overlap composite",
             },
             {
                 "Feature": "🚩 Cliché Density",
                 "Raw Value": f"{feats.get('cliche_density'):.2f}%" if feats.get('cliche_density') is not None else "N/A",
-                "Direction": "Higher → AI-like (+0.891 weight)",
+                "Direction": "Higher → AI-like (+0.628 weight)",
                 "Interpretation": "Frequency of 50+ overused AI idioms & buzzwords",
             },
         ]

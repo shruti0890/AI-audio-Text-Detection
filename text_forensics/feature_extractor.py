@@ -4,7 +4,7 @@ text_forensics/feature_extractor.py
 Five-Feature Extractor with Debug Mode (Production).
 
 Extracts the 5 core production forensic features:
-    1. curvature (Fast-DetectGPT via distilgpt2)
+    1. curvature (Fast-DetectGPT via HuggingFaceTB/SmolLM2-135M)
     2. burstiness (σ/μ sentence length variation)
     3. lexical_entropy (Shannon entropy in bits)
     4. structural_regularity (starter diversity + POS overlap composite)
@@ -101,7 +101,7 @@ def extract_five_features(text: str, debug: bool = False) -> Dict:
     details = {
         "curvature": {
             "raw": curvature_raw,
-            "model": "distilgpt2",
+            "model": "HuggingFaceTB/SmolLM2-135M",
             "method": "Fast-DetectGPT analytical CDF",
         },
         "burstiness": {

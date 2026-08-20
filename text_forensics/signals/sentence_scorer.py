@@ -32,9 +32,9 @@ except LookupError:
     except Exception:
         pass
 
-# Curvature baseline stats from HC3 (mu0=-1.346745, sigma0=0.32602)
-_DEFAULT_CURVATURE_MU0 = -1.346745
-_DEFAULT_CURVATURE_SIGMA0 = 0.326020
+# Curvature baseline stats from SmolLM2-135M (mu0=-0.659736, sigma0=0.224686)
+_DEFAULT_CURVATURE_MU0 = -0.659736
+_DEFAULT_CURVATURE_SIGMA0 = 0.224686
 
 
 def score_sentences(text: str, baseline_stats: dict | None = None) -> list[dict]:

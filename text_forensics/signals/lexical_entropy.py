@@ -112,11 +112,23 @@ def get_lexical_stats(text: str) -> dict:
     else:
         ttr = len(set(tokens)) / total_words
 
-    # ---- Shannon Entropy ----
-    freq = Counter(tokens)
-    entropy = 0.0
-    for count in freq.values():
-        p_i = count / total_words
-        entropy -= p_i * math.log2(p_i)
+    # ---- Shannon Entropy (with length-normalized rolling window for long texts) ----
+    if total_words > 120:
+        window_h = 100
+        step = 50
+        h_chunks = []
+        for start in range(0, total_words - window_h + 1, step):
+            chunk = tokens[start : start + window_h]
+            c_freq = Counter(chunk)
+            c_tot = len(chunk)
+            h = -sum((cnt / c_tot) * math.log2(cnt / c_tot) for cnt in c_freq.values())
+            h_chunks.append(h)
+        entropy = sum(h_chunks) / len(h_chunks) if h_chunks else 0.0
+    else:
+        freq = Counter(tokens)
+        entropy = 0.0
+        for count in freq.values():
+            p_i = count / total_words
+            entropy -= p_i * math.log2(p_i)
 
     return {"ttr": round(ttr, 6), "entropy": round(entropy, 6)}

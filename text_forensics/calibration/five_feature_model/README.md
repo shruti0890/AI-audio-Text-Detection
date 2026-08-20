@@ -21,7 +21,7 @@ This directory contains the final **production** machine learning model for AI t
    - `ngram_repetition` remains archived in `signals/ngram_repetition.py` for future research, but is excluded from the production feature vector.
 
 ## Final Production Feature Set (Exact Canonical Order)
-1. `curvature`: Fast-DetectGPT probability curvature under `distilgpt2`
+1. `curvature`: Fast-DetectGPT probability curvature under `HuggingFaceTB/SmolLM2-135M`
 2. `burstiness`: $\sigma / \mu$ sentence length variation
 3. `lexical_entropy`: Shannon entropy and vocabulary richness
 4. `structural_regularity`: Composite of sentence-starter diversity and POS overlap

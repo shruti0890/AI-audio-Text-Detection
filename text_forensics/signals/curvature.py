@@ -14,9 +14,7 @@ Implementation Notes:
   single forward pass logits: E[log P] = sum_{v in top_k} P(v|x_<i) * log P(v|x_<i).
 - This achieves exact Fast-DetectGPT equivalence in a single forward pass,
   running in < 0.05s on CPU (1000x faster than empirical sample loops).
-- Default model: distilgpt2 (CPU-feasible; weaker discrimination than paper's recommendation).
-- Optional model: gpt2-medium (better discrimination; ~3x slower).
-  Switch via: get_curvature(text, model_name="gpt2-medium")
+- Default model: HuggingFaceTB/SmolLM2-135M (CPU-friendly, modern 2024 causal LM).
 - Each model name is cached separately at module level.
 """
 
@@ -25,6 +23,7 @@ from __future__ import annotations
 import logging
 from typing import Optional, Tuple
 
+import numpy as np
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
@@ -35,8 +34,8 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 _MODEL_CACHE: dict[str, tuple[AutoTokenizer, AutoModelForCausalLM]] = {}
 
-# Default model
-DEFAULT_MODEL = "distilgpt2"
+# Default model (Modern CPU-friendly 2024 causal LM)
+DEFAULT_MODEL = "HuggingFaceTB/SmolLM2-135M"
 
 # Minimum token count below which we refuse to compute (signal is unreliable)
 _MIN_TOKENS = 20
@@ -45,12 +44,12 @@ _MIN_TOKENS = 20
 _TOP_K = 50
 
 
-def _load_model(model_name: str) -> Tuple[AutoTokenizer, AutoModelForCausalLM]:
+def _load_model(model_name: str = DEFAULT_MODEL) -> Tuple[AutoTokenizer, AutoModelForCausalLM]:
     """
     Load a causal LM tokenizer and model into the per-model cache.
 
     Args:
-        model_name: HuggingFace model identifier (e.g., "distilgpt2", "gpt2-medium").
+        model_name: HuggingFace model identifier (default: HuggingFaceTB/SmolLM2-135M).
 
     Returns:
         Tuple of (tokenizer, model), CPU-only, eval mode.
@@ -107,7 +106,7 @@ def get_curvature(
 
     Args:
         text: Non-empty string to evaluate.
-        model_name: HuggingFace causal LM identifier (default: "distilgpt2").
+        model_name: HuggingFace causal LM identifier (default: HuggingFaceTB/SmolLM2-135M).
         min_tokens: Minimum token threshold (default: 20).
         max_tokens: Maximum token ceiling (default: 512, ~350-400 words).
         mask_entities_and_quotes: Whether to mask out proper nouns and quotes (default: True).
@@ -190,12 +189,21 @@ def get_curvature(
 
         # 3. Discrepancy d(x) evaluated on unmasked tokens (fallback to all tokens if too few retained)
         if valid_mask.sum() >= 10:
-            observed_mean = observed_log_probs[valid_mask].mean().item()
-            expected_mean = expected_pos_log_probs[valid_mask].mean().item()
+            target_obs = observed_log_probs[valid_mask]
+            target_exp = expected_pos_log_probs[valid_mask]
         else:
-            observed_mean = observed_log_probs.mean().item()
-            expected_mean = expected_pos_log_probs.mean().item()
+            target_obs = observed_log_probs
+            target_exp = expected_pos_log_probs
 
-        discrepancy = observed_mean - expected_mean
+        token_deltas = (target_obs - target_exp).float().cpu().numpy()
+
+        # Robust bottom-trimmed mean: trim lowest 10% outliers caused by rare technical subwords / proper nouns
+        trim_pct = 0.10
+        k_trim = int(len(token_deltas) * trim_pct)
+        if k_trim > 0 and len(token_deltas) >= 15:
+            trimmed_deltas = np.sort(token_deltas)[k_trim:]
+            discrepancy = float(np.mean(trimmed_deltas))
+        else:
+            discrepancy = float(np.mean(token_deltas))
 
     return discrepancy

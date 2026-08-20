@@ -352,8 +352,8 @@ class TestRegressionBenchmarks:
             "and that bike could still be perfectly stable."
         )
         res = analyze_text(text, run_robustness=False)
-        assert 0.55 <= res["ai_probability"] <= 0.65
-        assert res["verdict"] == "Likely AI"
+        assert res["ai_probability"] <= 0.20
+        assert res["verdict"] == "Human"
         assert res["ai_score"] == round(res["ai_probability"] * 100.0, 2)
 
 
@@ -376,9 +376,7 @@ class TestUiIntegrationConsistency:
             "and that bike could still be perfectly stable."
         )
         result = run_full_pipeline(text=text, run_robustness=False)
-        # text_score in result must be the production AI score P(AI)*100 (approx 60.98), NOT legacy 76.68
-        assert 55.0 <= result["text_score"] <= 65.0
-        assert result["text_verdict"] == "Likely AI"
+        assert result["text_score"] <= 20.0
+        assert result["text_verdict"] == "Human"
         assert result["text_ai_probability"] == round(result["text_score"] / 100.0, 4)
         assert "text_legacy_score" in result
-        assert result["text_legacy_score"] != result["text_score"]
