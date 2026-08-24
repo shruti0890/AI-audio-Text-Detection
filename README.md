@@ -285,6 +285,8 @@ pytest audio_forensics/tests
 
 For deep technical details, mathematical formulations, and calibration benchmarks, refer to the in-repo documentation files:
 - 📖 [**INTEGRATION_MASTER_DOC.md**](INTEGRATION_MASTER_DOC.md): Unified integration architecture, data schemas, and Q&A reference.
+- 📖 [**TECHNICAL_ARCHITECTURE_AND_SYSTEM_EXPLAINER.md**](TECHNICAL_ARCHITECTURE_AND_SYSTEM_EXPLAINER.md): End-to-end technical system explainer and architectural reference.
+- 📖 [**EVALUATION_METRICS_AND_BENCHMARKS.md**](EVALUATION_METRICS_AND_BENCHMARKS.md): Performance benchmarks, ROC-AUC metrics, and test dataset evaluations.
 - 📖 [**AUDIO_CALIBRATION_PROTOCOL.md**](AUDIO_CALIBRATION_PROTOCOL.md): Audio feature calibration methodology and decision boundary tuning.
 - 📖 [**audio_forensics/EXPLAINER.md**](audio_forensics/EXPLAINER.md): Complete explainer on Wav2Vec2 model, VAD, ASR, and audio pipeline.
 - 📖 [**text_forensics/TEXT_FORENSICS_MASTER_DOC.md**](text_forensics/TEXT_FORENSICS_MASTER_DOC.md): Statistical formulas for curvature, burstiness, entropy, and logistic regression fusion.
